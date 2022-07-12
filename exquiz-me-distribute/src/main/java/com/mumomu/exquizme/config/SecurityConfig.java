@@ -1,4 +1,4 @@
-package com.mumomu.exquizmedistribute.config;
+package com.mumomu.exquizme.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -14,7 +14,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // hasRole -> 해당 역할 필요
         // 우리 프로젝트에는 ADMIN, HOST, ANONYMOUS만 있을듯 함
         http.authorizeRequests()
-                .mvcMatchers("/").permitAll()
+                .mvcMatchers("/","/room/**").permitAll()
                 .mvcMatchers("/user/**").hasRole("HOST")
                 .anyRequest().authenticated();
 

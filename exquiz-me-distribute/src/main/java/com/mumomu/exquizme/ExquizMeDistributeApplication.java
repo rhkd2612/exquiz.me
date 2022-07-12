@@ -1,4 +1,4 @@
-package com.mumomu.exquizmedistribute;
+package com.mumomu.exquizme;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

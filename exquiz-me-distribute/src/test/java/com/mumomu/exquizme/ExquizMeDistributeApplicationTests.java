@@ -1,4 +1,4 @@
-package com.mumomu.exquizmedistribute;
+package com.mumomu.exquizme;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
