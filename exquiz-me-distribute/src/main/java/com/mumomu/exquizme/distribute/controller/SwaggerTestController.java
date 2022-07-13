@@ -1,13 +1,14 @@
-package com.mumomu.exquizme;
+package com.mumomu.exquizme.distribute.controller;
 
 import io.swagger.annotations.*;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @Slf4j
 @RequestMapping("/swagger/api")
-@Api(tags={"API 정보를 제공하는 컨트롤러"})
+@Api(tags={"TEST - API 정보를 제공하는 컨트롤러"})
 public class SwaggerTestController {
     @GetMapping("/hello")
     public String hello(){

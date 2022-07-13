@@ -5,8 +5,28 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
+import java.util.UUID;
+
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+    private static final String[] AUTH_WHITELIST = {
+            // -- Swagger UI v2
+            "/v2/api-docs",
+            "/swagger-resources",
+            "/swagger-resources/**",
+            "/configuration/ui",
+            "/configuration/security",
+            "/swagger-ui.html",
+            "/webjars/**",
+            // -- Swagger UI v3 (OpenAPI)
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            // other public endpoints of your API may be appended to this array
+            // basic whitelist
+            "/",
+            "/room/**"
+    };
+
     @Override
     public void configure(HttpSecurity http) throws Exception {
         // 로그인 필요 페이지 등록
@@ -14,9 +34,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // hasRole -> 해당 역할 필요
         // 우리 프로젝트에는 ADMIN, HOST, ANONYMOUS만 있을듯 함
         http.authorizeRequests()
-                .mvcMatchers("/","/room/**").permitAll()
-                .mvcMatchers("/user/**").hasRole("HOST")
-                .anyRequest().authenticated();
+                        .antMatchers(AUTH_WHITELIST).permitAll()
+                        .anyRequest().authenticated();
+
+        //http.anonymous().authorities("ROLE_USER");
 
         // 로그인 페이지 지정, 미 지정 시 기본 페이지 등장
 //        http.formLogin()
