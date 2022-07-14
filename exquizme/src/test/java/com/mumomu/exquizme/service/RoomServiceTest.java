@@ -1,8 +1,8 @@
-package com.mumomu.exquizme.distribute.service;
+package com.mumomu.exquizme.service;
 
 import com.mumomu.exquizme.distribute.domain.Participant;
 import com.mumomu.exquizme.distribute.repository.RoomRepository;
-import org.junit.jupiter.api.Assertions;
+import com.mumomu.exquizme.distribute.service.RoomService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,8 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 class RoomServiceTest {
