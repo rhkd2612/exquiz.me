@@ -1,2 +1,2 @@
-# exquiz.me-distribute
+# exquiz.me
 
