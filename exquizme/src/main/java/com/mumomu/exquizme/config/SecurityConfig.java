@@ -24,7 +24,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             // other public endpoints of your API may be appended to this array
             // basic whitelist
             "/",
-            "/room/**"
+            "/room/**",
+            "/h2-console/**"
     };
 
     @Override
@@ -36,6 +37,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests()
                         .antMatchers(AUTH_WHITELIST).permitAll()
                         .anyRequest().authenticated();
+
+        //// H2 테스트 시 아래 두 줄 주석 해제해야 Spring Security가 H2를 차단 안함
+        //http.csrf().disable();
+        //http.headers().frameOptions().disable();
+
 
         //http.anonymous().authorities("ROLE_USER");
 
