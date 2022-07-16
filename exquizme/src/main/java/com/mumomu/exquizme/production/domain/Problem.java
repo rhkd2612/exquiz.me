@@ -60,4 +60,8 @@ public class Problem {
     //업데이트된 날짜
     @Column(name = "updated_at")
     private Date updatedAt;
+
+    //삭제 일자
+    @Column(name = "deleted_at")
+    private Date deletedAt;
 }

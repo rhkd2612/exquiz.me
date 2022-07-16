@@ -1,5 +1,6 @@
 package com.mumomu.exquizme.production.domain;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
@@ -12,7 +13,7 @@ import java.util.List;
 @Entity
 @Table(name = "host")
 @Builder
-@AllArgsConstructor @NoArgsConstructor
+@AllArgsConstructor @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Host {
     @Id
     @Column(name = "host_id")
@@ -34,13 +35,17 @@ public class Host {
     @Column(name = "nickname")
     private String nickname;
 
-    //가입일자
+    //가입 일자
     @Column(name = "created_at")
     private Date createdAt;
 
-    //탈퇴일자
+    //업데이트 일자
     @Column(name = "updated_at")
     private Date updatedAt;
+
+    //삭제 일자
+    @Column(name = "deleted_at")
+    private Date deletedAt;
 
     //프로필 사진
     @Column(name = "picture")

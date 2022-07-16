@@ -1,5 +1,6 @@
 package com.mumomu.exquizme.production.domain;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
@@ -9,7 +10,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "problem_option")
 @Builder
-@AllArgsConstructor @NoArgsConstructor
+@AllArgsConstructor @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProblemOption {
     @Id
     @Column(name = "problem_option_id")
