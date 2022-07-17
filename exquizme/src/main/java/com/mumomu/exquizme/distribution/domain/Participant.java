@@ -1,14 +1,11 @@
-package com.mumomu.exquizme.distribute.domain;
+package com.mumomu.exquizme.distribution.domain;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.stereotype.Service;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.servlet.http.Cookie;
-import java.util.UUID;
 
 @Entity
 @Getter @Setter

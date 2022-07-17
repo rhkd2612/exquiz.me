@@ -1,7 +1,6 @@
-package com.mumomu.exquizme.distribute.controller;
+package com.mumomu.exquizme.distribution.controller;
 
 import io.swagger.annotations.*;
-import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 

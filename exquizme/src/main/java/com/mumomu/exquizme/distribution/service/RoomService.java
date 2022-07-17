@@ -1,16 +1,15 @@
-package com.mumomu.exquizme.distribute.service;
+package com.mumomu.exquizme.distribution.service;
 
-import com.mumomu.exquizme.distribute.domain.Participant;
-import com.mumomu.exquizme.distribute.repository.ParticipantRepository;
-import com.mumomu.exquizme.distribute.repository.RoomRepository;
+import com.mumomu.exquizme.distribution.domain.Participant;
+import com.mumomu.exquizme.distribution.domain.Room;
+import com.mumomu.exquizme.distribution.repository.ParticipantRepository;
+import com.mumomu.exquizme.distribution.repository.RoomRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -22,9 +21,7 @@ public class RoomService {
 
     @Transactional
     public Participant join(Participant participant){
-        System.out.println(participant.getUuid());
         List<Participant> findParticipant = participantRepository.findByUuid(participant.getUuid());
-        System.out.println(findParticipant);
 
         if(findParticipant.isEmpty()) {
             participantRepository.save(participant);
@@ -34,5 +31,14 @@ public class RoomService {
         }
 
         return participant;
+    }
+
+    public Room findRoom(Long roomId){
+        log.info("Find room(room id : " + roomId + ")");
+        Room room = roomRepository.findRoomById(roomId);
+
+        if(room == null)
+            throw new RuntimeException("존재하지 않는 방입니다");
+        return room;
     }
 }

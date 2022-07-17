@@ -1,8 +1,8 @@
 package com.mumomu.exquizme.service;
 
-import com.mumomu.exquizme.distribute.domain.Participant;
-import com.mumomu.exquizme.distribute.repository.RoomRepository;
-import com.mumomu.exquizme.distribute.service.RoomService;
+import com.mumomu.exquizme.distribution.domain.Participant;
+import com.mumomu.exquizme.distribution.repository.RoomRepository;
+import com.mumomu.exquizme.distribution.service.RoomService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

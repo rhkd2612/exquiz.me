@@ -1,4 +1,4 @@
-package com.mumomu.exquizme.distribute.domain;
+package com.mumomu.exquizme.distribution.domain;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
