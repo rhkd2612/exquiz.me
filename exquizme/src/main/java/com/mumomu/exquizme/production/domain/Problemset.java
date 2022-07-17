@@ -1,5 +1,6 @@
 package com.mumomu.exquizme.production.domain;
 
+import com.mumomu.exquizme.distribution.domain.Room;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,8 +27,12 @@ public class Problemset {
     private Host host;
 
     //Problem 목록
-    @OneToMany(mappedBy = "problemset")
+    @OneToMany(mappedBy = "problemset", fetch = FetchType.LAZY)
     private List<Problem> problems;
+
+    //Room 목록
+    @OneToMany(mappedBy = "problemset", fetch = FetchType.LAZY)
+    private List<Room> rooms;
 
     //태그 목록
     @OneToMany(mappedBy = "problemset")

@@ -3,6 +3,7 @@ package com.mumomu.exquizme.service;
 import com.mumomu.exquizme.distribution.domain.Participant;
 import com.mumomu.exquizme.distribution.repository.RoomRepository;
 import com.mumomu.exquizme.distribution.service.RoomService;
+import com.mumomu.exquizme.production.domain.Problem;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -25,11 +26,8 @@ class RoomServiceTest {
     @Test
     @Transactional
     public void anonymousConnect(){
-        Participant participant = new Participant();
-        participant.setName("test");
-        participant.setNickname("tester");
-        participant.setUuid(UUID.randomUUID().toString());
-
+        Participant participant =
+                Participant.builder().name("test").nickname("tester").uuid(UUID.randomUUID().toString()).build();
         Participant anonymous = roomService.join(participant);
         assertThat(anonymous).isEqualTo(participant);
     }
@@ -37,10 +35,8 @@ class RoomServiceTest {
     @Test
     @Transactional
     public void anonymousConnectTwice(){
-        Participant participant = new Participant();
-        participant.setName("test");
-        participant.setNickname("tester");
-        participant.setUuid(UUID.randomUUID().toString());
+        Participant participant =
+                Participant.builder().name("test").nickname("tester").uuid(UUID.randomUUID().toString()).build();
 
         Participant anonymous = roomService.join(participant);
         Participant anonymous2 = roomService.join(anonymous);
@@ -51,15 +47,11 @@ class RoomServiceTest {
     @Test
     @Transactional
     public void twoAnonymousConnect(){
-        Participant participant = new Participant();
-        participant.setName("test");
-        participant.setNickname("tester");
-        participant.setUuid(UUID.randomUUID().toString());
+        Participant participant =
+                Participant.builder().name("test").nickname("tester").uuid(UUID.randomUUID().toString()).build();
 
-        Participant participant2 = new Participant();
-        participant.setName("test2");
-        participant.setNickname("tester2");
-        participant.setUuid(UUID.randomUUID().toString());
+        Participant participant2 =
+                Participant.builder().name("test2").nickname("tester2").uuid(UUID.randomUUID().toString()).build();
 
         Participant anonymous = roomService.join(participant);
         Participant anonymous2 = roomService.join(participant2);

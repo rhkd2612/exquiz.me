@@ -37,8 +37,8 @@ public class RoomService {
         log.info("Find room(room id : " + roomId + ")");
         Room room = roomRepository.findRoomById(roomId);
 
-        if(room == null)
-            throw new RuntimeException("존재하지 않는 방입니다");
+//        if(room == null)
+//            throw new RuntimeException("존재하지 않는 방입니다");
         return room;
     }
 }

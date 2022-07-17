@@ -52,9 +52,8 @@ public class RoomController {
         if(targetRoom == null)
             return null; // TODO 오류 메시지 창 필요
 
-        Participant participant = new Participant();
-        participant.setName(name);
-        participant.setNickname(nickname); // TODO 비속어 필터 필요
+        Participant participant =
+                Participant.builder().name(name).nickname(nickname).build();
 
         if (anonymousCode.equals("")) {
             Cookie anonymousCookie = Room.setAnonymousCookie();
