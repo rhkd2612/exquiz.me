@@ -27,7 +27,6 @@ class PariticipantSessionTest {
         em.flush();
         em.clear();
 
-
         ParticipantSessionKey participantSessionKey = new ParticipantSessionKey();
         participantSessionKey.setParticipant_id(1L);
         participantSessionKey.setRoom_id(123453L);

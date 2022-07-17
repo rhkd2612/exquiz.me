@@ -9,8 +9,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-@Entity
-@Getter @Builder
+@Entity @Getter @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Room {

@@ -3,7 +3,7 @@ package com.mumomu.exquizme.distribution.controller;
 import com.mumomu.exquizme.distribution.domain.Participant;
 import com.mumomu.exquizme.distribution.domain.Room;
 import com.mumomu.exquizme.distribution.service.RoomService;
-import com.mumomu.exquizme.distribution.web.ParticipateForm;
+import com.mumomu.exquizme.distribution.web.model.ParticipateForm;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -32,7 +32,7 @@ public class RoomController {
 
     // 퀴즈방 입장
     // TODO 임시로 defaultValue를 넣어둠 -> 나중에 지워야함
-    // TODO Cookie에 관한 수정이 필요함
+    // TODO Cookie에 관한 수정이 필요함 + WebSocket 사용 시 쿠키가 필요없어질수도..?
     // TODO 다른 방 코드에 들어갔을 경우 존재하는 방인지에 대한 인증 + 기존에 있던 쿠키 삭제 필요
     @GetMapping("/room/{roomId}")
     @ResponseBody
@@ -41,19 +41,21 @@ public class RoomController {
             @ApiImplicitParam(name = "nickname", value = "익명사용자 닉네임", required = true, dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "name", value = "익명사용자 이름", required = true, dataType = "String", paramType = "query"),
     })
-    @Parameter(name = "cookie(anonymousCode)", description = "방 재입장에 필요한 쿠키", in = ParameterIn.COOKIE)
     @Operation(summary = "익명사용자 방 입장", description = "닉네임(nickname)과 이름(name) 입력 후 방에 입장합니다.")
     @ApiResponse(responseCode = "200", description = "방 입장 성공")
     public Participant participateRoom(@PathVariable long roomId, Model model, HttpServletResponse response,
-                                       @RequestParam(defaultValue = "asd") String nickname, @RequestParam(defaultValue = "이상빈") String name,
+                                       @ModelAttribute @Valid ParticipateForm participateForm, BindingResult bindingResult,
                                        @CookieValue(name = "anonymousCode", defaultValue = "") String anonymousCode) {
         Room targetRoom = roomService.findRoom(roomId);
 
-        if(targetRoom == null)
-            return null; // TODO 오류 메시지 창 필요
+        // 1. Validation
+        // 현재는 방 등록이 없으므로 주석
+//        if(targetRoom == null)
+//            return null; // TODO 오류 메시지 창 필요
 
+        // 2. Business Logic
         Participant participant =
-                Participant.builder().name(name).nickname(nickname).build();
+                Participant.builder().name(participateForm.getName()).nickname(participateForm.getNickname()).build();
 
         if (anonymousCode.equals("")) {
             Cookie anonymousCookie = Room.setAnonymousCookie();
@@ -62,6 +64,8 @@ public class RoomController {
         } else
             participant.setUuid(anonymousCode);
 
+
+        // 3. Make Response
         model.addAttribute("roomId", roomId);
 
         return roomService.join(participant);
