@@ -15,6 +15,5 @@ public class MultipleChoiceProblem extends Problem {
     @OneToMany(mappedBy = "problem")
     private List<ProblemOption> problemOptions = new ArrayList<>();
 
-    //몇 번째 선택지가 답인지
-    private Integer answer;
+    private Integer answer; //몇 번째 선택지가 답인지
 }

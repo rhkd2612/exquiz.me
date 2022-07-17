@@ -21,6 +21,5 @@ public class ProblemsetTag {
     @JoinColumn(name = "problemset_id")
     private Problemset problemset;
 
-    @Column(name = "tag_name")
     private String tagName;
 }
