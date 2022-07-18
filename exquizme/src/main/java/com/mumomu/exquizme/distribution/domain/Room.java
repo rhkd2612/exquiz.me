@@ -1,5 +1,6 @@
 package com.mumomu.exquizme.distribution.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mumomu.exquizme.production.domain.Problemset;
 import lombok.*;
 
@@ -30,6 +31,7 @@ public class Room {
     @JoinColumn(name="problemset_id")
     private Problemset problemset;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
     private List<Participant> participants;
 
