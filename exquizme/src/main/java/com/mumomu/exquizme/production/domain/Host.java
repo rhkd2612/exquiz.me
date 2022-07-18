@@ -61,4 +61,6 @@ public class Host {
     //삭제 여부
     @Column(name = "deleted")
     private Boolean deleted;
+
+
 }

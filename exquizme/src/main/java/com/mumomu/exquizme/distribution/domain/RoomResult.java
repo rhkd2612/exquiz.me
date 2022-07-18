@@ -1,7 +1,5 @@
 package com.mumomu.exquizme.distribution.domain;
 
-import com.mumomu.exquizme.distribution.domain.key.ParticipantSessionKey;
-import com.mumomu.exquizme.distribution.domain.key.RoomResultKey;
 import lombok.*;
 
 import javax.persistence.*;
@@ -9,16 +7,12 @@ import javax.persistence.*;
 @Entity @Getter @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@IdClass(RoomResultKey.class)
 public class RoomResult {
     @Id
-    private Long participant_id;
-    @Id
-    private Long room_id;
-    @Id
-    private Long problem_id;
+    @Column(name="room_id", nullable = false)
+    private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="room_id", updatable = false, insertable = false)
+    @MapsId @JoinColumn(name="room_id")
     private Room room;
 }

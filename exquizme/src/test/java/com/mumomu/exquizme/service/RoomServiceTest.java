@@ -28,7 +28,7 @@ class RoomServiceTest {
     public void anonymousConnect(){
         Participant participant =
                 Participant.builder().name("test").nickname("tester").uuid(UUID.randomUUID().toString()).build();
-        Participant anonymous = roomService.join(participant);
+        Participant anonymous = roomService.joinParticipant(participant);
         assertThat(anonymous).isEqualTo(participant);
     }
 
@@ -38,8 +38,8 @@ class RoomServiceTest {
         Participant participant =
                 Participant.builder().name("test").nickname("tester").uuid(UUID.randomUUID().toString()).build();
 
-        Participant anonymous = roomService.join(participant);
-        Participant anonymous2 = roomService.join(anonymous);
+        Participant anonymous = roomService.joinParticipant(participant);
+        Participant anonymous2 = roomService.joinParticipant(anonymous);
         assertThat(anonymous).isEqualTo(anonymous2);
         assertThat(participant).isEqualTo(anonymous2);
     }
@@ -53,8 +53,8 @@ class RoomServiceTest {
         Participant participant2 =
                 Participant.builder().name("test2").nickname("tester2").uuid(UUID.randomUUID().toString()).build();
 
-        Participant anonymous = roomService.join(participant);
-        Participant anonymous2 = roomService.join(participant2);
+        Participant anonymous = roomService.joinParticipant(participant);
+        Participant anonymous2 = roomService.joinParticipant(participant2);
 
         assertThat(anonymous).isEqualTo(participant);
         assertThat(anonymous2).isEqualTo(participant2);

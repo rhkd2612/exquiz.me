@@ -17,7 +17,7 @@ public class Room {
     @Column(name = "room_id")
     private Long id;
 
-    private int pin;
+    private long pin;
     private int maxParticipantCount; // 최대 참여자 수
     private Date startDate;
     private Date endDate;
