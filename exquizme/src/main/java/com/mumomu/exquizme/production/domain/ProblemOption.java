@@ -21,19 +21,10 @@ public class ProblemOption {
     @JoinColumn(name = "problem_id")
     private Problem problem;
 
-    //몇 번째 선택지인지
-    @Column(name = "option_number")
-    private Integer optionNumber;
+    private Integer optionNumber; //몇 번째 선택지인지
 
-    //선택지 설명
-    @Column(name = "description")
     private String description;
-
-    //선택지 그림
-    @Column(name = "picture")
     private String picture;
 
-    //몇 번 골라졌는지(통계 제공용)
-    @Column(name = "pickcount")
-    private Integer pickcount;
+    private Integer pickcount; //몇 번 골라졌는지(통계 제공용)
 }

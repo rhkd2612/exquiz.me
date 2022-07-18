@@ -20,47 +20,19 @@ public class Host {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    //자신의 문제 목록
     @OneToMany(mappedBy = "host")
-    private List<Problemset> problemSets = new ArrayList<>();
+    private List<Problemset> problemSets = new ArrayList<>(); //자신의 문제 목록
 
-    //이름
-    @Column(name = "name")
     private String name;
-
-    @Column(name = "phone_number")
     private String phoneNumber; //000-0000-0000
-
-    //닉네임
-    @Column(name = "nickname")
     private String nickname;
 
-    //가입 일자
-    @Column(name = "created_at")
     private Date createdAt;
-
-    //업데이트 일자
-    @Column(name = "updated_at")
     private Date updatedAt;
-
-    //삭제 일자
-    @Column(name = "deleted_at")
     private Date deletedAt;
-
-    //프로필 사진
-    @Column(name = "picture")
-    private String picture;
-
-    //성별
-    @Column(name = "sex")
-    private Character sex; //'M', 'F'
-
-    @Column(name = "email")
-    private String email;
-
-    //삭제 여부
-    @Column(name = "deleted")
     private Boolean deleted;
 
-
+    private String picture;
+    private Character sex; //'M', 'F'
+    private String email;
 }
