@@ -41,7 +41,7 @@ public class RoomRestController {
     private final RoomService roomService;
 
     // 퀴즈방 생성(임시)
-    @GetMapping("/newRoom")
+    @PostMapping("/newRoom")
     public ResponseEntity<?> newRoom(){
         Room room = roomService.newRoom();
         RoomDto createRoomDto = new RoomDto(room);
@@ -61,12 +61,16 @@ public class RoomRestController {
     @ApiResponse(responseCode = "401", description = "방 입장 실패(사용자 정보 입력 필요 -> 사용자 이름/닉네임 등록 씬으로 입장)")
     public ResponseEntity<?> joinRoom(@PathVariable long roomPin, Model model, HttpServletResponse response,
                                       @CookieValue(name = "anonymousCode", defaultValue = "") String anonymousCode) {
-        Room targetRoom = roomService.findRoomByPin(roomPin);
+
         // 1. Validation
+
+
+        // 2. Business Logic
+        Room targetRoom = roomService.findRoomByPin(roomPin);
+
         if (targetRoom == null && targetRoom.getCurrentState() != RoomState.FINISH)
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
 
-        // 2. Business Logic
         RoomDto targetRoomDto = new RoomDto(targetRoom);
 
         // 3. Make Response
@@ -102,8 +106,9 @@ public class RoomRestController {
     @ApiResponse(responseCode = "400", description = "이름 혹은 닉네임 불충분 혹은 부적절, 존재하지 않는 방 코드 입력")
     public ResponseEntity<?> signUpParticipant(@PathVariable long roomPin, @RequestBody ParticipantForm participateForm,
                                                BindingResult bindingResult, HttpServletResponse response) {
-        log.info("create new Participant");
         // 1. Validation
+
+        // 2. Business Logic
         if(bindingResult.hasErrors()){
             log.info("errors = {}", bindingResult);
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
@@ -113,8 +118,6 @@ public class RoomRestController {
 
         if (targetRoom == null && targetRoom.getCurrentState() != RoomState.FINISH)
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-
-        // 2. Business Logic
 
         // 3. Make Response
         Cookie anonymousCookie = Room.setAnonymousCookie();
