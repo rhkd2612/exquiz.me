@@ -18,6 +18,7 @@ import net.bytebuddy.TypeCache;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
@@ -42,10 +43,18 @@ public class RoomRestController {
 
     // 퀴즈방 생성(임시)
     @PostMapping("/newRoom")
+    @Operation(summary = "퀴즈방 생성", description = "새로운 방을 생성합니다(사용자 인증 정보 요구 예정)")
+    @ApiResponse(responseCode = "201", description = "방 생성 성공")
+    @ApiResponse(responseCode = "504", description = "방 생성 실패, 시간 초과(다시 시도 권유)")
     public ResponseEntity<?> newRoom(){
-        Room room = roomService.newRoom();
-        RoomDto createRoomDto = new RoomDto(room);
-        return ResponseEntity.ok(createRoomDto);
+        try {
+            Room room = roomService.newRoom();
+            RoomDto createRoomDto = new RoomDto(room);
+            return new ResponseEntity(createRoomDto, HttpStatus.CREATED);
+        }catch(RuntimeException e){
+            log.info(e.getMessage());
+            return new ResponseEntity<>(null, HttpStatus.GATEWAY_TIMEOUT); // 504 GATEWAY TIMEOUT 방을 생성하는데 너무 오래걸림
+        }
     }
 
     // 퀴즈방 입장
@@ -54,12 +63,12 @@ public class RoomRestController {
     // TODO 다른 방 코드에 들어갔을 경우 존재하는 방인지에 대한 인증 + 기존에 있던 쿠키 삭제 필요
     // TODO Swagger변경 + API 테스트 필요
     @GetMapping("/room/{roomPin}")
-    @ApiImplicitParam(name = "roomPin", value = "방의 핀번호(Path)", required = true, dataType = "long", paramType = "path")
+    @ApiImplicitParam(name = "roomPin", value = "방의 핀번호(Path)", required = true, dataType = "String", paramType = "path")
     @Operation(summary = "퀴즈방 조회", description = "쿠키가 있는지 확인 후 존재 시 방 입장, 미 존재 시 등록 화면으로 이동합니다.")
     @ApiResponse(responseCode = "200", description = "방 입장 성공(기존 쿠키 정보를 토대로 입장)")
     @ApiResponse(responseCode = "400", description = "존재하지 않은 방 코드 입력")
     @ApiResponse(responseCode = "401", description = "방 입장 실패(사용자 정보 입력 필요 -> 사용자 이름/닉네임 등록 씬으로 입장)")
-    public ResponseEntity<?> joinRoom(@PathVariable long roomPin, Model model, HttpServletResponse response,
+    public ResponseEntity<?> joinRoom(@PathVariable String roomPin, Model model, HttpServletResponse response,
                                       @CookieValue(name = "anonymousCode", defaultValue = "") String anonymousCode) {
 
         // 1. Validation
@@ -97,14 +106,12 @@ public class RoomRestController {
 
     @PostMapping("/{roomPin}/signup")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "roomPin", value = "방의 핀번호(Path)", required = true, dataType = "long", paramType = "path"),
-            @ApiImplicitParam(name = "nickname", value = "익명사용자 닉네임", required = true, dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "name", value = "익명사용자 이름", required = true, dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "roomPin", value = "방의 핀번호(Path)", required = true, dataType = "String", paramType = "path"),
     })
     @Operation(summary = "익명사용자 정보 등록 후 방 입장", description = "닉네임(nickname)과 이름(name) 입력 후 방에 입장합니다.")
     @ApiResponse(responseCode = "201", description = "유저 생성 성공 -> 방 입장, 사용자 정보 포함")
     @ApiResponse(responseCode = "400", description = "이름 혹은 닉네임 불충분 혹은 부적절, 존재하지 않는 방 코드 입력")
-    public ResponseEntity<?> signUpParticipant(@PathVariable long roomPin, @RequestBody ParticipantForm participateForm,
+    public ResponseEntity<?> signUpParticipant(@PathVariable String roomPin, @RequestBody ParticipantForm participateForm,
                                                BindingResult bindingResult, HttpServletResponse response) {
         // 1. Validation
 
@@ -133,11 +140,11 @@ public class RoomRestController {
 
     // TODO Pageable 적용해야함.. 왠지 모르겠는데 오류남
     @GetMapping("/{roomPin}/participants")
-    @ApiImplicitParam(name = "roomPin", value = "방의 핀번호(Path)", required = true, dataType = "long", paramType = "path")
+    @ApiImplicitParam(name = "roomPin", value = "방의 핀번호(Path)", required = true, dataType = "String", paramType = "path")
     @Operation(summary = "방 참여자 목록 조회", description = "해당 방에 참여한 참여자 목록을 조회합니다.")
     @ApiResponse(responseCode = "200", description = "참여자 목록 조회 성공!")
     @ApiResponse(responseCode = "400", description = "존재하지 않는 방 코드 입력")
-    public ResponseEntity<List<ParticipantDto>> printParticipants(@PathVariable long roomPin){
+    public ResponseEntity<List<ParticipantDto>> printParticipants(@PathVariable String roomPin){
         Room targetRoom = roomService.findRoomByPin(roomPin);
 
         if (targetRoom == null && targetRoom.getCurrentState() != RoomState.FINISH)
