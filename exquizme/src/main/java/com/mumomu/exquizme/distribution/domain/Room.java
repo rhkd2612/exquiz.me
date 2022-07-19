@@ -18,7 +18,7 @@ public class Room {
     @Column(name = "room_id")
     private Long id;
 
-    private long pin;
+    private String pin;
     private int maxParticipantCount; // 최대 참여자 수
     private Date startDate;
     private Date endDate;
@@ -41,5 +41,10 @@ public class Room {
         anonymousCookie.setComment("사용자 구분 코드");
         anonymousCookie.setMaxAge(60 * 60 * 3); // 쿠키 지속 시간
         return anonymousCookie;
+    }
+
+    public void closeRoom(){
+        endDate = new Date();
+        pin = endDate.toString() + pin;
     }
 }

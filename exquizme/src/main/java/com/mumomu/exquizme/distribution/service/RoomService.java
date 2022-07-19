@@ -8,6 +8,7 @@ import com.mumomu.exquizme.distribution.repository.RoomRepository;
 import com.mumomu.exquizme.distribution.web.dto.ParticipantDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +25,13 @@ public class RoomService {
     private final RoomRepository roomRepository;
     private final ParticipantRepository participantRepository;
 
-    private Map<Integer, Room> existRoomCheckMap = new HashMap<>();
+    // application-XXX.yml 파일 local-100000 prod-100000, test-100000
+    @Value("${min.pin.value}")
+    private String MIN_PIN_VALUE;
+
+    // application-XXX.yml 파일 local-100500 prod-999999, test-100005
+    @Value("${max.pin.value}")
+    private String MAX_PIN_VALUE;
 
     @Transactional
     public Participant joinParticipant(Participant participant){
@@ -43,23 +50,34 @@ public class RoomService {
 
     @Transactional
     public Room newRoom(){
-        //100000 ~ 999999 랜덤 숫자 생성
-        int randomPin = (int)(Math.random() * 900000) + 100000;
-        Room target = existRoomCheckMap.get(randomPin);
+        String randomPin;
+        Optional<Room> targetRoom;
+        int retryCount = 5; // 최대 try 횟수, 무한 루프 방지
 
-        while(target != null || randomPin == 1000000){
-            randomPin = (int)(Math.random() * 900000) + 100000;
+        do{
+            randomPin = getRandomPin(); //MIN_PIN_RANGE ~ MAX_PIN_RANGE 랜덤 숫자 생성
+            targetRoom = roomRepository.findRoomByPin(randomPin);
+            retryCount--;
+        }
+        while(!targetRoom.isEmpty() && retryCount > 0);
 
-            if(target != null && target.getCurrentState() == RoomState.FINISH)
-                break;
+        if(retryCount == 0){
+            throw new RuntimeException("다시 시도 해주세요.");
         }
 
         Room room = Room.builder().pin(randomPin).build();
-
-        existRoomCheckMap.put(randomPin, room);
         log.info("random Pin is {}",randomPin);
 
         return roomRepository.save(room);
+    }
+
+    private String getRandomPin() {
+        System.out.println(MIN_PIN_VALUE + ' ' + MAX_PIN_VALUE);
+
+        int max = Integer.valueOf(MAX_PIN_VALUE);
+        int min = Integer.valueOf(MIN_PIN_VALUE);
+
+        return Integer.toString((int) (Math.random() * (max - min)) + min);
     }
 
     public Participant findParticipant(String uuid){
@@ -76,7 +94,7 @@ public class RoomService {
         return room;
     }
 
-    public Room findRoomByPin(Long roomPin){
+    public Room findRoomByPin(String roomPin){
         log.info("Find room(room id : " + roomPin + ")");
         Room room = roomRepository.findRoomByPin(roomPin).get();
 
@@ -86,7 +104,7 @@ public class RoomService {
     }
 
     @Transactional
-    public List<ParticipantDto> findParticipantsByRoomPin(Long roomPin){
+    public List<ParticipantDto> findParticipantsByRoomPin(String roomPin){
         Room room = roomRepository.findRoomByPin(roomPin).get();
         return participantRepository.findAllByRoom(room).stream().map(p -> new ParticipantDto(p)).collect(Collectors.toList());
     }
