@@ -2,18 +2,15 @@ package com.mumomu.exquizme.distribution.service;
 
 import com.mumomu.exquizme.distribution.domain.Participant;
 import com.mumomu.exquizme.distribution.domain.Room;
-import com.mumomu.exquizme.distribution.domain.RoomState;
 import com.mumomu.exquizme.distribution.repository.ParticipantRepository;
 import com.mumomu.exquizme.distribution.repository.RoomRepository;
 import com.mumomu.exquizme.distribution.web.dto.ParticipantDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.awt.print.Pageable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -82,25 +79,30 @@ public class RoomService {
 
     public Participant findParticipant(String uuid){
         Optional<Participant> findParticipant = participantRepository.findByUuid(uuid);
+
+        if(findParticipant.isEmpty())
+            throw new NullPointerException("존재하지 않는 참가자입니다.");
+
         return findParticipant.get();
     }
 
     public Room findRoomById(Long roomId){
-        log.info("Find room(room id : " + roomId + ")");
-        Room room = roomRepository.findRoomById(roomId).get();
+        Optional<Room> room = roomRepository.findRoomById(roomId);
 
-//        if(room == null)
-//            throw new RuntimeException("존재하지 않는 방입니다");
-        return room;
+        if(room.isEmpty())
+            throw new NullPointerException("존재하지 않는 방입니다.");
+
+        return roomRepository.findRoomById(roomId).get();
     }
 
     public Room findRoomByPin(String roomPin){
         log.info("Find room(room id : " + roomPin + ")");
-        Room room = roomRepository.findRoomByPin(roomPin).get();
+        Optional<Room> optRoom = roomRepository.findRoomByPin(roomPin);
 
-//        if(room == null)
-//            throw new RuntimeException("존재하지 않는 방입니다");
-        return room;
+        if(optRoom.isEmpty())
+            throw new NullPointerException("존재하지 않는 방입니다.");
+
+        return optRoom.get();
     }
 
     @Transactional
