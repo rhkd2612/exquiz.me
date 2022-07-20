@@ -103,4 +103,26 @@ class RoomServiceTest {
         assertThat(roomService.findParticipantsByRoomPin(room.getPin()).size()).isEqualTo(2);
         assertThat(roomService.findParticipantsByRoomPin(room2.getPin()).size()).isEqualTo(1);
     }
+
+    @Test
+    @Transactional
+    void 방삭제(){
+        Room room = roomService.newRoom();
+        String pin = room.getPin();
+
+        Room roomByPin = roomService.closeRoomByPin(pin);
+    }
+
+    @Test
+    @Transactional
+    void 방삭제후재삭제(){
+        Room room = roomService.newRoom();
+        String pin = room.getPin();
+
+        Room roomByPin = roomService.closeRoomByPin(pin);
+
+        assertThrows(NullPointerException.class, ()-> {
+            Room roomByPin2 = roomService.findRoomByPin(pin);
+        });
+    }
 }

@@ -33,28 +33,49 @@ import java.util.UUID;
 public class RoomRestController {
     private final RoomService roomService;
 
-    // 퀴즈방 생성(임시)
+    // 퀴즈방 생성
     @PostMapping("/newRoom")
     @Operation(summary = "퀴즈방 생성", description = "새로운 방을 생성합니다(사용자 인증 정보 요구 예정)")
     @ApiResponse(responseCode = "201", description = "방 생성 성공")
-    @ApiResponse(responseCode = "504", description = "방 생성 실패, 시간 초과(다시 시도 권유)")
+    @ApiResponse(responseCode = "500", description = "방 생성 실패, 시간 초과(다시 시도 권유)")
     public ResponseEntity<?> newRoom(){
+        // 1. Validation
         try {
+            // 2. Business Logic
             Room room = roomService.newRoom();
             RoomDto createRoomDto = new RoomDto(room);
+            // 3. Make Response
             return new ResponseEntity(createRoomDto, HttpStatus.CREATED);
         }catch(RuntimeException e){
             log.info(e.getMessage());
-            return new ResponseEntity<>(null, HttpStatus.GATEWAY_TIMEOUT); // 504 GATEWAY TIMEOUT 방을 생성하는데 너무 오래걸림
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    //퀴즈방 폐쇄
+    // TODO 도메인에 핀번호가 먼저와도 되나?
+    // pin번호만 보내면 되서 patch mapping을 안해도 되지 않을까? 여쭤봐야될 것 같다
+    @PostMapping("/{roomPin}/close")
+    public ResponseEntity<?> closeRoom(@PathVariable String roomPin){
+        // 1. Validation
+
+        try{
+            // 2. Business Logic
+            Room room = roomService.closeRoomByPin(roomPin);
+            RoomDto createRoomDto = new RoomDto(room);
+
+            // 3. Make Response
+            return new ResponseEntity(createRoomDto, HttpStatus.ACCEPTED);
+        } catch(NullPointerException e){
+            log.info(e.getMessage());
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
 
     // 퀴즈방 입장
-    // TODO 임시로 defaultValue를 넣어둠 -> 나중에 지워야함
     // TODO Cookie에 관한 수정이 필요함 + WebSocket 사용 시 쿠키가 필요없어질수도..?
-    // TODO 다른 방 코드에 들어갔을 경우 존재하는 방인지에 대한 인증 + 기존에 있던 쿠키 삭제 필요
     // TODO Swagger변경 + API 테스트 필요
-    @GetMapping("/room/{roomPin}")
+    @GetMapping("/{roomPin}")
     @ApiImplicitParam(name = "roomPin", value = "방의 핀번호(Path)", required = true, dataType = "String", paramType = "path")
     @Operation(summary = "퀴즈방 조회", description = "쿠키가 있는지 확인 후 존재 시 방 입장, 미 존재 시 등록 화면으로 이동합니다.")
     @ApiResponse(responseCode = "200", description = "방 입장 성공(기존 쿠키 정보를 토대로 입장)")

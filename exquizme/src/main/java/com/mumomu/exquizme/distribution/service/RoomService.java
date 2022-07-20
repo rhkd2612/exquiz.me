@@ -106,6 +106,19 @@ public class RoomService {
     }
 
     @Transactional
+    public Room closeRoomByPin(String roomPin){
+        Optional<Room> optRoom = roomRepository.findRoomByPin(roomPin);
+
+        if(optRoom.isEmpty())
+            throw new NullPointerException("존재하지 않는 방입니다.");
+
+        Room targetRoom = optRoom.get();
+        targetRoom.closeRoom();
+
+        return targetRoom;
+    }
+
+    @Transactional
     public List<ParticipantDto> findParticipantsByRoomPin(String roomPin){
         Room room = roomRepository.findRoomByPin(roomPin).get();
         return participantRepository.findAllByRoom(room).stream().map(p -> new ParticipantDto(p)).collect(Collectors.toList());
