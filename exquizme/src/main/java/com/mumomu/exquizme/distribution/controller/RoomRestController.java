@@ -14,11 +14,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.bytebuddy.TypeCache;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
@@ -26,10 +21,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-import java.awt.print.Pageable;
 import java.util.List;
 import java.util.UUID;
 
@@ -41,28 +33,52 @@ import java.util.UUID;
 public class RoomRestController {
     private final RoomService roomService;
 
-    // 퀴즈방 생성(임시)
+    // 퀴즈방 생성
     @PostMapping("/newRoom")
     @Operation(summary = "퀴즈방 생성", description = "새로운 방을 생성합니다(사용자 인증 정보 요구 예정)")
     @ApiResponse(responseCode = "201", description = "방 생성 성공")
-    @ApiResponse(responseCode = "504", description = "방 생성 실패, 시간 초과(다시 시도 권유)")
+    @ApiResponse(responseCode = "500", description = "방 생성 실패, 시간 초과(다시 시도 권유)")
     public ResponseEntity<?> newRoom(){
+        // 1. Validation
         try {
+            // 2. Business Logic
             Room room = roomService.newRoom();
             RoomDto createRoomDto = new RoomDto(room);
+            // 3. Make Response
             return new ResponseEntity(createRoomDto, HttpStatus.CREATED);
         }catch(RuntimeException e){
             log.info(e.getMessage());
-            return new ResponseEntity<>(null, HttpStatus.GATEWAY_TIMEOUT); // 504 GATEWAY TIMEOUT 방을 생성하는데 너무 오래걸림
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    //퀴즈방 폐쇄
+    // TODO 도메인에 핀번호가 먼저와도 되나?
+    // pin번호만 보내면 되서 patch mapping을 안해도 되지 않을까? 여쭤봐야될 것 같다
+    @PostMapping("/{roomPin}/close")
+    @Operation(summary = "퀴즈방 삭제", description = "기존 방을 삭제합니다(DB에선 삭제되지 않고 PIN 변경)")
+    @ApiResponse(responseCode = "202", description = "방 삭제 성공")
+    @ApiResponse(responseCode = "400", description = "존재하지 않는 방 삭제 시도")
+    public ResponseEntity<?> closeRoom(@PathVariable String roomPin){
+        // 1. Validation
+
+        try{
+            // 2. Business Logic
+            Room room = roomService.closeRoomByPin(roomPin);
+            RoomDto createRoomDto = new RoomDto(room);
+
+            // 3. Make Response
+            return new ResponseEntity(createRoomDto, HttpStatus.ACCEPTED);
+        } catch(NullPointerException e){
+            log.info(e.getMessage());
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
 
     // 퀴즈방 입장
-    // TODO 임시로 defaultValue를 넣어둠 -> 나중에 지워야함
     // TODO Cookie에 관한 수정이 필요함 + WebSocket 사용 시 쿠키가 필요없어질수도..?
-    // TODO 다른 방 코드에 들어갔을 경우 존재하는 방인지에 대한 인증 + 기존에 있던 쿠키 삭제 필요
     // TODO Swagger변경 + API 테스트 필요
-    @GetMapping("/room/{roomPin}")
+    @GetMapping("/{roomPin}")
     @ApiImplicitParam(name = "roomPin", value = "방의 핀번호(Path)", required = true, dataType = "String", paramType = "path")
     @Operation(summary = "퀴즈방 조회", description = "쿠키가 있는지 확인 후 존재 시 방 입장, 미 존재 시 등록 화면으로 이동합니다.")
     @ApiResponse(responseCode = "200", description = "방 입장 성공(기존 쿠키 정보를 토대로 입장)")
@@ -70,32 +86,31 @@ public class RoomRestController {
     @ApiResponse(responseCode = "401", description = "방 입장 실패(사용자 정보 입력 필요 -> 사용자 이름/닉네임 등록 씬으로 입장)")
     public ResponseEntity<?> joinRoom(@PathVariable String roomPin, Model model, HttpServletResponse response,
                                       @CookieValue(name = "anonymousCode", defaultValue = "") String anonymousCode) {
-
         // 1. Validation
 
+        try {
+            // 2. Business Logic
+            Room targetRoom = roomService.findRoomByPin(roomPin);
+            RoomDto targetRoomDto = new RoomDto(targetRoom);
 
-        // 2. Business Logic
-        Room targetRoom = roomService.findRoomByPin(roomPin);
-
-        if (targetRoom == null && targetRoom.getCurrentState() != RoomState.FINISH)
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-
-        RoomDto targetRoomDto = new RoomDto(targetRoom);
-
-        // 3. Make Response
-        if (anonymousCode.equals("")) {
-            return new ResponseEntity<>(targetRoomDto, HttpStatus.UNAUTHORIZED);
-        } else {
-            Participant participant = roomService.findParticipant(anonymousCode);
-
-            if (participant.getRoom().getPin() != roomPin) {
-                // 방이 다르다면 쿠키 제거
-                deleteAnonymousCodeCookie(response);
+            // 3. Make Response
+            if (anonymousCode.equals("")) {
                 return new ResponseEntity<>(targetRoomDto, HttpStatus.UNAUTHORIZED);
-            }
+            } else {
+                Participant participant = roomService.findParticipant(anonymousCode);
 
-            ParticipantDto participantDto = new ParticipantDto(participant);
-            return ResponseEntity.ok(participantDto);
+                if (participant.getRoom().getPin() != roomPin) {
+                    // 방이 다르다면 쿠키 제거
+                    deleteAnonymousCodeCookie(response);
+                    return new ResponseEntity<>(targetRoomDto, HttpStatus.UNAUTHORIZED);
+                }
+
+                ParticipantDto participantDto = new ParticipantDto(participant);
+                return ResponseEntity.ok(participantDto);
+            }
+        } catch (NullPointerException e){
+            log.error(e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -114,28 +129,28 @@ public class RoomRestController {
     public ResponseEntity<?> signUpParticipant(@PathVariable String roomPin, @RequestBody ParticipantForm participateForm,
                                                BindingResult bindingResult, HttpServletResponse response) {
         // 1. Validation
-
-        // 2. Business Logic
         if(bindingResult.hasErrors()){
             log.info("errors = {}", bindingResult);
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
 
-        Room targetRoom = roomService.findRoomByPin(roomPin);
+        try {
+            // 2. Business Logic
+            Room targetRoom = roomService.findRoomByPin(roomPin);
 
-        if (targetRoom == null && targetRoom.getCurrentState() != RoomState.FINISH)
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            // 3. Make Response
+            Cookie anonymousCookie = Room.setAnonymousCookie();
+            response.addCookie(anonymousCookie);
 
-        // 3. Make Response
-        Cookie anonymousCookie = Room.setAnonymousCookie();
-        response.addCookie(anonymousCookie);
+            Participant participant = Participant.builder().name(participateForm.getName()).nickname(participateForm.getNickname()).room(targetRoom).build();
+            participant.setUuid(UUID.fromString(anonymousCookie.getValue()).toString());
+            ParticipantDto participantDto = new ParticipantDto(participant);
 
-        Participant participant = Participant.builder().name(participateForm.getName()).nickname(participateForm.getNickname()).room(targetRoom).build();
-        participant.setUuid(UUID.fromString(anonymousCookie.getValue()).toString());
-
-        ParticipantDto participantDto = new ParticipantDto(roomService.joinParticipant(participant));
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(participantDto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(participantDto);
+        } catch(NullPointerException e){
+            log.error(e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 
     // TODO Pageable 적용해야함.. 왠지 모르겠는데 오류남

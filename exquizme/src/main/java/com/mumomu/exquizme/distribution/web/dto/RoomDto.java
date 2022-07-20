@@ -16,6 +16,8 @@ import java.util.Date;
 @AllArgsConstructor
 @ApiModel(value="방 정보(DTO)", description = "개설된 방의 정보를 제공한다")
 public class RoomDto {
+    @ApiModelProperty(value="아이디")
+    private Long id;
     @ApiModelProperty(value="핀번호")
     private String pin;
     @ApiModelProperty(value="최대 참여자 수")
@@ -32,6 +34,7 @@ public class RoomDto {
     private int currentProblemNum; // 최근 진행중인 문제번호
 
     public RoomDto(Room room) {
+        this.id = room.getId();
         this.pin = room.getPin();
         this.maxParticipantCount = room.getMaxParticipantCount();
         this.startDate = room.getStartDate();

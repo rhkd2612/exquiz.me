@@ -1,6 +1,7 @@
 package com.mumomu.exquizme.distribution.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.mumomu.exquizme.distribution.web.dto.ParticipantDto;
 import lombok.*;
 
 import javax.persistence.*;

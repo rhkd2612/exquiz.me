@@ -3,9 +3,11 @@ package com.mumomu.exquizme.distribution.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mumomu.exquizme.production.domain.Problemset;
 import lombok.*;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.*;
 import javax.servlet.http.Cookie;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -45,6 +47,8 @@ public class Room {
 
     public void closeRoom(){
         endDate = new Date();
-        pin = endDate.toString() + pin;
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+        pin = formatter.format(endDate) + pin;
+        currentState = RoomState.FINISH;
     }
 }
