@@ -2,6 +2,7 @@ package com.mumomu.exquizme.distribution.service;
 
 import com.mumomu.exquizme.distribution.domain.Participant;
 import com.mumomu.exquizme.distribution.domain.Room;
+import com.mumomu.exquizme.distribution.domain.RoomState;
 import com.mumomu.exquizme.distribution.repository.ParticipantRepository;
 import com.mumomu.exquizme.distribution.repository.RoomRepository;
 import com.mumomu.exquizme.distribution.web.dto.ParticipantDto;
@@ -62,7 +63,7 @@ public class RoomService {
             throw new RuntimeException("다시 시도 해주세요.");
         }
 
-        Room room = Room.builder().pin(randomPin).build();
+        Room room = Room.builder().pin(randomPin).startDate(new Date()).currentState(RoomState.READY).build();
         log.info("random Pin is {}",randomPin);
 
         return roomRepository.save(room);
@@ -78,25 +79,24 @@ public class RoomService {
     }
 
     public Participant findParticipant(String uuid){
-        Optional<Participant> findParticipant = participantRepository.findByUuid(uuid);
+        Optional<Participant> optParticipant = participantRepository.findByUuid(uuid);
 
-        if(findParticipant.isEmpty())
+        if(optParticipant.isEmpty())
             throw new NullPointerException("존재하지 않는 참가자입니다.");
 
-        return findParticipant.get();
+        return optParticipant.get();
     }
 
     public Room findRoomById(Long roomId){
-        Optional<Room> room = roomRepository.findRoomById(roomId);
+        Optional<Room> optRoom = roomRepository.findRoomById(roomId);
 
-        if(room.isEmpty())
+        if(optRoom.isEmpty())
             throw new NullPointerException("존재하지 않는 방입니다.");
 
         return roomRepository.findRoomById(roomId).get();
     }
 
     public Room findRoomByPin(String roomPin){
-        log.info("Find room(room id : " + roomPin + ")");
         Optional<Room> optRoom = roomRepository.findRoomByPin(roomPin);
 
         if(optRoom.isEmpty())

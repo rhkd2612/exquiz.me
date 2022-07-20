@@ -22,8 +22,9 @@ class RoomResultTest {
         RoomResult roomResult = RoomResult.builder().room(room).build();
 
         em.persist(roomResult);
+        RoomResult findRoomResult = em.find(RoomResult.class, roomResult.getId());
 
-        Assertions.assertThat(roomResult.getRoom().getPin()).isEqualTo("111111");
-        Assertions.assertThat(room).isEqualTo(roomResult.getRoom());
+        Assertions.assertThat(findRoomResult.getRoom().getPin()).isEqualTo("111111");
+        Assertions.assertThat(room).isEqualTo(findRoomResult.getRoom());
     }
 }
