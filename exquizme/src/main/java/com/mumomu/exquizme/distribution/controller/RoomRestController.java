@@ -56,6 +56,9 @@ public class RoomRestController {
     // TODO 도메인에 핀번호가 먼저와도 되나?
     // pin번호만 보내면 되서 patch mapping을 안해도 되지 않을까? 여쭤봐야될 것 같다
     @PostMapping("/{roomPin}/close")
+    @Operation(summary = "퀴즈방 삭제", description = "기존 방을 삭제합니다(DB에선 삭제되지 않고 PIN 변경)")
+    @ApiResponse(responseCode = "202", description = "방 삭제 성공")
+    @ApiResponse(responseCode = "400", description = "존재하지 않는 방 삭제 시도")
     public ResponseEntity<?> closeRoom(@PathVariable String roomPin){
         // 1. Validation
 

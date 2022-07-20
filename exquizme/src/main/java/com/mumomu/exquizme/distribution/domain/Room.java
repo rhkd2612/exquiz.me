@@ -49,5 +49,6 @@ public class Room {
         endDate = new Date();
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
         pin = formatter.format(endDate) + pin;
+        currentState = RoomState.FINISH;
     }
 }
