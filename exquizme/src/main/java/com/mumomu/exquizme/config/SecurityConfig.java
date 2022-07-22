@@ -30,7 +30,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
             // basic whitelist
             "/",
             "/api/**",
-            "/h2-console/**"
+            "/h2-console/**",
+            "/ws/**",
+            "/sub/**",
+            "/pub/**"
     };
 
     @Override
