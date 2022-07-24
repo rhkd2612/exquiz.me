@@ -125,4 +125,42 @@ class RoomServiceTest {
             Room roomByPin2 = roomService.findRoomByPin(pin);
         });
     }
+
+    @Test
+    @Transactional
+    public void 익명사용자입장(){
+        Participant participant =
+                Participant.builder().name("test").nickname("tester").uuid(UUID.randomUUID().toString()).build();
+        Participant anonymous = roomService.joinParticipant(participant);
+        assertThat(anonymous).isEqualTo(participant);
+    }
+
+    @Test
+    @Transactional
+    public void 익명사용자재입장(){
+        Participant participant =
+                Participant.builder().name("test").nickname("tester").uuid(UUID.randomUUID().toString()).build();
+
+        Participant anonymous = roomService.joinParticipant(participant);
+        Participant anonymous2 = roomService.joinParticipant(anonymous);
+        assertThat(anonymous).isEqualTo(anonymous2);
+        assertThat(participant).isEqualTo(anonymous2);
+    }
+
+    @Test
+    @Transactional
+    public void 두익명사용자입장(){
+        Participant participant =
+                Participant.builder().name("test").nickname("tester").uuid(UUID.randomUUID().toString()).build();
+
+        Participant participant2 =
+                Participant.builder().name("test2").nickname("tester2").uuid(UUID.randomUUID().toString()).build();
+
+        Participant anonymous = roomService.joinParticipant(participant);
+        Participant anonymous2 = roomService.joinParticipant(participant2);
+
+        assertThat(anonymous).isEqualTo(participant);
+        assertThat(anonymous2).isEqualTo(participant2);
+        assertThat(anonymous).isNotEqualTo(anonymous2);
+    }
 }
