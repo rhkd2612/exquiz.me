@@ -1,9 +1,7 @@
 package com.mumomu.exquizme.production.domain;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -12,7 +10,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "host")
-@Builder
+@Builder @Getter
 @AllArgsConstructor @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Host {
     @Id
@@ -20,6 +18,7 @@ public class Host {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "host")
     private List<Problemset> problemSets = new ArrayList<>(); //자신의 문제 목록
 
