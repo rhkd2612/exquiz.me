@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -78,6 +79,7 @@ public class RoomRestController {
     // 퀴즈방 입장
     // TODO Cookie에 관한 수정이 필요함 + WebSocket 사용 시 쿠키가 필요없어질수도..?
     // TODO Swagger변경 + API 테스트 필요
+    // TODO BusinessLogic 서비스로 이동해야함
     @GetMapping("/{roomPin}")
     @ApiImplicitParam(name = "roomPin", value = "방의 핀번호(Path)", required = true, dataType = "String", paramType = "path")
     @Operation(summary = "퀴즈방 조회", description = "쿠키가 있는지 확인 후 존재 시 방 입장, 미 존재 시 등록 화면으로 이동합니다.")
@@ -87,7 +89,6 @@ public class RoomRestController {
     public ResponseEntity<?> joinRoom(@PathVariable String roomPin, Model model, HttpServletResponse response,
                                       @CookieValue(name = "anonymousCode", defaultValue = "") String anonymousCode) {
         // 1. Validation
-
         try {
             // 2. Business Logic
             Room targetRoom = roomService.findRoomByPin(roomPin);
@@ -127,12 +128,12 @@ public class RoomRestController {
     @ApiResponse(responseCode = "201", description = "유저 생성 성공 -> 방 입장, 사용자 정보 포함")
     @ApiResponse(responseCode = "400", description = "이름 혹은 닉네임 불충분 혹은 부적절, 존재하지 않는 방 코드 입력")
     public ResponseEntity<?> signUpParticipant(@PathVariable String roomPin, @RequestBody ParticipantForm participateForm,
-                                               BindingResult bindingResult, HttpServletResponse response) {
+                                               HttpServletResponse response) {
         // 1. Validation
-        if(bindingResult.hasErrors()){
-            log.info("errors = {}", bindingResult);
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        }
+//        if(bindingResult.hasErrors()){
+//            log.info("errors = {}", bindingResult);
+//            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+//        }
 
         try {
             // 2. Business Logic
@@ -142,9 +143,8 @@ public class RoomRestController {
             Cookie anonymousCookie = Room.setAnonymousCookie();
             response.addCookie(anonymousCookie);
 
-            Participant participant = Participant.builder().name(participateForm.getName()).nickname(participateForm.getNickname()).room(targetRoom).build();
-            participant.setUuid(UUID.fromString(anonymousCookie.getValue()).toString());
-            ParticipantDto participantDto = new ParticipantDto(participant);
+            Participant savedParticipant = saveParticipant(participateForm, targetRoom, anonymousCookie);
+            ParticipantDto participantDto = new ParticipantDto(savedParticipant);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(participantDto);
         } catch(NullPointerException e){
@@ -154,27 +154,35 @@ public class RoomRestController {
     }
 
     // TODO Pageable 적용해야함.. 왠지 모르겠는데 오류남
+    // TODO 쿼리 효율이 좋지 않다. 방을 조회하고, 유저를 조회하여서.. 유저로만 조회할 수 있도록 uuid에 방pin을 붙여도 좋아보인다.
     @GetMapping("/{roomPin}/participants")
     @ApiImplicitParam(name = "roomPin", value = "방의 핀번호(Path)", required = true, dataType = "String", paramType = "path")
     @Operation(summary = "방 참여자 목록 조회", description = "해당 방에 참여한 참여자 목록을 조회합니다.")
     @ApiResponse(responseCode = "200", description = "참여자 목록 조회 성공!")
     @ApiResponse(responseCode = "400", description = "존재하지 않는 방 코드 입력")
     public ResponseEntity<List<ParticipantDto>> printParticipants(@PathVariable String roomPin){
-        Room targetRoom = roomService.findRoomByPin(roomPin);
-
-        if (targetRoom == null && targetRoom.getCurrentState() != RoomState.FINISH)
+        try {
+            Room targetRoom = roomService.findRoomByPin(roomPin);
+        } catch(NullPointerException e){
+            log.error(e.getMessage());
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
 
         return ResponseEntity.ok(roomService.findParticipantsByRoomPin(roomPin));
     }
 
-
-    // 퀴즈방 생성
-//    @PostMapping("/room")
-//    @ResponseBody
-//    public RoomDto createRoom(@ModelAttribute UserDto user) {
-//
-//    }
+    private Participant saveParticipant(ParticipantForm participateForm, Room targetRoom, Cookie anonymousCookie) {
+        Participant participant =
+                Participant.builder()
+                        .name(participateForm.getName())
+                        .nickname(participateForm.getNickname())
+                        .room(targetRoom)
+                        .uuid(UUID.fromString(anonymousCookie.getValue()).toString())
+                        .entryDate(new Date())
+                        .currentScore(0)
+                        .build();
+        return roomService.joinParticipant(participant);
+    }
 
     private void deleteAnonymousCodeCookie(HttpServletResponse response) {
         Cookie anonymousCookie = new Cookie("anonymousCode", null);
