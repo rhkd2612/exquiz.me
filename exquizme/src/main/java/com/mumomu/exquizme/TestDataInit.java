@@ -37,10 +37,7 @@ public class TestDataInit {
         participantRepository.save(Participant.builder().name("곽두팔").nickname("곽두팔무새").uuid("1aed126c-9b08-4581-b3d3-9630b45c3989").room(room2).build());
 
         Host host = hostRepository.save(Host.builder().name("호스트").nickname("Mumomu").build());
-        log.info("Hihihi");
-        log.info(hostRepository.findOneById(1L).get().getNickname());
 
-        //problemsetRepository.save(Problemset.builder().host(host).title("Hi").build());
 
 
     }

@@ -84,14 +84,13 @@ public class ProblemService {
                     .score(score)
                     .picture(picture)
                     .index(index)
+                    .answer(answer)
                     .totalTry(0)
                     .totalCorrect(0)
                     .createdAt(new Date())
                     .updatedAt(new Date())
                     .deleted(false)
                     .build();
-
-            multipleChoiceProblem.setAnswer(Integer.parseInt(answer));
 
             multipleChoiceProblemRepository.save(multipleChoiceProblem);
 
@@ -107,6 +106,7 @@ public class ProblemService {
                     .score(score)
                     .picture(picture)
                     .index(index)
+                    .answer(answer)
                     .totalTry(0)
                     .totalCorrect(0)
                     .createdAt(new Date())
@@ -115,8 +115,6 @@ public class ProblemService {
                     .build();
 
             //TODO : OX문제 만들 때 선택지 자동생성
-
-            oxProblem.setAnswer(Integer.parseInt(answer));
 
             oxProblemRepository.save(oxProblem);
 
@@ -132,14 +130,13 @@ public class ProblemService {
                     .score(score)
                     .picture(picture)
                     .index(index)
+                    .answer(answer)
                     .totalTry(0)
                     .totalCorrect(0)
                     .createdAt(new Date())
                     .updatedAt(new Date())
                     .deleted(false)
                     .build();
-
-            subjectiveProblem.setAnswer(answer);
 
             subjectiveProblemRepository.save(subjectiveProblem);
 
@@ -163,6 +160,10 @@ public class ProblemService {
             throw new Exception("Problem not found");
         }
         problem = problemOptional.get();
+
+        if (problem.getDtype().equals("SubjectiveProblem")) {
+            throw new Exception("Adding problem option in subjective problem is illegal");
+        }
 
         problemOption = ProblemOption.builder()
                 .problem(problem)
@@ -260,7 +261,7 @@ public class ProblemService {
                 multipleChoiceProblem.setTimelimit(timelimit);
                 multipleChoiceProblem.setScore(score);
                 multipleChoiceProblem.setPicture(picture);
-                multipleChoiceProblem.setAnswer(Integer.parseInt(answer));
+                multipleChoiceProblem.setAnswer(answer);
                 multipleChoiceProblem.setUpdatedAt(new Date());
 
                 multipleChoiceProblemRepository.save(multipleChoiceProblem);
@@ -275,7 +276,7 @@ public class ProblemService {
                 oxProblem.setTimelimit(timelimit);
                 oxProblem.setScore(score);
                 oxProblem.setPicture(picture);
-                oxProblem.setAnswer(Integer.parseInt(answer));
+                oxProblem.setAnswer(answer);
                 oxProblem.setUpdatedAt(new Date());
 
                 oxProblemRepository.save(oxProblem);

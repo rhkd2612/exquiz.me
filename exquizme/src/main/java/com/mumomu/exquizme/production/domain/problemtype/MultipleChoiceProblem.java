@@ -18,7 +18,4 @@ import java.util.List;
 public class MultipleChoiceProblem extends Problem {
     @OneToMany(mappedBy = "problem")
     private List<ProblemOption> problemOptions = new ArrayList<>();
-
-    @Setter
-    private Integer answer;
 }

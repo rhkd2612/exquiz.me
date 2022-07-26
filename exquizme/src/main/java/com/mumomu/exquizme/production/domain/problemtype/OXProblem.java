@@ -18,7 +18,4 @@ import java.util.List;
 public class OXProblem extends Problem {
     @OneToMany(mappedBy = "problem")
     private List<ProblemOption> problemOptions = new ArrayList<>();
-
-    @Setter
-    private Integer answer; //몇 번째 선택지가 답인지
 }

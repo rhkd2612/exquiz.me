@@ -12,6 +12,4 @@ import javax.persistence.Entity;
 @Entity @Getter @SuperBuilder @NoArgsConstructor
 @DiscriminatorValue("SubjectiveProblem")
 public class SubjectiveProblem extends Problem {
-    @Setter
-    private String answer;
 }

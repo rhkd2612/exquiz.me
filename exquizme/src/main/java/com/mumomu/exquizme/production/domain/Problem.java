@@ -37,6 +37,8 @@ public class Problem {
     private Integer score;
     @Setter
     private String picture;
+    @Setter
+    private String answer;
 
     @Setter
     private Integer index; //ProblemSet에서 이 Problem이 몇 번째인지
