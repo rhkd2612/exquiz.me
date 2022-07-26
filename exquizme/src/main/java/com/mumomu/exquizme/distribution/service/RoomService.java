@@ -99,7 +99,7 @@ public class RoomService {
     public Room findRoomByPin(String roomPin){
         Optional<Room> optRoom = roomRepository.findRoomByPin(roomPin);
 
-        if(optRoom.isEmpty() || optRoom.get().getCurrentState() != RoomState.FINISH)
+        if(optRoom.isEmpty() || optRoom.get().getCurrentState() == RoomState.FINISH)
             throw new NullPointerException("존재하지 않는 방입니다.");
 
         return optRoom.get();
