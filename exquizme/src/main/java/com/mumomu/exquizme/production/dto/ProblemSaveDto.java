@@ -1,9 +1,11 @@
 package com.mumomu.exquizme.production.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data @NoArgsConstructor
+@Data @Builder @AllArgsConstructor @NoArgsConstructor
 public class ProblemSaveDto {
     private Long problemsetId;
     private String dtype; //"MultipleChoiceProblem, OXProblem, SubjectiveProblem

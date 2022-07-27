@@ -1,10 +1,12 @@
 package com.mumomu.exquizme.production.dto;
 
 import com.mumomu.exquizme.production.domain.ProblemOption;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data @NoArgsConstructor
+@Data @Builder @AllArgsConstructor @NoArgsConstructor
 public class ProblemOptionSaveDto {
     private Long problemId;
     private Integer index; //몇 번째 선택지인지
