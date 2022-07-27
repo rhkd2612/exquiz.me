@@ -82,7 +82,7 @@ public class RoomService {
         Optional<Participant> optParticipant = participantRepository.findByUuid(uuid);
 
         if(optParticipant.isEmpty())
-            throw new NullPointerException("존재하지 않는 참가자입니다.");
+            throw new NullPointerException("쿠키가 존재하지 않습니다.");
 
         return optParticipant.get();
     }
@@ -99,7 +99,7 @@ public class RoomService {
     public Room findRoomByPin(String roomPin){
         Optional<Room> optRoom = roomRepository.findRoomByPin(roomPin);
 
-        if(optRoom.isEmpty())
+        if(optRoom.isEmpty() || optRoom.get().getCurrentState() == RoomState.FINISH)
             throw new NullPointerException("존재하지 않는 방입니다.");
 
         return optRoom.get();
@@ -118,6 +118,7 @@ public class RoomService {
         return targetRoom;
     }
 
+    // TODO null처리
     @Transactional
     public List<ParticipantDto> findParticipantsByRoomPin(String roomPin){
         Room room = roomRepository.findRoomByPin(roomPin).get();
