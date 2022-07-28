@@ -66,10 +66,10 @@ public class RoomRestController {
         try{
             // 2. Business Logic
             Room room = roomService.closeRoomByPin(roomPin);
-            RoomDto createRoomDto = new RoomDto(room);
+            RoomDto deleteRoomDto = new RoomDto(room);
 
             // 3. Make Response
-            return new ResponseEntity(createRoomDto, HttpStatus.ACCEPTED);
+            return new ResponseEntity(deleteRoomDto, HttpStatus.ACCEPTED);
         } catch(NullPointerException e){
             log.info(e.getMessage());
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
@@ -85,7 +85,7 @@ public class RoomRestController {
     @Operation(summary = "퀴즈방 조회", description = "쿠키가 있는지 확인 후 존재 시 방 입장, 미 존재 시 등록 화면으로 이동합니다.")
     @ApiResponse(responseCode = "200", description = "방 입장 성공(기존 쿠키 정보를 토대로 입장)")
     @ApiResponse(responseCode = "400", description = "존재하지 않은 방 코드 입력")
-    @ApiResponse(responseCode = "401", description = "방 입장 실패(사용자 정보 입력 필요 -> 사용자 이름/닉네임 등록 씬으로 입장)")
+    @ApiResponse(responseCode = "302", description = "방 입장 실패(사용자 정보 입력 필요 -> 사용자 이름/닉네임 등록 씬으로 입장)")
     public ResponseEntity<?> joinRoom(@PathVariable String roomPin, Model model, HttpServletResponse response,
                                       @CookieValue(name = "anonymousCode", defaultValue = "") String anonymousCode) {
         // 1. Validation
@@ -96,14 +96,14 @@ public class RoomRestController {
 
             // 3. Make Response
             if (anonymousCode.equals("")) {
-                return new ResponseEntity<>(targetRoomDto, HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity<>(targetRoomDto, HttpStatus.MOVED_PERMANENTLY);
             } else {
                 Participant participant = roomService.findParticipant(anonymousCode);
 
                 if (participant.getRoom().getPin() != roomPin) {
                     // 방이 다르다면 쿠키 제거
                     deleteAnonymousCodeCookie(response);
-                    return new ResponseEntity<>(targetRoomDto, HttpStatus.UNAUTHORIZED);
+                    return new ResponseEntity<>(targetRoomDto, HttpStatus.MOVED_PERMANENTLY);
                 }
 
                 ParticipantDto participantDto = new ParticipantDto(participant);
