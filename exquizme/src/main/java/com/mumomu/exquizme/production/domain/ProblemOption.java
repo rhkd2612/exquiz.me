@@ -1,15 +1,13 @@
 package com.mumomu.exquizme.production.domain;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.*;
 
 import javax.persistence.*;
 
 @Entity
 @Table(name = "problem_option")
-@Builder
+@Builder @Getter
 @AllArgsConstructor @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProblemOption {
     @Id
@@ -19,11 +17,15 @@ public class ProblemOption {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "problem_id")
+    @JsonIgnore
     private Problem problem;
 
-    private Integer optionNumber; //몇 번째 선택지인지
+    @Setter
+    private Integer index; //몇 번째 선택지인지
 
+    @Setter
     private String description;
+    @Setter
     private String picture;
 
     private Integer pickcount; //몇 번 골라졌는지(통계 제공용)
