@@ -47,9 +47,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
                         .anyRequest().authenticated();
 
         //// H2 테스트 시 아래 두 줄 주석 해제해야 Spring Security가 H2를 차단 안함
-        //http.csrf().disable();
-        //http.headers().frameOptions().disable();
+        http.csrf().disable();
+        http.headers().frameOptions().disable();
 
+        http.cors();
 
         //http.anonymous().authorities("ROLE_USER");
 
@@ -57,9 +58,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 //        http.formLogin()
 //                .loginPage("/login")
 //                .permitAll();
-
-        // GET 매핑을 제외한 다른 매핑을 POSTMAN에서 적용하기 위해서 필요.. 없애야 될 것 같아서 POSTMAN 테스트 시에만 주석을 풀어놓자..
-        http.csrf().disable();
 
         // 로그아웃 페이지 지정, 미 지정 시 기본 페이지 등장
 //        http.logout()
