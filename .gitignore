@@ -37,10 +37,8 @@ out/
 .vscode/
 
 ### secret ###
-application-local.yml
-application-dev.yml
-application-prod.yml
-application-test.yml
+*.yml
+!**/test/resources/application.yml
 secrets/
 
 # Created by https://www.toptal.com/developers/gitignore/api/java,macos
