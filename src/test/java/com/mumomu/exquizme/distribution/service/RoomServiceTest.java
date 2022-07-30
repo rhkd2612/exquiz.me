@@ -4,7 +4,6 @@ import com.mumomu.exquizme.distribution.domain.Participant;
 import com.mumomu.exquizme.distribution.domain.Room;
 import com.mumomu.exquizme.distribution.repository.RoomRepository;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,8 +28,7 @@ class RoomServiceTest {
 
     @Test
     @Transactional
-    @DisplayName("방생성성공")
-    void createRoom() throws Exception{
+    void 방생성성공() throws Exception{
         Room room = roomService.newRoom();
 
         em.persist(room);
@@ -41,8 +39,7 @@ class RoomServiceTest {
 
     @Test
     @Transactional
-    @DisplayName("방핀번호조회")
-    void findRoomByRoomPin(){
+    void 방핀번호조회(){
         Room room = roomService.newRoom();
         Room findRoomByPin = roomService.findRoomByPin(room.getPin());
 
@@ -51,8 +48,7 @@ class RoomServiceTest {
 
     @Test
     @Transactional
-    @DisplayName("방아이디조회")
-    void findRoomByRoomId(){
+    void 방아이디조회(){
         Room room = roomService.newRoom();
         Room findRoomById= roomService.findRoomById(room.getId());
 
@@ -63,8 +59,7 @@ class RoomServiceTest {
 
     @Test
     @Transactional
-    @DisplayName("방생성실패")
-    void createRoomFailure() throws Exception{
+    void 방생성실패() throws Exception{
         assertThrows(RuntimeException.class, ()->{
             int maxCount = 100;
             while(maxCount-- != 0){
@@ -75,8 +70,7 @@ class RoomServiceTest {
 
     @Test
     @Transactional
-    @DisplayName("존재하지않는방조회")
-    void findInvalidRoom(){
+    void 존재하지않는방조회(){
         assertThrows(NullPointerException.class, ()-> {
             roomService.findRoomByPin("111111");
         });
@@ -84,8 +78,7 @@ class RoomServiceTest {
 
     @Test
     @Transactional
-    @DisplayName("방참여")
-    void participateRoom(){
+    void 방참여(){
         Room room = roomService.newRoom();
         Participant participant = Participant.builder().nickname("userA").uuid(UUID.randomUUID().toString()).room(room).build();
         Participant savedParticipant = roomService.joinParticipant(participant);
@@ -95,8 +88,7 @@ class RoomServiceTest {
 
     @Test
     @Transactional
-    @DisplayName("방에참여한참여자목록조회")
-    void findParticipantsListInRoom(){
+    void 방에참여한참여자목록조회(){
         Room room = roomService.newRoom();
         Room room2 = roomService.newRoom();
 
@@ -114,8 +106,7 @@ class RoomServiceTest {
 
     @Test
     @Transactional
-    @DisplayName("방삭제")
-    void closeRoom(){
+    void 방삭제(){
         Room room = roomService.newRoom();
         String pin = room.getPin();
 
@@ -124,8 +115,7 @@ class RoomServiceTest {
 
     @Test
     @Transactional
-    @DisplayName("방삭제후재삭제")
-    void closeSameRoomTwice(){
+    void 방삭제후재삭제(){
         Room room = roomService.newRoom();
         String pin = room.getPin();
 
@@ -138,8 +128,7 @@ class RoomServiceTest {
 
     @Test
     @Transactional
-    @DisplayName("익명사용자입장")
-    public void joinAnonymousUser(){
+    public void 익명사용자입장(){
         Participant participant =
                 Participant.builder().name("test").nickname("tester").uuid(UUID.randomUUID().toString()).build();
         Participant anonymous = roomService.joinParticipant(participant);
@@ -148,8 +137,7 @@ class RoomServiceTest {
 
     @Test
     @Transactional
-    @DisplayName("익명사용자재입장")
-    public void joinSameAnonymousUserTwice(){
+    public void 익명사용자재입장(){
         Participant participant =
                 Participant.builder().name("test").nickname("tester").uuid(UUID.randomUUID().toString()).build();
 
@@ -161,8 +149,7 @@ class RoomServiceTest {
 
     @Test
     @Transactional
-    @DisplayName("두익명사용자입장")
-    public void joinTwoAnonymousUser(){
+    public void 두익명사용자입장(){
         Participant participant =
                 Participant.builder().name("test").nickname("tester").uuid(UUID.randomUUID().toString()).build();
 
