@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -30,6 +31,8 @@ public class RoomService {
     // application-XXX.yml 파일 local-100500 prod-999999, test-100005
     @Value("${max.pin.value}")
     private String MAX_PIN_VALUE;
+
+    private SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
 
     @Transactional
     public Participant joinParticipant(Participant participant){
@@ -50,7 +53,7 @@ public class RoomService {
     public Room newRoom(){
         String randomPin;
         Optional<Room> targetRoom;
-        int retryCount = 5; // 최대 try 횟수, 무한 루프 방지
+        int retryCount = 10; // 최대 try 횟수, 무한 루프 방지
 
         do{
             randomPin = getRandomPin(); //MIN_PIN_RANGE ~ MAX_PIN_RANGE 랜덤 숫자 생성
@@ -113,7 +116,10 @@ public class RoomService {
             throw new NullPointerException("존재하지 않는 방입니다.");
 
         Room targetRoom = optRoom.get();
-        targetRoom.closeRoom();
+
+        targetRoom.setEndDate(new Date());
+        targetRoom.setPin(formatter.format(targetRoom.getEndDate()) + targetRoom.getPin());
+        targetRoom.setCurrentState(RoomState.FINISH);
 
         return targetRoom;
     }
