@@ -15,7 +15,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 public class SwaggerConfig {
     private ApiInfo apiInfo(){
         return new ApiInfoBuilder()
-                .title("EXQUIZ.ME Project API ver0.0.1")
+                .title("EXQUIZ.ME Project API Ver.0.0.1")
                 .description("exquiz.me project api document with swagger")
                 .build();
     }
