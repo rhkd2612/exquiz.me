@@ -59,14 +59,12 @@ class RoomServiceTest {
         assertThat(room).isEqualTo(findRoomById);
     }
 
-
-
     @Test
     @Transactional
     @DisplayName("방생성실패")
     void createRoomFailure() throws Exception{
         assertThrows(RuntimeException.class, ()->{
-            int maxCount = 100;
+            int maxCount = 51;
             while(maxCount-- != 0){
                 Room room = roomService.newRoom();
             }
