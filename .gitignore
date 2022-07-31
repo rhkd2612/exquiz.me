@@ -38,6 +38,7 @@ out/
 
 ### secret ###
 *.yml
+!application-dev.yml
 !**/test/resources/application.yml
 !.github/workflows/gradle.yml
 !appspec.yml
