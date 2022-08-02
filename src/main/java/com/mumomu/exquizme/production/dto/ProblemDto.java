@@ -17,6 +17,7 @@ public class ProblemDto {
     private Long id;
     private String title;
     private String description;
+    private String dtype;
     private Integer timelimit;
     private Integer score;
     private String picture;
@@ -27,6 +28,7 @@ public class ProblemDto {
         this.id = problem.getId();
         this.title = problem.getTitle();
         this.description = problem.getDescription();
+        this.dtype = problem.getDtype();
         this.timelimit = problem.getTimelimit();
         this.score = problem.getScore();
         this.picture = problem.getPicture();

@@ -20,6 +20,7 @@ public class ProblemOptionDto {
     private Integer index; //몇 번째 선택지인지
     private String description;
     private String picture;
+    private Integer pickcount;
 
     public ProblemOptionDto(ProblemOption problemOption) {
         this.id = problemOption.getId();
@@ -27,5 +28,6 @@ public class ProblemOptionDto {
         this.index = problemOption.getIndex();
         this.description = problemOption.getDescription();
         this.picture = problemOption.getPicture();
+        this.pickcount = problemOption.getPickcount();
     }
 }
