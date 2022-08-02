@@ -200,7 +200,7 @@ public class ProblemService {
     }
 
     @Transactional
-    public List<Problem> getProblem(Long problemsetId) {
+    public List<Problem> getProblems(Long problemsetId) {
         try {
             List<Problem> problems = problemRepository.findAllByProblemsetOrderByIndexAsc(problemsetRepository.findOneById(problemsetId).get());
             return problems;

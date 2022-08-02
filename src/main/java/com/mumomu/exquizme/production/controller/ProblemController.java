@@ -21,6 +21,7 @@ import java.util.List;
 public class ProblemController {
     private final ProblemService problemService;
 
+    //TODO DTO 반환으로 바꿔야함
     @PostMapping("/problemset")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "hostId", value = "problemset이 추가될 host id", required = true, dataType = "Long", paramType = "query"),
@@ -38,6 +39,7 @@ public class ProblemController {
         return problemset;
     }
 
+    //TODO DTO 반환으로 바꿔야함
     @PostMapping("/problem")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "problemsetId", value = "문제가 추가될 problemset의 id", required = true, dataType = "Long", paramType = "query"),
@@ -61,6 +63,7 @@ public class ProblemController {
         return problem;
     }
 
+    //TODO DTO 반환으로 바꿔야함
     @PostMapping("/problem_option")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "problem", value = "problem option이 추가될 problem id", required = true, dataType = "Long", paramType = "query"),
@@ -78,6 +81,7 @@ public class ProblemController {
         return problemOption;
     }
 
+    //TODO DTO 반환으로 바꿔야함
     @GetMapping("/problemsets/{hostId}")
     @ApiImplicitParam(name = "hostId", value = "호스트 id", required = true, dataType = "Long", paramType = "path")
     @Operation(summary = "호스트가 가지고 있는 problemset 목록 조회", description = "유효한 호스트 id인지 검사 후 problemset 리스트 전송")
@@ -86,14 +90,16 @@ public class ProblemController {
         return problemsets;
     }
 
+    //TODO DTO 반환으로 바꿔야함
     @GetMapping("/problems/{problemsetId}")
     @ApiImplicitParam(name = "problemsetId", value = "problemset id", required = true, dataType = "Long", paramType = "path")
     @Operation(summary = "호스트가 가지고 있는 problem 목록 조회", description = "유효한 problemset id인지 검사 후 problem 리스트 index순으로 전송")
     public List<Problem> findProblems(@PathVariable Long problemsetId) {
-        List<Problem> problems = problemService.getProblem(problemsetId);
+        List<Problem> problems = problemService.getProblems(problemsetId);
         return problems;
     }
 
+    //TODO DTO 반환으로 바꿔야함
     @GetMapping("/problem_options/{problemId}")
     @ApiImplicitParam(name = "problemId", value = "problem id", required = true, dataType = "Long", paramType = "path")
     @Operation(summary = "호스트가 가지고 있는 problem option 목록 조회", description = "유효한 problem id인지 검사 후 problem option 리스트 index순으로 전송")
@@ -102,6 +108,7 @@ public class ProblemController {
         return problemOptions;
     }
 
+    //TODO DTO 반환으로 바꿔야함
     @PutMapping("/problemset")
     public Problemset updateProblemset(@RequestBody ProblemsetModifyDto problemsetModifyDto) throws Exception {
         Problemset problemset = problemService.updateProblemset(
@@ -111,6 +118,7 @@ public class ProblemController {
         return problemset;
     }
 
+    //TODO DTO 반환으로 바꿔야함
     @PutMapping("/problem")
     public Problem updateProblem(@RequestBody ProblemModifyDto problemModifyDto) throws Exception {
         Problem problem = problemService.updateProblem(
@@ -123,6 +131,7 @@ public class ProblemController {
         return problem;
     }
 
+    //TODO DTO 반환으로 바꿔야함
     @PutMapping("/problem_option")
     public ProblemOption updateProblemOption(@RequestBody ProblemOptionModifyDto problemOptionModifyDto) throws Exception {
         ProblemOption problemOption = problemService.updateProblemOption(

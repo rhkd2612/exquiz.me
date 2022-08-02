@@ -7,7 +7,10 @@ import com.mumomu.exquizme.distribution.service.RoomService;
 import com.mumomu.exquizme.distribution.web.dto.ParticipantDto;
 import com.mumomu.exquizme.distribution.web.dto.RoomDto;
 import com.mumomu.exquizme.distribution.web.model.ParticipantForm;
+import com.mumomu.exquizme.production.domain.Problem;
 import com.mumomu.exquizme.production.domain.Problemset;
+import com.mumomu.exquizme.production.domain.problemtype.MultipleChoiceProblem;
+import com.mumomu.exquizme.production.dto.ProblemDto;
 import com.mumomu.exquizme.production.dto.ProblemsetDto;
 import com.mumomu.exquizme.production.service.ProblemService;
 import io.swagger.annotations.Api;
@@ -30,6 +33,7 @@ import java.rmi.server.ExportException;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -46,7 +50,7 @@ public class RoomRestController {
     @ApiResponse(responseCode = "201", description = "방 생성 성공")
     @ApiResponse(responseCode = "400", description = "퀴즈셋 없음")
     @ApiResponse(responseCode = "500", description = "방 생성 실패, 시간 초과(다시 시도 권유)")
-    public ResponseEntity<?> newRoom(@RequestParam(defaultValue = "1") Long problemsetId){
+    public ResponseEntity<?> newRoom(@RequestParam Long problemsetId){
         // 1. Validation
         try {
             // 2. Business Logic
@@ -64,8 +68,6 @@ public class RoomRestController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
-
-    public ResponseEntity<?>
 
     //퀴즈방 폐쇄
     // TODO 도메인에 핀번호가 먼저와도 되나?
