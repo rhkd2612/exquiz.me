@@ -7,6 +7,9 @@ import com.mumomu.exquizme.distribution.service.RoomService;
 import com.mumomu.exquizme.distribution.web.dto.ParticipantDto;
 import com.mumomu.exquizme.distribution.web.dto.RoomDto;
 import com.mumomu.exquizme.distribution.web.model.ParticipantForm;
+import com.mumomu.exquizme.production.domain.Problemset;
+import com.mumomu.exquizme.production.dto.ProblemsetDto;
+import com.mumomu.exquizme.production.service.ProblemService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -22,6 +25,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.Null;
+import java.rmi.server.ExportException;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -33,25 +38,34 @@ import java.util.UUID;
 @RequestMapping("/api/room")
 public class RoomRestController {
     private final RoomService roomService;
+    private final ProblemService problemService;
 
     // 퀴즈방 생성
     @PostMapping("/newRoom")
     @Operation(summary = "퀴즈방 생성", description = "새로운 방을 생성합니다(사용자 인증 정보 요구 예정)")
     @ApiResponse(responseCode = "201", description = "방 생성 성공")
+    @ApiResponse(responseCode = "400", description = "퀴즈셋 없음")
     @ApiResponse(responseCode = "500", description = "방 생성 실패, 시간 초과(다시 시도 권유)")
-    public ResponseEntity<?> newRoom(){
+    public ResponseEntity<?> newRoom(@RequestParam(defaultValue = "1") Long problemsetId){
         // 1. Validation
         try {
             // 2. Business Logic
-            Room room = roomService.newRoom();
+            Problemset problemset = problemService.getProblemsetById(problemsetId);
+            Room room = roomService.newRoom(problemset);
+
             RoomDto createRoomDto = new RoomDto(room);
             // 3. Make Response
             return new ResponseEntity(createRoomDto, HttpStatus.CREATED);
         }catch(RuntimeException e){
+            log.info("error : " + e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }catch(Exception e){
             log.info(e.getMessage());
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
+
+    public ResponseEntity<?>
 
     //퀴즈방 폐쇄
     // TODO 도메인에 핀번호가 먼저와도 되나?

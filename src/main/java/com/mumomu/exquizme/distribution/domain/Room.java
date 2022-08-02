@@ -53,6 +53,10 @@ public class Room {
         this.endDate = endDate;
     }
 
+    public void setProblemset(Problemset problemset) {
+        this.problemset = problemset;
+    }
+
     public void setCurrentState(RoomState currentState) {
         this.currentState = currentState;
     }

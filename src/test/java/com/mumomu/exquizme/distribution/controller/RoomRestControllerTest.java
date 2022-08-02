@@ -6,6 +6,8 @@ import com.mumomu.exquizme.distribution.domain.Participant;
 import com.mumomu.exquizme.distribution.domain.Room;
 import com.mumomu.exquizme.distribution.service.RoomService;
 import com.mumomu.exquizme.distribution.web.model.ParticipantForm;
+import com.mumomu.exquizme.production.domain.Problemset;
+import com.mumomu.exquizme.production.service.ProblemService;
 import org.aspectj.lang.annotation.Before;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -60,6 +62,9 @@ class RoomRestControllerTest {
     private EntityManager em;
     @Autowired
     private RoomService roomService;
+
+    @Autowired
+    private ProblemService problemService;
     @Autowired
     private WebApplicationContext webApplicationContext;
 
@@ -70,13 +75,14 @@ class RoomRestControllerTest {
     private String roomPin;
     private String roomPin2;
     private String invalidPin = "9999999";
+    private Problemset problemset = null;
 
     @BeforeEach
-    public void setUP(){
+    public void setUP() throws Exception{
         mvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).apply(springSecurity()).build();
 
-        roomPin = roomService.newRoom().getPin();
-        roomPin2 = roomService.newRoom().getPin();
+        roomPin = roomService.newRoom(problemset).getPin();
+        roomPin2 = roomService.newRoom(problemset).getPin();
     }
 
     @AfterEach
@@ -90,7 +96,9 @@ class RoomRestControllerTest {
     @Transactional
     @DisplayName("새로운퀴즈방생성")
     void newRoomTest() throws Exception{
-        mvc.perform(post("/api/room/newRoom"))
+        Long problemsetId = 1L;
+        mvc.perform(post("/api/room/newRoom")
+                        .param("problemsetId",problemsetId.toString()))
                 .andExpect(status().isCreated())
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(jsonPath("$.id",notNullValue()))
@@ -101,7 +109,7 @@ class RoomRestControllerTest {
     @Transactional
     @DisplayName("퀴즈방폐쇄")
     void closeRoomTest() throws Exception {
-        String myRoomPin = roomService.newRoom().getPin();
+        String myRoomPin = roomService.newRoom(problemset).getPin();
 
         mvc.perform(post("/api/room/{roomPin}/close", myRoomPin))
                 .andExpect(status().isAccepted())
