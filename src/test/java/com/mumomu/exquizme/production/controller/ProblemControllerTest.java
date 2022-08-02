@@ -122,7 +122,7 @@ class ProblemControllerTest {
 
         mockMvc.perform(get("/api/problemsets/{hostId}", hostId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].title", is("Test Problemset Title")))
+                .andExpect(jsonPath("$[1].title", is("Test Problemset Title")))
                 .andReturn();
     }
 

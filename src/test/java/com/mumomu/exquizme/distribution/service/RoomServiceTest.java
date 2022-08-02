@@ -3,7 +3,11 @@ package com.mumomu.exquizme.distribution.service;
 import com.mumomu.exquizme.distribution.domain.Participant;
 import com.mumomu.exquizme.distribution.domain.Room;
 import com.mumomu.exquizme.distribution.repository.RoomRepository;
+import com.mumomu.exquizme.production.domain.Problemset;
+import com.mumomu.exquizme.production.service.ProblemService;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,13 +30,27 @@ class RoomServiceTest {
 
     @Autowired
     RoomService roomService;
+    @Autowired
+    ProblemService problemService;
+
+    Room room;
+    Room room2;
+    @BeforeEach
+    void setUp(){
+        room = roomService.newRoom(1L);
+        room2 = roomService.newRoom(1L);
+    }
+
+    @AfterEach
+    void setDown(){
+        roomService.closeRoomByPin(room.getPin());
+        roomService.closeRoomByPin(room2.getPin());
+    }
 
     @Test
     @Transactional
     @DisplayName("방생성성공")
     void createRoom() throws Exception{
-        Room room = roomService.newRoom();
-
         em.persist(room);
         Room savedRoom = em.find(Room.class, room.getId());
 
@@ -43,7 +61,6 @@ class RoomServiceTest {
     @Transactional
     @DisplayName("방핀번호조회")
     void findRoomByRoomPin(){
-        Room room = roomService.newRoom();
         Room findRoomByPin = roomService.findRoomByPin(room.getPin());
 
         assertThat(room).isEqualTo(findRoomByPin);
@@ -53,7 +70,6 @@ class RoomServiceTest {
     @Transactional
     @DisplayName("방아이디조회")
     void findRoomByRoomId(){
-        Room room = roomService.newRoom();
         Room findRoomById= roomService.findRoomById(room.getId());
 
         assertThat(room).isEqualTo(findRoomById);
@@ -66,7 +82,7 @@ class RoomServiceTest {
         assertThrows(RuntimeException.class, ()->{
             int maxCount = 51;
             while(maxCount-- != 0){
-                Room room = roomService.newRoom();
+                roomService.newRoom(1L);
             }
         });
     }
@@ -84,7 +100,6 @@ class RoomServiceTest {
     @Transactional
     @DisplayName("방참여")
     void participateRoom(){
-        Room room = roomService.newRoom();
         Participant participant = Participant.builder().nickname("userA").uuid(UUID.randomUUID().toString()).room(room).build();
         Participant savedParticipant = roomService.joinParticipant(participant);
 
@@ -95,9 +110,6 @@ class RoomServiceTest {
     @Transactional
     @DisplayName("방에참여한참여자목록조회")
     void findParticipantsListInRoom(){
-        Room room = roomService.newRoom();
-        Room room2 = roomService.newRoom();
-
         Participant participant = Participant.builder().nickname("userA").uuid(UUID.randomUUID().toString()).room(room).build();
         Participant participant2 = Participant.builder().nickname("userB").uuid(UUID.randomUUID().toString()).room(room).build();
         Participant participant3 = Participant.builder().nickname("userC").uuid(UUID.randomUUID().toString()).room(room2).build();
@@ -114,7 +126,6 @@ class RoomServiceTest {
     @Transactional
     @DisplayName("방삭제")
     void closeRoom(){
-        Room room = roomService.newRoom();
         String pin = room.getPin();
 
         Room roomByPin = roomService.closeRoomByPin(pin);
@@ -124,7 +135,6 @@ class RoomServiceTest {
     @Transactional
     @DisplayName("방삭제후재삭제")
     void closeSameRoomTwice(){
-        Room room = roomService.newRoom();
         String pin = room.getPin();
 
         Room roomByPin = roomService.closeRoomByPin(pin);
