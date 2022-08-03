@@ -2,12 +2,8 @@ package com.mumomu.exquizme.production.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mumomu.exquizme.production.domain.Problem;
 import com.mumomu.exquizme.production.dto.*;
 import com.mumomu.exquizme.production.service.ProblemService;
-import org.assertj.core.api.Assertions;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
-import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -70,7 +64,7 @@ class ProblemControllerTest {
         ProblemSaveDto problemSaveDto = ProblemSaveDto.builder()
                 .problemsetId(problemsetId)
                 .dtype("MultipleChoiceProblem")
-                .index(1)
+                .idx(1)
                 .title("Test Problem Title1")
                 .description("Test Problem Description")
                 .timelimit(10)
@@ -98,7 +92,7 @@ class ProblemControllerTest {
 
         ProblemOptionSaveDto problemOptionSaveDto = ProblemOptionSaveDto.builder()
                 .problemId(problemId)
-                .index(1)
+                .idx(1)
                 .description("Test Problem Option Description")
                 .picture(null)
                 .build();
@@ -107,7 +101,7 @@ class ProblemControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJson(problemOptionSaveDto)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.index", is(1)))
+                .andExpect(jsonPath("$.idx", is(1)))
                 .andExpect(jsonPath("$.description", is("Test Problem Option Description")))
                 .andExpect(jsonPath("$.pickcount", is(0)))
                 .andReturn();
@@ -174,7 +168,7 @@ class ProblemControllerTest {
         ProblemModifyDto problemModifyDto = ProblemModifyDto.builder()
                 .problemId(problemId)
                 .dtype("MultipleChoiceProblem")
-                .index(1)
+                .idx(1)
                 .title("Updated Problem Title")
                 .description("Updated Problem Description")
                 .timelimit(50)
@@ -198,7 +192,7 @@ class ProblemControllerTest {
 
         ProblemOptionModifyDto problemOptionModifyDto = ProblemOptionModifyDto.builder()
                 .problemOptionId(problemOptionId)
-                .index(1)
+                .idx(1)
                 .description("Updated Problem Option Description")
                 .picture(null)
                 .build();
