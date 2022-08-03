@@ -180,7 +180,7 @@ public class ProblemService {
 
     // TODO getProblemsetListByHostId로 변경해야 함
     @Transactional
-    public List<Problemset> getProblemset(Long hostId) {
+    public List<Problemset> getProblemsetsByHostId(Long hostId) {
         try {
             List<Problemset> problemsets = problemsetRepository.findAllByHost(hostRepository.findOneById(hostId).get());
             return problemsets;
@@ -200,7 +200,7 @@ public class ProblemService {
     }
 
     @Transactional
-    public List<Problem> getProblems(Long problemsetId) {
+    public List<Problem> getProblemsByProblemsetId(Long problemsetId) {
         try {
             List<Problem> problems = problemRepository.findAllByProblemsetOrderByIdxAsc(problemsetRepository.findOneById(problemsetId).get());
             return problems;
@@ -210,7 +210,7 @@ public class ProblemService {
     }
 
     @Transactional
-    public List<ProblemOption> getProblemOption(Long problemId) throws Exception {
+    public List<ProblemOption> getProblemOptionById(Long problemId) throws Exception {
         Optional<Problem> problemOptional = problemRepository.findOneById(problemId);
         if (problemOptional.isEmpty()) {
             throw new Exception("Problem not found");

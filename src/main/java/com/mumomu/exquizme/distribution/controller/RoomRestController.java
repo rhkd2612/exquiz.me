@@ -115,7 +115,7 @@ public class RoomRestController {
             if (anonymousCode.equals("")) {
                 return new ResponseEntity<>(targetRoomDto, HttpStatus.MOVED_PERMANENTLY);
             } else {
-                Participant participant = roomService.findParticipant(anonymousCode);
+                Participant participant = roomService.findParticipantByUuid(anonymousCode);
 
                 if (!participant.getRoom().getPin().equals(roomPin)) {
                     // 방이 다르다면 쿠키 제거

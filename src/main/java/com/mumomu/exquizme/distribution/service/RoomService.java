@@ -72,7 +72,7 @@ public class RoomService {
     }
 
     @Transactional(readOnly = true)
-    public Participant findParticipant(String uuid){
+    public Participant findParticipantByUuid(String uuid){
         Optional<Participant> optParticipant = participantRepository.findByUuid(uuid);
 
         if(optParticipant.isEmpty())

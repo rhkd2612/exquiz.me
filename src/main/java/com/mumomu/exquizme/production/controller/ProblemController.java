@@ -83,7 +83,7 @@ public class ProblemController {
     @ApiImplicitParam(name = "hostId", value = "호스트 id", required = true, dataType = "Long", paramType = "path")
     @Operation(summary = "호스트가 가지고 있는 problemset 목록 조회", description = "유효한 호스트 id인지 검사 후 problemset 리스트 전송")
     public List<ProblemsetDto> findProblemsets(@PathVariable Long hostId) {
-        List<ProblemsetDto> problemsetDtos = problemService.getProblemset(hostId).stream().map(ps -> new ProblemsetDto(ps)).collect(Collectors.toList());
+        List<ProblemsetDto> problemsetDtos = problemService.getProblemsetsByHostId(hostId).stream().map(ps -> new ProblemsetDto(ps)).collect(Collectors.toList());
         return problemsetDtos;
     }
 
@@ -91,7 +91,7 @@ public class ProblemController {
     @ApiImplicitParam(name = "problemsetId", value = "problemset id", required = true, dataType = "Long", paramType = "path")
     @Operation(summary = "호스트가 가지고 있는 problem 목록 조회", description = "유효한 problemset id인지 검사 후 problem 리스트 idx순으로 전송")
     public List<ProblemDto> findProblems(@PathVariable Long problemsetId) {
-        List<ProblemDto> problemDtos = problemService.getProblems(problemsetId).stream().map(p -> new ProblemDto(p)).collect(Collectors.toList());
+        List<ProblemDto> problemDtos = problemService.getProblemsByProblemsetId(problemsetId).stream().map(p -> new ProblemDto(p)).collect(Collectors.toList());
         return problemDtos;
     }
 
@@ -99,7 +99,7 @@ public class ProblemController {
     @ApiImplicitParam(name = "problemId", value = "problem id", required = true, dataType = "Long", paramType = "path")
     @Operation(summary = "호스트가 가지고 있는 problem option 목록 조회", description = "유효한 problem id인지 검사 후 problem option 리스트 idx순으로 전송")
     public List<ProblemOptionDto> findProblemOptions(@PathVariable Long problemId) throws Exception {
-        List<ProblemOptionDto> problemOptionDtos = problemService.getProblemOption(problemId).stream().map(po -> new ProblemOptionDto(po)).collect(Collectors.toList());
+        List<ProblemOptionDto> problemOptionDtos = problemService.getProblemOptionById(problemId).stream().map(po -> new ProblemOptionDto(po)).collect(Collectors.toList());
         return problemOptionDtos;
     }
 
