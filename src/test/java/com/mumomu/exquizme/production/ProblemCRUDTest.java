@@ -129,7 +129,7 @@ public class ProblemCRUDTest {
             System.out.println("title : " + p.getTitle());
             System.out.println("dtype : " + p.getDtype());
             System.out.println("description : " + p.getDescription());
-            System.out.println("index : " + p.getIndex() + "\n"); //index 순으로 정렬되어 나옴
+            System.out.println("idx : " + p.getIdx() + "\n"); //idx 순으로 정렬되어 나옴
         }
     }
 
@@ -187,8 +187,8 @@ public class ProblemCRUDTest {
             problemOptions = problemService.getProblemOption(problems.get(i).getId());
             for (ProblemOption po : problemOptions) {
                 System.out.println("id : " + po.getId());
-                System.out.println("index : " + po.getIndex());
-                System.out.println("description : " + po.getDescription() + "\n"); //index 순으로 정렬되어 나옴
+                System.out.println("idx : " + po.getIdx());
+                System.out.println("description : " + po.getDescription() + "\n"); //idx 순으로 정렬되어 나옴
             }
         }
     }

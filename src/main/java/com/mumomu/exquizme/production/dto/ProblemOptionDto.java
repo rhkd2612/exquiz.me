@@ -17,7 +17,7 @@ import javax.persistence.ManyToOne;
 public class ProblemOptionDto {
     private Long id;
     private Problem problem;
-    private Integer index; //몇 번째 선택지인지
+    private Integer idx; //몇 번째 선택지인지
     private String description;
     private String picture;
     private Integer pickcount;
@@ -25,7 +25,7 @@ public class ProblemOptionDto {
     public ProblemOptionDto(ProblemOption problemOption) {
         this.id = problemOption.getId();
         this.problem = problemOption.getProblem();
-        this.index = problemOption.getIndex();
+        this.idx = problemOption.getIdx();
         this.description = problemOption.getDescription();
         this.picture = problemOption.getPicture();
         this.pickcount = problemOption.getPickcount();

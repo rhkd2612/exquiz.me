@@ -70,7 +70,7 @@ class ProblemControllerTest {
         ProblemSaveDto problemSaveDto = ProblemSaveDto.builder()
                 .problemsetId(problemsetId)
                 .dtype("MultipleChoiceProblem")
-                .index(1)
+                .idx(1)
                 .title("Test Problem Title1")
                 .description("Test Problem Description")
                 .timelimit(10)
@@ -98,7 +98,7 @@ class ProblemControllerTest {
 
         ProblemOptionSaveDto problemOptionSaveDto = ProblemOptionSaveDto.builder()
                 .problemId(problemId)
-                .index(1)
+                .idx(1)
                 .description("Test Problem Option Description")
                 .picture(null)
                 .build();
@@ -107,7 +107,7 @@ class ProblemControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJson(problemOptionSaveDto)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.index", is(1)))
+                .andExpect(jsonPath("$.idx", is(1)))
                 .andExpect(jsonPath("$.description", is("Test Problem Option Description")))
                 .andExpect(jsonPath("$.pickcount", is(0)))
                 .andReturn();
@@ -174,7 +174,7 @@ class ProblemControllerTest {
         ProblemModifyDto problemModifyDto = ProblemModifyDto.builder()
                 .problemId(problemId)
                 .dtype("MultipleChoiceProblem")
-                .index(1)
+                .idx(1)
                 .title("Updated Problem Title")
                 .description("Updated Problem Description")
                 .timelimit(50)
@@ -198,7 +198,7 @@ class ProblemControllerTest {
 
         ProblemOptionModifyDto problemOptionModifyDto = ProblemOptionModifyDto.builder()
                 .problemOptionId(problemOptionId)
-                .index(1)
+                .idx(1)
                 .description("Updated Problem Option Description")
                 .picture(null)
                 .build();

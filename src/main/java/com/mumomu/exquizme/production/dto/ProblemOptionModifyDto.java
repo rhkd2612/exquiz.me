@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data @Builder @NoArgsConstructor @AllArgsConstructor
 public class ProblemOptionModifyDto {
     private Long problemOptionId;
-    private Integer index;
+    private Integer idx;
     private String description;
     private String picture;
 }

@@ -43,7 +43,7 @@ public class ProblemController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "problemsetId", value = "문제가 추가될 problemset의 id", required = true, dataType = "Long", paramType = "query"),
             @ApiImplicitParam(name = "dtype", value = "문제 유형", required = true, dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "index", value = "문제 번호", required = true, dataType = "Integer", paramType = "query"),
+            @ApiImplicitParam(name = "idx", value = "문제 번호", required = true, dataType = "Integer", paramType = "query"),
             @ApiImplicitParam(name = "title", value = "문제 제목", required = true, dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "description", value = "문제 설명", required = true, dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "timelimit", value = "문제 시간 제한", required = true, dataType = "Integer", paramType = "query"),
@@ -54,7 +54,7 @@ public class ProblemController {
     public ProblemDto makeProblem(@RequestBody ProblemSaveDto problemSaveDto) throws Exception {
         Problem problem = problemService.makeProblem(
                 problemSaveDto.getProblemsetId(), problemSaveDto.getDtype(),
-                problemSaveDto.getIndex(), problemSaveDto.getTitle(),
+                problemSaveDto.getIdx(), problemSaveDto.getTitle(),
                 problemSaveDto.getDescription(), problemSaveDto.getTimelimit(),
                 problemSaveDto.getScore(), problemSaveDto.getPicture(),
                 problemSaveDto.getAnswer());
@@ -65,14 +65,14 @@ public class ProblemController {
     @PostMapping("/problem_option")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "problem", value = "problem option이 추가될 problem id", required = true, dataType = "Long", paramType = "query"),
-            @ApiImplicitParam(name = "index", value = "problem option 번호", required = true, dataType = "Integer", paramType = "query"),
+            @ApiImplicitParam(name = "idx", value = "problem option 번호", required = true, dataType = "Integer", paramType = "query"),
             @ApiImplicitParam(name = "description", value = "problem option 설명", required = true, dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "picture", value = "problem option 사진", required = false, dataType = "String", paramType = "query"),
     })
     public ProblemOptionDto makeProblemOption(@RequestBody ProblemOptionSaveDto problemOptionSaveDto) throws Exception {
         ProblemOption problemOption = problemService.makeProblemOption(
                 problemOptionSaveDto.getProblemId(),
-                problemOptionSaveDto.getIndex(),
+                problemOptionSaveDto.getIdx(),
                 problemOptionSaveDto.getDescription(),
                 problemOptionSaveDto.getPicture()
         );
@@ -89,7 +89,7 @@ public class ProblemController {
 
     @GetMapping("/problems/{problemsetId}")
     @ApiImplicitParam(name = "problemsetId", value = "problemset id", required = true, dataType = "Long", paramType = "path")
-    @Operation(summary = "호스트가 가지고 있는 problem 목록 조회", description = "유효한 problemset id인지 검사 후 problem 리스트 index순으로 전송")
+    @Operation(summary = "호스트가 가지고 있는 problem 목록 조회", description = "유효한 problemset id인지 검사 후 problem 리스트 idx순으로 전송")
     public List<ProblemDto> findProblems(@PathVariable Long problemsetId) {
         List<ProblemDto> problemDtos = problemService.getProblems(problemsetId).stream().map(p -> new ProblemDto(p)).collect(Collectors.toList());
         return problemDtos;
@@ -97,7 +97,7 @@ public class ProblemController {
 
     @GetMapping("/problem_options/{problemId}")
     @ApiImplicitParam(name = "problemId", value = "problem id", required = true, dataType = "Long", paramType = "path")
-    @Operation(summary = "호스트가 가지고 있는 problem option 목록 조회", description = "유효한 problem id인지 검사 후 problem option 리스트 index순으로 전송")
+    @Operation(summary = "호스트가 가지고 있는 problem option 목록 조회", description = "유효한 problem id인지 검사 후 problem option 리스트 idx순으로 전송")
     public List<ProblemOptionDto> findProblemOptions(@PathVariable Long problemId) throws Exception {
         List<ProblemOptionDto> problemOptionDtos = problemService.getProblemOption(problemId).stream().map(po -> new ProblemOptionDto(po)).collect(Collectors.toList());
         return problemOptionDtos;
@@ -116,7 +116,7 @@ public class ProblemController {
     public ProblemDto updateProblem(@RequestBody ProblemModifyDto problemModifyDto) throws Exception {
         Problem problem = problemService.updateProblem(
                 problemModifyDto.getProblemId(), problemModifyDto.getDtype(),
-                problemModifyDto.getIndex(), problemModifyDto.getTitle(),
+                problemModifyDto.getIdx(), problemModifyDto.getTitle(),
                 problemModifyDto.getDescription(), problemModifyDto.getTimelimit(),
                 problemModifyDto.getScore(), problemModifyDto.getPicture(),
                 problemModifyDto.getAnswer());
@@ -128,7 +128,7 @@ public class ProblemController {
     @PutMapping("/problem_option")
     public ProblemOption updateProblemOption(@RequestBody ProblemOptionModifyDto problemOptionModifyDto) throws Exception {
         ProblemOption problemOption = problemService.updateProblemOption(
-                problemOptionModifyDto.getProblemOptionId(), problemOptionModifyDto.getIndex(),
+                problemOptionModifyDto.getProblemOptionId(), problemOptionModifyDto.getIdx(),
                 problemOptionModifyDto.getDescription(), problemOptionModifyDto.getPicture());
 
         return problemOption;
