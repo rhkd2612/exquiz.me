@@ -9,13 +9,13 @@ import lombok.NoArgsConstructor;
 @Data @Builder @AllArgsConstructor @NoArgsConstructor
 public class ProblemOptionSaveDto {
     private Long problemId;
-    private Integer index; //몇 번째 선택지인지
+    private Integer idx; //몇 번째 선택지인지
     private String description;
     private String picture;
 
     public ProblemOptionSaveDto(ProblemOption problemOption) {
         this.problemId = problemOption.getProblem().getId();
-        this.index = problemOption.getIndex();
+        this.idx = problemOption.getIdx();
         this.description = problemOption.getDescription();
         this.picture = problemOption.getPicture();
     }

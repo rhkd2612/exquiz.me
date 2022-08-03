@@ -63,7 +63,7 @@ public class ProblemService {
     @Transactional
     public Problem makeProblem(
             Long problemsetId, String dtype,
-            Integer index, String title,
+            Integer idx, String title,
             String description, Integer timelimit,
             Integer score, String picture,
             String answer) throws Exception {
@@ -83,7 +83,7 @@ public class ProblemService {
                     .timelimit(timelimit)
                     .score(score)
                     .picture(picture)
-                    .index(index)
+                    .idx(idx)
                     .answer(answer)
                     .totalTry(0)
                     .totalCorrect(0)
@@ -105,7 +105,7 @@ public class ProblemService {
                     .timelimit(timelimit)
                     .score(score)
                     .picture(picture)
-                    .index(index)
+                    .idx(idx)
                     .answer(answer)
                     .totalTry(0)
                     .totalCorrect(0)
@@ -129,7 +129,7 @@ public class ProblemService {
                     .timelimit(timelimit)
                     .score(score)
                     .picture(picture)
-                    .index(index)
+                    .idx(idx)
                     .answer(answer)
                     .totalTry(0)
                     .totalCorrect(0)
@@ -149,7 +149,7 @@ public class ProblemService {
 
     @Transactional
     public ProblemOption makeProblemOption(
-            Long problemId, Integer index,
+            Long problemId, Integer idx,
             String description, String picture) throws Exception {
 
         ProblemOption problemOption;
@@ -167,7 +167,7 @@ public class ProblemService {
 
         problemOption = ProblemOption.builder()
                 .problem(problem)
-                .index(index)
+                .idx(idx)
                 .description(description)
                 .picture(picture)
                 .pickcount(0)
@@ -191,7 +191,7 @@ public class ProblemService {
     @Transactional
     public List<Problem> getProblem(Long problemsetId) {
         try {
-            List<Problem> problems = problemRepository.findAllByProblemsetOrderByIndexAsc(problemsetRepository.findOneById(problemsetId).get());
+            List<Problem> problems = problemRepository.findAllByProblemsetOrderByIdxAsc(problemsetRepository.findOneById(problemsetId).get());
             return problems;
         } catch (Exception e) {
             throw e;
@@ -210,7 +210,7 @@ public class ProblemService {
         }
 
         try {
-            List<ProblemOption> problemOptions = problemOptionRepository.findAllByProblemOrderByIndexAsc(problemRepository.findOneById(problemId).get());
+            List<ProblemOption> problemOptions = problemOptionRepository.findAllByProblemOrderByIdxAsc(problemRepository.findOneById(problemId).get());
             return problemOptions;
         } catch (Exception e) {
             throw e;
@@ -240,7 +240,7 @@ public class ProblemService {
     @Transactional
     public Problem updateProblem(
             Long problemId, String dtype,
-            Integer index, String title,
+            Integer idx, String title,
             String description, Integer timelimit,
             Integer score, String picture,
             String answer) throws Exception {
@@ -255,7 +255,7 @@ public class ProblemService {
         if (curDtype.equals(dtype)) { //문제 유형이 같을 경우
             if (curDtype.equals("MultipleChoiceProblem")) {
                 MultipleChoiceProblem multipleChoiceProblem = multipleChoiceProblemRepository.findOneById(problemId);
-                multipleChoiceProblem.setIndex(index);
+                multipleChoiceProblem.setIdx(idx);
                 multipleChoiceProblem.setTitle(title);
                 multipleChoiceProblem.setDescription(description);
                 multipleChoiceProblem.setTimelimit(timelimit);
@@ -270,7 +270,7 @@ public class ProblemService {
             }
             else if (curDtype.equals("OXProblem")) {
                 OXProblem oxProblem = oxProblemRepository.findOneById(problemId);
-                oxProblem.setIndex(index);
+                oxProblem.setIdx(idx);
                 oxProblem.setTitle(title);
                 oxProblem.setDescription(description);
                 oxProblem.setTimelimit(timelimit);
@@ -285,7 +285,7 @@ public class ProblemService {
             }
             else if (curDtype.equals("SubjectiveProblem")) {
                 SubjectiveProblem subjectiveProblem = subjectiveProblemRepository.findOneById(problemId);
-                subjectiveProblem.setIndex(index);
+                subjectiveProblem.setIdx(idx);
                 subjectiveProblem.setTitle(title);
                 subjectiveProblem.setDescription(description);
                 subjectiveProblem.setTimelimit(timelimit);
@@ -311,7 +311,7 @@ public class ProblemService {
 
     @Transactional
     public ProblemOption updateProblemOption(
-            Long problemOptionId, Integer index,
+            Long problemOptionId, Integer idx,
             String description, String picture) throws Exception {
         Optional<ProblemOption> problemOptionOptional = problemOptionRepository.findOneById(problemOptionId);
         if (problemOptionOptional.isEmpty()) {
@@ -320,7 +320,7 @@ public class ProblemService {
 
         ProblemOption problemOption = problemOptionOptional.get();
 
-        problemOption.setIndex(index);
+        problemOption.setIdx(idx);
         problemOption.setDescription(description);
         problemOption.setPicture(picture);
 

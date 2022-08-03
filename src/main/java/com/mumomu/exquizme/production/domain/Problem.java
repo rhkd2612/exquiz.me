@@ -3,7 +3,6 @@ package com.mumomu.exquizme.production.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import net.bytebuddy.implementation.bind.annotation.Super;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -41,7 +40,7 @@ public class Problem {
     private String answer;
 
     @Setter
-    private Integer index; //ProblemSet에서 이 Problem이 몇 번째인지
+    private Integer idx; //ProblemSet에서 이 Problem이 몇 번째인지
 
     private Integer totalTry; //문제를 시도한 사람 수
     private Integer totalCorrect; //문제를 맞춘 사람 수

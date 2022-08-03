@@ -21,7 +21,7 @@ public class ProblemOption {
     private Problem problem;
 
     @Setter
-    private Integer index; //몇 번째 선택지인지
+    private Integer idx; //몇 번째 선택지인지
 
     @Setter
     private String description;

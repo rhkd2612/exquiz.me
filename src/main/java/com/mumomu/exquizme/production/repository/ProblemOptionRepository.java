@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ProblemOptionRepository extends JpaRepository<ProblemOption, Long> {
-    List<ProblemOption> findAllByProblemOrderByIndexAsc(Problem problem);
+    List<ProblemOption> findAllByProblemOrderByIdxAsc(Problem problem);
 
     Optional<ProblemOption> findOneById(Long problemOptionId);
 }

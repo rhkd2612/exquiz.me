@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 public class ProblemModifyDto {
     private Long problemId;
     private String dtype;
-    private Integer index;
+    private Integer idx;
     private String title;
     private String description;
     private Integer timelimit;
