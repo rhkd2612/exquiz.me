@@ -38,6 +38,10 @@ out/
 
 ### secret ###
 *.yml
+!application-dev.yml
+!**/test/resources/application.yml
+!.github/workflows/gradle.yml
+!appspec.yml
 secrets/
 
 # Created by https://www.toptal.com/developers/gitignore/api/java,macos
@@ -58,6 +62,7 @@ secrets/
 
 # Package Files #
 *.jar
+!gradle-wrapper.jar
 *.war
 *.nar
 *.ear

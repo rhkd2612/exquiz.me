@@ -45,10 +45,19 @@ public class Room {
         return anonymousCookie;
     }
 
-    public void closeRoom(){
-        endDate = new Date();
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
-        pin = formatter.format(endDate) + pin;
-        currentState = RoomState.FINISH;
+    public void setPin(String pin) {
+        this.pin = pin;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
+    }
+
+    public void setProblemset(Problemset problemset) {
+        this.problemset = problemset;
+    }
+
+    public void setCurrentState(RoomState currentState) {
+        this.currentState = currentState;
     }
 }

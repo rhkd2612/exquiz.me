@@ -178,6 +178,7 @@ public class ProblemService {
         return problemOption;
     }
 
+    // TODO getProblemsetListByHostId로 변경해야 함
     @Transactional
     public List<Problemset> getProblemset(Long hostId) {
         try {
@@ -189,7 +190,17 @@ public class ProblemService {
     }
 
     @Transactional
-    public List<Problem> getProblem(Long problemsetId) {
+    public Problemset getProblemsetById(Long problemsetId){
+        Optional<Problemset> targetProblemset = problemsetRepository.findOneById(problemsetId);
+
+        if(targetProblemset.isEmpty())
+            throw new NullPointerException("존재하지 않는 문제셋입니다.");
+
+        return targetProblemset.get();
+    }
+
+    @Transactional
+    public List<Problem> getProblems(Long problemsetId) {
         try {
             List<Problem> problems = problemRepository.findAllByProblemsetOrderByIdxAsc(problemsetRepository.findOneById(problemsetId).get());
             return problems;

@@ -2,6 +2,8 @@ package com.mumomu.exquizme.distribution.web.dto;
 
 import com.mumomu.exquizme.distribution.domain.Room;
 import com.mumomu.exquizme.distribution.domain.RoomState;
+import com.mumomu.exquizme.production.dto.ProblemsetDto;
+import com.mumomu.exquizme.production.dto.ProblemsetSaveDto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -27,6 +29,9 @@ public class RoomDto {
     @ApiModelProperty(value="종료일")
     private Date endDate;
 
+    @ApiModelProperty(value="문제셋Dto")
+    private ProblemsetDto problemsetDto;
+
     @ApiModelProperty(value="방 상태(READY, PLAY, FINISH)")
     @Enumerated(EnumType.STRING)
     private RoomState currentState; // READY, PLAY, FINISH
@@ -41,5 +46,6 @@ public class RoomDto {
         this.endDate = room.getEndDate();
         this.currentState = room.getCurrentState();
         this.currentProblemNum = room.getCurrentProblemNum();
+        this.problemsetDto = new ProblemsetDto(room.getProblemset());
     }
 }

@@ -7,6 +7,12 @@ import com.mumomu.exquizme.distribution.service.RoomService;
 import com.mumomu.exquizme.distribution.web.dto.ParticipantDto;
 import com.mumomu.exquizme.distribution.web.dto.RoomDto;
 import com.mumomu.exquizme.distribution.web.model.ParticipantForm;
+import com.mumomu.exquizme.production.domain.Problem;
+import com.mumomu.exquizme.production.domain.Problemset;
+import com.mumomu.exquizme.production.domain.problemtype.MultipleChoiceProblem;
+import com.mumomu.exquizme.production.dto.ProblemDto;
+import com.mumomu.exquizme.production.dto.ProblemsetDto;
+import com.mumomu.exquizme.production.service.ProblemService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -22,9 +28,12 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.Null;
+import java.rmi.server.ExportException;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -33,23 +42,30 @@ import java.util.UUID;
 @RequestMapping("/api/room")
 public class RoomRestController {
     private final RoomService roomService;
+    private final ProblemService problemService;
 
     // 퀴즈방 생성
     @PostMapping("/newRoom")
     @Operation(summary = "퀴즈방 생성", description = "새로운 방을 생성합니다(사용자 인증 정보 요구 예정)")
     @ApiResponse(responseCode = "201", description = "방 생성 성공")
+    @ApiResponse(responseCode = "400", description = "퀴즈셋 없음")
     @ApiResponse(responseCode = "500", description = "방 생성 실패, 시간 초과(다시 시도 권유)")
-    public ResponseEntity<?> newRoom(){
+    public ResponseEntity<?> newRoom(@RequestParam Long problemsetId){
         // 1. Validation
         try {
             // 2. Business Logic
-            Room room = roomService.newRoom();
+            Problemset problemset = problemService.getProblemsetById(problemsetId);
+            Room room = roomService.newRoom(problemset);
+
             RoomDto createRoomDto = new RoomDto(room);
             // 3. Make Response
             return new ResponseEntity(createRoomDto, HttpStatus.CREATED);
         }catch(RuntimeException e){
+            log.info("error : " + e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }catch(Exception e){
             log.info(e.getMessage());
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -66,10 +82,10 @@ public class RoomRestController {
         try{
             // 2. Business Logic
             Room room = roomService.closeRoomByPin(roomPin);
-            RoomDto createRoomDto = new RoomDto(room);
+            RoomDto deleteRoomDto = new RoomDto(room);
 
             // 3. Make Response
-            return new ResponseEntity(createRoomDto, HttpStatus.ACCEPTED);
+            return new ResponseEntity(deleteRoomDto, HttpStatus.ACCEPTED);
         } catch(NullPointerException e){
             log.info(e.getMessage());
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
@@ -80,12 +96,13 @@ public class RoomRestController {
     // TODO Cookie에 관한 수정이 필요함 + WebSocket 사용 시 쿠키가 필요없어질수도..?
     // TODO Swagger변경 + API 테스트 필요
     // TODO BusinessLogic 서비스로 이동해야함
+    // TODO 멘토님께 여쭤봐야함 구조에 대해.. 어떤건 참여자 어떤건 방 Dto 반환함..
     @GetMapping("/{roomPin}")
     @ApiImplicitParam(name = "roomPin", value = "방의 핀번호(Path)", required = true, dataType = "String", paramType = "path")
-    @Operation(summary = "퀴즈방 조회", description = "쿠키가 있는지 확인 후 존재 시 방 입장, 미 존재 시 등록 화면으로 이동합니다.")
-    @ApiResponse(responseCode = "200", description = "방 입장 성공(기존 쿠키 정보를 토대로 입장)")
+    @Operation(summary = "퀴즈방 조회", description = "쿠키가 있는지 확인 후 존재 시 방 입장(참여자 Dto 반환), 미 존재 시 등록 화면으로 이동합니다.(방 Dto 반환)")
+    @ApiResponse(responseCode = "200", description = "방 입장 성공(기존 쿠키 정보를 토대로 입장 - 참여자 Dto 반환)")
     @ApiResponse(responseCode = "400", description = "존재하지 않은 방 코드 입력")
-    @ApiResponse(responseCode = "401", description = "방 입장 실패(사용자 정보 입력 필요 -> 사용자 이름/닉네임 등록 씬으로 입장)")
+    @ApiResponse(responseCode = "302", description = "방 입장 실패(사용자 정보 입력 필요 -> 사용자 이름/닉네임 등록 씬으로 입장)")
     public ResponseEntity<?> joinRoom(@PathVariable String roomPin, Model model, HttpServletResponse response,
                                       @CookieValue(name = "anonymousCode", defaultValue = "") String anonymousCode) {
         // 1. Validation
@@ -96,14 +113,14 @@ public class RoomRestController {
 
             // 3. Make Response
             if (anonymousCode.equals("")) {
-                return new ResponseEntity<>(targetRoomDto, HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity<>(targetRoomDto, HttpStatus.MOVED_PERMANENTLY);
             } else {
                 Participant participant = roomService.findParticipant(anonymousCode);
 
-                if (participant.getRoom().getPin() != roomPin) {
+                if (!participant.getRoom().getPin().equals(roomPin)) {
                     // 방이 다르다면 쿠키 제거
                     deleteAnonymousCodeCookie(response);
-                    return new ResponseEntity<>(targetRoomDto, HttpStatus.UNAUTHORIZED);
+                    return new ResponseEntity<>(targetRoomDto, HttpStatus.MOVED_PERMANENTLY);
                 }
 
                 ParticipantDto participantDto = new ParticipantDto(participant);
@@ -115,18 +132,14 @@ public class RoomRestController {
         }
     }
 
-
-    //
-//    @GetMapping("/room/{roomId}/participate")
-//    public ResponseEntity<?>
-
+    // TODO 비적절 이름 필터 넣은 후 관련 예외 추가하여야함 + 테스트도
     @PostMapping("/{roomPin}/signup")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "roomPin", value = "방의 핀번호(Path)", required = true, dataType = "String", paramType = "path"),
     })
     @Operation(summary = "익명사용자 정보 등록 후 방 입장", description = "닉네임(nickname)과 이름(name) 입력 후 방에 입장합니다.")
     @ApiResponse(responseCode = "201", description = "유저 생성 성공 -> 방 입장, 사용자 정보 포함")
-    @ApiResponse(responseCode = "400", description = "이름 혹은 닉네임 불충분 혹은 부적절, 존재하지 않는 방 코드 입력")
+    @ApiResponse(responseCode = "400", description = "이름 혹은 닉네임 불충분 혹은 부적절")
     public ResponseEntity<?> signUpParticipant(@PathVariable String roomPin, @RequestBody ParticipantForm participateForm,
                                                HttpServletResponse response) {
         // 1. Validation
@@ -148,6 +161,9 @@ public class RoomRestController {
 
             return ResponseEntity.status(HttpStatus.CREATED).body(participantDto);
         } catch(NullPointerException e){
+            log.error(e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch(Exception e){
             log.error(e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
