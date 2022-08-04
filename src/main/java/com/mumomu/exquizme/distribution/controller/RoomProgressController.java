@@ -30,7 +30,7 @@ public class RoomProgressController {
     private final ProblemService problemService;
 
     // 퀴즈 시작
-    @PostMapping("/startRoom")
+    @PostMapping("/start")
     @ApiImplicitParam(name = "roomPin", value = "방의 핀번호(Path)", required = true, dataType = "String", paramType = "path")
     public ResponseEntity<?> startRoom(@PathVariable String roomPin){
         // 1. Validation
@@ -46,7 +46,7 @@ public class RoomProgressController {
     }
 
     // 다음 퀴즈
-    @GetMapping("/nextProblem")
+    @GetMapping("/next")
     @Operation(summary = "다음 문제 조회", description = "현재 방의 다음 문제를 반환합니다")
     @ApiImplicitParam(name = "roomPin", value = "방의 핀번호(Path)", required = true, dataType = "String", paramType = "path")
     @ApiResponse(responseCode = "301", description = "퀴즈 종료")
