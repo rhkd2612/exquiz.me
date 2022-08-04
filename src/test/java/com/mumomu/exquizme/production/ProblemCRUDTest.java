@@ -15,6 +15,7 @@ import com.mumomu.exquizme.production.repository.problemtype.MultipleChoiceProbl
 import com.mumomu.exquizme.production.repository.problemtype.OXProblemRepository;
 import com.mumomu.exquizme.production.repository.problemtype.SubjectiveProblemRepository;
 import com.mumomu.exquizme.production.service.ProblemService;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,7 @@ import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
@@ -117,6 +119,26 @@ public class ProblemCRUDTest {
         });
 
         getProblemsetTest();
+    }
+
+    @Test
+    @Transactional
+    void deleteProblemsetTest() throws Exception {
+        problemService.deleteProblemset(problemService.getProblemset(1L).get(0).getId());
+
+        assertThrows(Exception.class, () -> {
+           problemService.deleteProblemset(99999L);
+        });
+    }
+
+    @Test
+    @Transactional
+    void deleteProblemTest() throws Exception {
+        problemService.deleteProblem(problemService.getProblems(problemset.getId()).get(0).getId());
+
+        assertThrows(Exception.class, () -> {
+            problemService.deleteProblem(99999L);
+        });
     }
 
     @Test
@@ -230,4 +252,5 @@ public class ProblemCRUDTest {
 
         getProblemOptionTest();
     }
+
 }

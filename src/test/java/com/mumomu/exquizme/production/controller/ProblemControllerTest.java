@@ -205,6 +205,24 @@ class ProblemControllerTest {
                 .andReturn();
     }
 
+    @Test
+    void deleteProblemset() throws Exception {
+        makeProblemset();
+
+        mockMvc.perform(delete("/api/problemset/{problemsetId}", problemsetId))
+                .andExpect(status().isOk())
+                .andReturn();
+    }
+
+    @Test
+    void deleteProblem() throws Exception {
+        makeProblem();
+
+        mockMvc.perform(delete("/api/problem/{problemId}", problemId))
+                .andExpect(status().isOk())
+                .andReturn();
+    }
+
     private <T> String toJson(T data) throws JsonProcessingException {
         return objectMapper.writeValueAsString(data);
     }

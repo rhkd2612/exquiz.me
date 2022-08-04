@@ -22,7 +22,7 @@ public class ProblemDto {
     private Integer score;
     private String picture;
     private String answer;
-    private Integer index;
+    private Integer idx;
 
     public ProblemDto(Problem problem) {
         this.id = problem.getId();
@@ -33,6 +33,6 @@ public class ProblemDto {
         this.score = problem.getScore();
         this.picture = problem.getPicture();
         this.answer = problem.getAnswer();
-        this.index = problem.getIndex();
+        this.idx = problem.getIdx();
     }
 }

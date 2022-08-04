@@ -4,12 +4,16 @@ import com.mumomu.exquizme.production.domain.Problem;
 import com.mumomu.exquizme.production.domain.ProblemOption;
 import com.mumomu.exquizme.production.domain.Problemset;
 import com.mumomu.exquizme.production.dto.*;
+import com.mumomu.exquizme.production.exception.ProblemNotFoundException;
+import com.mumomu.exquizme.production.exception.ProblemsetNotFoundException;
 import com.mumomu.exquizme.production.service.ProblemService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -132,6 +136,26 @@ public class ProblemController {
                 problemOptionModifyDto.getDescription(), problemOptionModifyDto.getPicture());
 
         return problemOption;
+    }
+
+    @DeleteMapping("/problemset/{problemsetId}")
+    public ResponseEntity<?> deleteProblemset(@PathVariable Long problemsetId) {
+        try {
+            problemService.deleteProblemset(problemsetId);
+        } catch (ProblemsetNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(null, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/problem/{problemId}")
+    public ResponseEntity<?> deleteProblem(@PathVariable Long problemId) {
+        try {
+            problemService.deleteProblem(problemId);
+        } catch (ProblemNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
 }

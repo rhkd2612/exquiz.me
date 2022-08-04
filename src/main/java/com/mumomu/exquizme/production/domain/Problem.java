@@ -48,6 +48,8 @@ public class Problem {
     private Date createdAt;
     @Setter
     private Date updatedAt;
+    @Setter
     private Date deletedAt;
+    @Setter
     private Boolean deleted;
 }

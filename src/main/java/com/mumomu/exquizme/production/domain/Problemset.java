@@ -42,7 +42,9 @@ public class Problemset {
     private Date createdAt;
     @Setter
     private Date updatedAt;
+    @Setter
     private Date deletedAt;
+    @Setter
     private Boolean deleted;
 
     private Integer totalParticipant;

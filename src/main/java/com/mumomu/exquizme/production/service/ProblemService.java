@@ -7,6 +7,8 @@ import com.mumomu.exquizme.production.domain.Problemset;
 import com.mumomu.exquizme.production.domain.problemtype.MultipleChoiceProblem;
 import com.mumomu.exquizme.production.domain.problemtype.OXProblem;
 import com.mumomu.exquizme.production.domain.problemtype.SubjectiveProblem;
+import com.mumomu.exquizme.production.exception.ProblemNotFoundException;
+import com.mumomu.exquizme.production.exception.ProblemsetNotFoundException;
 import com.mumomu.exquizme.production.repository.HostRepository;
 import com.mumomu.exquizme.production.repository.ProblemOptionRepository;
 import com.mumomu.exquizme.production.repository.ProblemRepository;
@@ -182,7 +184,7 @@ public class ProblemService {
     @Transactional
     public List<Problemset> getProblemset(Long hostId) {
         try {
-            List<Problemset> problemsets = problemsetRepository.findAllByHost(hostRepository.findOneById(hostId).get());
+            List<Problemset> problemsets = problemsetRepository.findAllByHostAndDeleted(hostRepository.findOneById(hostId).get(), false);
             return problemsets;
         } catch (Exception e) {
             throw e;
@@ -202,7 +204,7 @@ public class ProblemService {
     @Transactional
     public List<Problem> getProblems(Long problemsetId) {
         try {
-            List<Problem> problems = problemRepository.findAllByProblemsetOrderByIdxAsc(problemsetRepository.findOneById(problemsetId).get());
+            List<Problem> problems = problemRepository.findAllByProblemsetAndDeletedOrderByIdxAsc(problemsetRepository.findOneById(problemsetId).get(), false);
             return problems;
         } catch (Exception e) {
             throw e;
@@ -338,5 +340,34 @@ public class ProblemService {
         problemOptionRepository.save(problemOption);
 
         return problemOption;
+    }
+
+
+    @Transactional
+    public void deleteProblemset(Long problemsetId) throws ProblemsetNotFoundException {
+        Optional<Problemset> problemsetOptional = problemsetRepository.findOneById(problemsetId);
+        if (problemsetOptional.isEmpty()) {
+            throw new ProblemsetNotFoundException("Problemset not found");
+        }
+        Problemset problemset = problemsetOptional.get();
+
+        problemset.setDeleted(true);
+        problemset.setDeletedAt(new Date());
+
+        problemsetRepository.save(problemset);
+    }
+
+    @Transactional
+    public void deleteProblem(Long problemId) throws ProblemNotFoundException {
+        Optional<Problem> problemOptional = problemRepository.findOneById(problemId);
+        if (problemOptional.isEmpty()) {
+            throw new ProblemNotFoundException("Problem not found");
+        }
+        Problem problem = problemOptional.get();
+
+        problem.setDeleted(true);
+        problem.setDeletedAt(new Date());
+
+        problemRepository.save(problem);
     }
 }
