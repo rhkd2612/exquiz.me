@@ -1,5 +1,6 @@
 package com.mumomu.exquizme.production.service;
 
+import com.mumomu.exquizme.distribution.domain.Room;
 import com.mumomu.exquizme.production.domain.Host;
 import com.mumomu.exquizme.production.domain.Problem;
 import com.mumomu.exquizme.production.domain.ProblemOption;
