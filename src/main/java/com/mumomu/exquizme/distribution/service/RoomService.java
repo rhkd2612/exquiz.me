@@ -3,9 +3,14 @@ package com.mumomu.exquizme.distribution.service;
 import com.mumomu.exquizme.distribution.domain.Participant;
 import com.mumomu.exquizme.distribution.domain.Room;
 import com.mumomu.exquizme.distribution.domain.RoomState;
+import com.mumomu.exquizme.distribution.exception.CookieNotExistException;
+import com.mumomu.exquizme.distribution.exception.CreateRandomPinFailureException;
+import com.mumomu.exquizme.distribution.exception.DuplicateSignUpException;
+import com.mumomu.exquizme.distribution.exception.InvalidRoomAccessException;
 import com.mumomu.exquizme.distribution.repository.ParticipantRepository;
 import com.mumomu.exquizme.distribution.repository.RoomRepository;
 import com.mumomu.exquizme.distribution.web.dto.ParticipantDto;
+import com.mumomu.exquizme.distribution.web.model.ParticipantCreateForm;
 import com.mumomu.exquizme.production.domain.Problemset;
 import com.mumomu.exquizme.production.service.ProblemService;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +19,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.Cookie;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -37,29 +43,36 @@ public class RoomService {
     private SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
 
     @Transactional
-    public Participant joinParticipant(Participant participant){
+    public Participant joinParticipant(ParticipantCreateForm participateForm, Room targetRoom, String anonymousCookie) throws DuplicateSignUpException {
+        Participant participant =
+                Participant.ByBasicBuilder()
+                        .name(participateForm.getName())
+                        .nickname(participateForm.getNickname())
+                        .room(targetRoom)
+                        .uuid(anonymousCookie)
+                        .build();
         Optional<Participant> findParticipant = participantRepository.findByUuid(participant.getUuid());
 
         if(findParticipant.isEmpty()){
             participantRepository.save(participant);
+            participant.getRoom().addParticipant(participant);
         }
         else{
-            log.info("방문 이력이 있는 사용자입니다.");
-            participant = findParticipant.get();
+            throw new DuplicateSignUpException("방문 이력이 있는 사용자입니다.");
         }
 
         return participant;
     }
 
     @Transactional
-    public Room newRoom(Long problemsetId){
+    public Room newRoom(Long problemsetId, int maxParticipantCount){
         Problemset roomProblemset = problemService.getProblemsetById(problemsetId);
-        return newRoomLogic(roomProblemset);
+        return newRoomLogic(roomProblemset, maxParticipantCount);
     }
 
     @Transactional
-    public Room newRoom(Problemset roomProblemset){
-        return newRoomLogic(roomProblemset);
+    public Room newRoom(Problemset roomProblemset, int maxParticipantCount){
+        return newRoomLogic(roomProblemset, maxParticipantCount);
     }
 
     private String getRandomPin() {
@@ -76,7 +89,7 @@ public class RoomService {
         Optional<Participant> optParticipant = participantRepository.findByUuid(uuid);
 
         if(optParticipant.isEmpty())
-            throw new NullPointerException("쿠키가 존재하지 않습니다.");
+            throw new CookieNotExistException("쿠키가 존재하지 않습니다.");
 
         return optParticipant.get();
     }
@@ -86,7 +99,7 @@ public class RoomService {
         Optional<Room> optRoom = roomRepository.findRoomById(roomId);
 
         if(optRoom.isEmpty())
-            throw new NullPointerException("존재하지 않는 방입니다.");
+            throw new InvalidRoomAccessException("존재하지 않는 방입니다.");
 
         return roomRepository.findRoomById(roomId).get();
     }
@@ -96,7 +109,7 @@ public class RoomService {
         Optional<Room> optRoom = roomRepository.findRoomByPin(roomPin);
 
         if(optRoom.isEmpty() || optRoom.get().getCurrentState() == RoomState.FINISH)
-            throw new NullPointerException("존재하지 않는 방입니다.");
+            throw new InvalidRoomAccessException("존재하지 않는 방입니다.");
 
         return optRoom.get();
     }
@@ -106,7 +119,7 @@ public class RoomService {
         Optional<Room> optRoom = roomRepository.findRoomByPin(roomPin);
 
         if(optRoom.isEmpty())
-            throw new NullPointerException("존재하지 않는 방입니다.");
+            throw new InvalidRoomAccessException("존재하지 않는 방입니다.");
 
         Room targetRoom = optRoom.get();
 
@@ -121,10 +134,11 @@ public class RoomService {
     @Transactional(readOnly = true)
     public List<ParticipantDto> findParticipantsByRoomPin(String roomPin){
         Room room = roomRepository.findRoomByPin(roomPin).get();
-        return participantRepository.findAllByRoom(room).stream().map(p -> new ParticipantDto(p)).collect(Collectors.toList());
+        return room.getParticipants().stream().map(p -> new ParticipantDto(p)).collect(Collectors.toList());
+        //return participantRepository.findAllByRoom(room).stream().map(p -> new ParticipantDto(p)).collect(Collectors.toList());
     }
 
-    private Room newRoomLogic(Problemset roomProblemset) {
+    private Room newRoomLogic(Problemset roomProblemset, int maxParticipantCount) {
         String randomPin;
         Optional<Room> targetRoom;
         int retryCount = 10; // 최대 try 횟수, 무한 루프 방지
@@ -137,10 +151,10 @@ public class RoomService {
         while(!targetRoom.isEmpty() && retryCount > 0);
 
         if(retryCount == 0){
-            throw new RuntimeException("다시 시도 해주세요.");
+            throw new CreateRandomPinFailureException("다시 시도 해주세요.");
         }
 
-        Room room = Room.builder().pin(randomPin).startDate(new Date()).currentState(RoomState.READY).problemset(roomProblemset).build();
+        Room room = Room.ByBasicBuilder().pin(randomPin).problemset(roomProblemset).maxParticipantCount(maxParticipantCount).build();
         log.info("random Pin is {}",randomPin);
 
         return roomRepository.save(room);
