@@ -1,14 +1,13 @@
 package com.mumomu.exquizme.distribution.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.mumomu.exquizme.distribution.web.dto.ParticipantDto;
 import lombok.*;
 
 import javax.persistence.*;
+import javax.transaction.Transactional;
 import java.util.Date;
 
 @Entity @Getter @Builder
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Participant {
     @Id @GeneratedValue
@@ -32,8 +31,36 @@ public class Participant {
 
     private Date entryDate; // 생성일(입장시간)
     private int currentScore; // 점수
+    private int beforeScore; // 이전 점수
+    private int continuousCorrect; // 연속 정답
+    private int continuousFailure; // 연속 실패
 
-    public void setUuid(String uuid) {
+    @Builder(builderClassName = "ByBasicBuilder", builderMethodName = "ByBasicBuilder")
+    public Participant(String name, String nickname, String uuid, Room room){
+        this.name = name;
+        this.nickname = nickname;
         this.uuid = uuid;
+        this.room = room;
+        this.entryDate = new Date();
+        this.currentScore = 0;
+        this.beforeScore = 0;
+        this.continuousCorrect = 0;
+        this.continuousFailure = 0;
+    }
+
+    @Transactional
+    public int updateParticipantInfo(int score){
+        beforeScore = currentScore;
+        currentScore = currentScore + score;
+
+        if(score > 0){
+            continuousCorrect++;
+            continuousFailure = 0;
+        }else{
+            continuousCorrect = 0;
+            continuousFailure++;
+        }
+
+        return currentScore;
     }
 }
