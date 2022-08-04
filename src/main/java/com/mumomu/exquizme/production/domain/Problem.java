@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import javax.persistence.*;
+import javax.transaction.Transactional;
 import java.util.Date;
 
 @Entity
@@ -50,4 +51,16 @@ public class Problem {
     private Date updatedAt;
     private Date deletedAt;
     private Boolean deleted;
+
+    @Transactional
+    public int solve(){
+        this.totalTry++;
+        this.totalCorrect++;
+        return this.score;
+    }
+
+    @Transactional
+    public void wrong(){
+        this.totalTry++;
+    }
 }

@@ -5,53 +5,35 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mumomu.exquizme.distribution.domain.Participant;
 import com.mumomu.exquizme.distribution.domain.Room;
 import com.mumomu.exquizme.distribution.service.RoomService;
-import com.mumomu.exquizme.distribution.web.model.ParticipantForm;
+import com.mumomu.exquizme.distribution.web.model.ParticipantCreateForm;
+import com.mumomu.exquizme.distribution.web.model.RoomCreateForm;
 import com.mumomu.exquizme.production.domain.Problemset;
 import com.mumomu.exquizme.production.service.ProblemService;
-import org.aspectj.lang.annotation.Before;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.parameters.P;
-import org.springframework.test.web.client.MockRestServiceServer;
-import org.springframework.test.web.client.match.MockRestRequestMatchers;
-import org.springframework.test.web.client.response.MockRestResponseCreators;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.RequestBuilder;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.context.WebApplicationContext;
 
-import javax.management.ServiceNotFoundException;
 import javax.persistence.EntityManager;
 import javax.servlet.http.Cookie;
 
 import java.util.UUID;
 
 import static org.hamcrest.Matchers.notNullValue;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
-import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -81,8 +63,8 @@ class RoomRestControllerTest {
     public void setUP() throws Exception{
         mvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).apply(springSecurity()).build();
 
-        roomPin = roomService.newRoom(problemset).getPin();
-        roomPin2 = roomService.newRoom(problemset).getPin();
+        roomPin = roomService.newRoom(problemset,5).getPin();
+        roomPin2 = roomService.newRoom(problemset,2).getPin();
     }
 
     @AfterEach
@@ -96,9 +78,10 @@ class RoomRestControllerTest {
     @Transactional
     @DisplayName("새로운퀴즈방생성")
     void newRoomTest() throws Exception{
-        Long problemsetId = 1L;
+        RoomCreateForm roomCreateForm = new RoomCreateForm(5, 1L);
         mvc.perform(post("/api/room/newRoom")
-                        .param("problemsetId",problemsetId.toString()))
+                        .content(toJson(roomCreateForm))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(jsonPath("$.id",notNullValue()))
@@ -109,7 +92,7 @@ class RoomRestControllerTest {
     @Transactional
     @DisplayName("퀴즈방폐쇄")
     void closeRoomTest() throws Exception {
-        String myRoomPin = roomService.newRoom(problemset).getPin();
+        String myRoomPin = roomService.newRoom(problemset,5).getPin();
 
         mvc.perform(post("/api/room/{roomPin}/close", myRoomPin))
                 .andExpect(status().isAccepted())
@@ -140,18 +123,37 @@ class RoomRestControllerTest {
 
     @Test
     @Transactional
+    @DisplayName("방최대인원초과")
+    void joinRoomFailureByMaxParticipantsOver() throws Exception{
+        for(int i = 0; i < 2; i++){
+            Room room2 = roomService.findRoomByPin(roomPin2);
+            String pUuid = UUID.randomUUID().toString();
+            ParticipantCreateForm pcForm1 = ParticipantCreateForm.builder()
+                    .name("test")
+                    .nickname("test_nickname")
+                    .build();
+            roomService.joinParticipant(pcForm1, room2, pUuid);
+        }
+
+        mvc.perform(get("/api/room/{roomPin}", roomPin2))
+                .andExpect(status().isForbidden())
+                .andDo(MockMvcResultHandlers.print());
+    }
+
+    @Test
+    @Transactional
     @DisplayName("쿠키와함께퀴즈방참가")
     void joinRoomWithCookieTest() throws Exception{
         Room room = roomService.findRoomByPin(roomPin);
         String pUuid = UUID.randomUUID().toString();
 
-        Participant participant = Participant.builder()
+        Participant participant = Participant.ByBasicBuilder()
                 .name("test")
                 .nickname("test_nickname")
                 .uuid(pUuid)
                 .room(room)
                 .build();
-       roomService.joinParticipant(participant);
+       roomService.joinParticipant(new ParticipantCreateForm(participant), room, pUuid);
 
         mvc.perform(get("/api/room/{roomPin}", roomPin)
                         .cookie(new Cookie("anonymousCode",pUuid)))
@@ -168,13 +170,13 @@ class RoomRestControllerTest {
         Room room2 = roomService.findRoomByPin(roomPin2);
         String pUuid = UUID.randomUUID().toString();
 
-        Participant participant = Participant.builder()
+        Participant participant = Participant.ByBasicBuilder()
                 .name("test")
                 .nickname("test_nickname")
                 .uuid(pUuid)
                 .room(room2)
                 .build();
-        roomService.joinParticipant(participant);
+        roomService.joinParticipant(new ParticipantCreateForm(participant), room2, pUuid);
 
         mvc.perform(get("/api/room/{roomPin}", roomPin)
                         .cookie(new Cookie("anonymousCode",pUuid)))
@@ -197,11 +199,11 @@ class RoomRestControllerTest {
     @Transactional
     @DisplayName("새로운참여자추가")
     void signUpParticipantTest() throws Exception{
-        ParticipantForm participantForm = new ParticipantForm("test","tester");
+        ParticipantCreateForm participantCreateForm = new ParticipantCreateForm("test","tester");
 
         mvc.perform(post("/api/room/{roomPin}/signup", roomPin)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(toJson(participantForm)))
+                        .content(toJson(participantCreateForm)))
                 .andExpect(status().isCreated())
                 .andDo(MockMvcResultHandlers.print());
     }

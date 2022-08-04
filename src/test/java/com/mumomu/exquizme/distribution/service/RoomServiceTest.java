@@ -2,7 +2,11 @@ package com.mumomu.exquizme.distribution.service;
 
 import com.mumomu.exquizme.distribution.domain.Participant;
 import com.mumomu.exquizme.distribution.domain.Room;
+import com.mumomu.exquizme.distribution.exception.ClosedRoomAccessException;
+import com.mumomu.exquizme.distribution.exception.DuplicateSignUpException;
+import com.mumomu.exquizme.distribution.exception.InvalidRoomAccessException;
 import com.mumomu.exquizme.distribution.repository.RoomRepository;
+import com.mumomu.exquizme.distribution.web.model.ParticipantCreateForm;
 import com.mumomu.exquizme.production.domain.Problemset;
 import com.mumomu.exquizme.production.service.ProblemService;
 import org.assertj.core.api.Assertions;
@@ -37,8 +41,8 @@ class RoomServiceTest {
     Room room2;
     @BeforeEach
     void setUp(){
-        room = roomService.newRoom(1L);
-        room2 = roomService.newRoom(1L);
+        room = roomService.newRoom(1L,5);
+        room2 = roomService.newRoom(1L,2);
     }
 
     @AfterEach
@@ -82,7 +86,7 @@ class RoomServiceTest {
         assertThrows(RuntimeException.class, ()->{
             int maxCount = 51;
             while(maxCount-- != 0){
-                roomService.newRoom(1L);
+                roomService.newRoom(1L,5);
             }
         });
     }
@@ -91,7 +95,7 @@ class RoomServiceTest {
     @Transactional
     @DisplayName("존재하지않는방조회")
     void findInvalidRoom(){
-        assertThrows(NullPointerException.class, ()-> {
+        assertThrows(InvalidRoomAccessException.class, ()-> {
             roomService.findRoomByPin("111111");
         });
     }
@@ -99,9 +103,9 @@ class RoomServiceTest {
     @Test
     @Transactional
     @DisplayName("방참여")
-    void participateRoom(){
-        Participant participant = Participant.builder().nickname("userA").uuid(UUID.randomUUID().toString()).room(room).build();
-        Participant savedParticipant = roomService.joinParticipant(participant);
+    void participateRoom() throws DuplicateSignUpException {
+        Participant participant = Participant.ByBasicBuilder().nickname("userA").uuid(UUID.randomUUID().toString()).room(room).build();
+        Participant savedParticipant = roomService.joinParticipant(new ParticipantCreateForm(participant), room, participant.getUuid());
 
         assertThat(room).isEqualTo(savedParticipant.getRoom());
     }
@@ -109,14 +113,14 @@ class RoomServiceTest {
     @Test
     @Transactional
     @DisplayName("방에참여한참여자목록조회")
-    void findParticipantsListInRoom(){
-        Participant participant = Participant.builder().nickname("userA").uuid(UUID.randomUUID().toString()).room(room).build();
-        Participant participant2 = Participant.builder().nickname("userB").uuid(UUID.randomUUID().toString()).room(room).build();
-        Participant participant3 = Participant.builder().nickname("userC").uuid(UUID.randomUUID().toString()).room(room2).build();
+    void findParticipantsListInRoom() throws DuplicateSignUpException {
+        Participant participant = Participant.ByBasicBuilder().name("a").nickname("userA").uuid(UUID.randomUUID().toString()).room(room).build();
+        Participant participant2 = Participant.ByBasicBuilder().name("b").nickname("userB").uuid(UUID.randomUUID().toString()).room(room).build();
+        Participant participant3 = Participant.ByBasicBuilder().name("c").nickname("userC").uuid(UUID.randomUUID().toString()).room(room2).build();
 
-        roomService.joinParticipant(participant);
-        roomService.joinParticipant(participant2);
-        roomService.joinParticipant(participant3);
+        roomService.joinParticipant(new ParticipantCreateForm(participant), room, participant.getUuid());
+        roomService.joinParticipant(new ParticipantCreateForm(participant2), room, participant2.getUuid());
+        roomService.joinParticipant(new ParticipantCreateForm(participant3), room2, participant3.getUuid());
 
         assertThat(roomService.findParticipantsByRoomPin(room.getPin()).size()).isEqualTo(2);
         assertThat(roomService.findParticipantsByRoomPin(room2.getPin()).size()).isEqualTo(1);
@@ -139,7 +143,7 @@ class RoomServiceTest {
 
         Room roomByPin = roomService.closeRoomByPin(pin);
 
-        assertThrows(NullPointerException.class, ()-> {
+        assertThrows(InvalidRoomAccessException.class, ()-> {
             Room roomByPin2 = roomService.findRoomByPin(pin);
         });
     }
@@ -147,38 +151,43 @@ class RoomServiceTest {
     @Test
     @Transactional
     @DisplayName("익명사용자입장")
-    public void joinAnonymousUser(){
-        Participant participant =
-                Participant.builder().name("test").nickname("tester").uuid(UUID.randomUUID().toString()).build();
-        Participant anonymous = roomService.joinParticipant(participant);
+    public void joinAnonymousUser() throws DuplicateSignUpException {
+        ParticipantCreateForm pcForm1 =
+                ParticipantCreateForm.builder().name("test").nickname("tester").build();
+        Participant participant = roomService.joinParticipant(pcForm1, room, UUID.randomUUID().toString());
+        Participant anonymous = roomService.findParticipantByUuid(participant.getUuid());
+
         assertThat(anonymous).isEqualTo(participant);
     }
 
     @Test
     @Transactional
-    @DisplayName("익명사용자재입장")
-    public void joinSameAnonymousUserTwice(){
+    @DisplayName("익명사용자재가입")
+    public void joinSameAnonymousUserTwice() throws DuplicateSignUpException {
         Participant participant =
-                Participant.builder().name("test").nickname("tester").uuid(UUID.randomUUID().toString()).build();
+                Participant.ByBasicBuilder().name("test").nickname("tester").uuid(UUID.randomUUID().toString()).build();
 
-        Participant anonymous = roomService.joinParticipant(participant);
-        Participant anonymous2 = roomService.joinParticipant(anonymous);
-        assertThat(anonymous).isEqualTo(anonymous2);
-        assertThat(participant).isEqualTo(anonymous2);
+        Participant anonymous = roomService.joinParticipant(new ParticipantCreateForm(participant), room, participant.getUuid());
+
+        assertThrows(DuplicateSignUpException.class, ()-> {
+            Participant anonymous2 = roomService.joinParticipant(new ParticipantCreateForm(anonymous), room, anonymous.getUuid());
+        });
     }
 
     @Test
     @Transactional
     @DisplayName("두익명사용자입장")
-    public void joinTwoAnonymousUser(){
-        Participant participant =
-                Participant.builder().name("test").nickname("tester").uuid(UUID.randomUUID().toString()).build();
+    public void joinTwoAnonymousUser() throws DuplicateSignUpException {
+        ParticipantCreateForm pcForm1 =
+                ParticipantCreateForm.builder().name("test").nickname("tester").build();
+        ParticipantCreateForm pcForm2 =
+                ParticipantCreateForm.builder().name("test2").nickname("tester2").build();
 
-        Participant participant2 =
-                Participant.builder().name("test2").nickname("tester2").uuid(UUID.randomUUID().toString()).build();
+        Participant participant = roomService.joinParticipant(pcForm1, room, UUID.randomUUID().toString());
+        Participant participant2 = roomService.joinParticipant(pcForm2, room, UUID.randomUUID().toString());
 
-        Participant anonymous = roomService.joinParticipant(participant);
-        Participant anonymous2 = roomService.joinParticipant(participant2);
+        Participant anonymous = roomService.findParticipantByUuid(participant.getUuid());
+        Participant anonymous2 = roomService.findParticipantByUuid(participant2.getUuid());
 
         assertThat(anonymous).isEqualTo(participant);
         assertThat(anonymous2).isEqualTo(participant2);

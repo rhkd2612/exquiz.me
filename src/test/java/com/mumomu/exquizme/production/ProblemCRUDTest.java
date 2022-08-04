@@ -86,7 +86,7 @@ public class ProblemCRUDTest {
     @Test
     @Transactional
     void getProblemsetTest() {
-        List<Problemset> problemsets = problemService.getProblemset(1L);
+        List<Problemset> problemsets = problemService.getProblemsetsByHostId(1L);
         for (Problemset ps : problemsets) {
             System.out.println("title : " + ps.getTitle());
             System.out.println("description : " + ps.getDescription());
@@ -122,7 +122,7 @@ public class ProblemCRUDTest {
     @Test
     @Transactional
     void getProblemTest() {
-        List<Problem> problems = problemService.getProblems(problemset.getId());
+        List<Problem> problems = problemService.getProblemsByProblemsetId(problemset.getId());
         for (Problem p : problems) {
             System.out.println("id : " + p.getId());
             System.out.println("title : " + p.getTitle());
@@ -149,7 +149,7 @@ public class ProblemCRUDTest {
     @Test
     @Transactional
     void putProblemTest() throws Exception {
-        List<Problem> problems = problemService.getProblems(problemset.getId());
+        List<Problem> problems = problemService.getProblemsByProblemsetId(problemset.getId());
         for (int i = 0; i < problems.size(); i++) {
             problemService.updateProblem(problems.get(i).getId(), problems.get(i).getDtype(),
                     i + 1, "새로운 타이틀 #" + (i + 1), "새로운 지문 #" + (i + 1),
@@ -174,16 +174,16 @@ public class ProblemCRUDTest {
     @Transactional
     void getProblemOptionTest() throws Exception {
         List<ProblemOption> problemOptions;
-        List<Problem> problems = problemService.getProblems(problemset.getId());
+        List<Problem> problems = problemService.getProblemsByProblemsetId(problemset.getId());
         for (int i = 0; i < problems.size(); i++) {
             if (problems.get(i).getDtype().equals("SubjectiveProblem")) {
                 final int temp = i;
                 assertThrows(Exception.class, () -> { //주관식 문제는 ProblemOption이 없다
-                    problemService.getProblemOption(problems.get(temp).getId());
+                    problemService.getProblemOptionById(problems.get(temp).getId());
                 });
                 continue;
             }
-            problemOptions = problemService.getProblemOption(problems.get(i).getId());
+            problemOptions = problemService.getProblemOptionById(problems.get(i).getId());
             for (ProblemOption po : problemOptions) {
                 System.out.println("id : " + po.getId());
                 System.out.println("idx : " + po.getIdx());
@@ -197,7 +197,7 @@ public class ProblemCRUDTest {
     void postProblemOptionTest() throws Exception {
         postProblemTest();
 
-        List<Problem> problems = problemService.getProblems(problemset.getId());
+        List<Problem> problems = problemService.getProblemsByProblemsetId(problemset.getId());
         Problem curProblem = problems.get(problems.size() - 1);
 
         problemService.makeProblemOption(curProblem.getId(), 3, "새로 만든 선택지 4", null);
@@ -219,7 +219,7 @@ public class ProblemCRUDTest {
     @Test
     @Transactional
     void putProblemOptionTest() throws Exception {
-        List<ProblemOption> problemOptions = problemService.getProblemOption(multipleChoiceProblem.getId());
+        List<ProblemOption> problemOptions = problemService.getProblemOptionById(multipleChoiceProblem.getId());
         for (int i = 0; i < problemOptions.size(); i++) {
             problemService.updateProblemOption(problemOptions.get(i).getId(), i, "업데이트하는 설명 #" + (i + 1), null);
         }
