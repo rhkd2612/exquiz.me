@@ -42,7 +42,6 @@ public class Room {
 
     @JsonIgnore
     @OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
-    @Singular
     private List<Participant> participants = new ArrayList<>();
 
     @Builder(builderClassName = "ByBasicBuilder", builderMethodName = "ByBasicBuilder")
