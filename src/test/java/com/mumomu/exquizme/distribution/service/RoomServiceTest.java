@@ -166,12 +166,15 @@ class RoomServiceTest {
     public void joinSameAnonymousUserTwice() throws IllegalAccessException {
         Participant participant =
                 Participant.ByBasicBuilder().name("test").nickname("tester").uuid(UUID.randomUUID().toString()).build();
+        Participant participant2 =
+                Participant.ByBasicBuilder().name("nani").nickname("nanida").uuid(participant.getUuid()).build();
 
         Participant anonymous = roomService.joinParticipant(new ParticipantCreateForm(participant), room, participant.getUuid());
+        Participant anonymous2 = roomService.joinParticipant(new ParticipantCreateForm(participant2), room, participant2.getUuid());
 
-        assertThrows(DuplicateSignUpException.class, ()-> {
-            Participant anonymous2 = roomService.joinParticipant(new ParticipantCreateForm(anonymous), room, anonymous.getUuid());
-        });
+        assertThat(anonymous.getUuid()).isEqualTo(anonymous2.getUuid());
+        assertThat(anonymous2.getNickname()).isEqualTo(participant2.getNickname());
+        assertThat(anonymous2.getName()).isEqualTo(participant2.getName());
     }
 
     @Test

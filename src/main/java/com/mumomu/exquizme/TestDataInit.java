@@ -67,5 +67,13 @@ public class TestDataInit {
 
         ProblemOption problemOption111 = problemService.makeProblemOption(problem3.getId(),1,"im first2",null);
         ProblemOption problemOption222 = problemService.makeProblemOption(problem3.getId(),2,"im second2",null);
+
+        // 제출 파트 빌더 미수정으로 작동되지 않음
+//        problemset.getProblems().add(problem);
+//        problemset.getProblems().add(problem2);
+//        problemset.getProblems().add(problem3);
+//
+//        room1.setProblemset(problemset);
+//        room2.setProblemset(problemset);
     }
 }
