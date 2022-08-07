@@ -1,11 +1,14 @@
 package com.mumomu.exquizme.distribution.controller;
 
+import com.mumomu.exquizme.distribution.domain.Participant;
 import com.mumomu.exquizme.distribution.domain.Room;
 import com.mumomu.exquizme.distribution.exception.ClosedRoomAccessException;
 import com.mumomu.exquizme.distribution.exception.InvalidRoomAccessException;
 import com.mumomu.exquizme.distribution.exception.NoMoreProblemException;
+import com.mumomu.exquizme.distribution.service.AnswerService;
 import com.mumomu.exquizme.distribution.service.RoomProgressService;
 import com.mumomu.exquizme.distribution.service.RoomService;
+import com.mumomu.exquizme.distribution.web.dto.ParticipantDto;
 import com.mumomu.exquizme.distribution.web.model.AnswerSubmitForm;
 import com.mumomu.exquizme.production.domain.Problem;
 import com.mumomu.exquizme.production.dto.ProblemDto;
@@ -20,7 +23,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,6 +35,7 @@ public class RoomProgressController {
     private final RoomService roomService;
     private final RoomProgressService roomProgressService;
     private final ProblemService problemService;
+    private final AnswerService answerService;
 
     // 퀴즈 시작
     @GetMapping("/start")
@@ -92,14 +97,44 @@ public class RoomProgressController {
         }catch(NullPointerException e){
             log.info(e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }catch(IllegalAccessException e){
+        }catch(IllegalStateException e){
             log.info(e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
         }
     }
 
-//    @GetMapping("/submitList")
-//    public ResponseEntity<?> submitList(@PathVariable String roomPin){
-//        return ResponseEntity.ok();
-//    }
+    // TODO DTO로 변경해야함
+    @GetMapping("/submitList")
+    @Operation(summary = "이번문제 정답제출 리스트", description = "방의 현재 문제의 제출 결과를 반환합니다.")
+    @ApiImplicitParam(name = "roomPin", value = "방의 핀번호(Path)", required = true, dataType = "String", paramType = "path")
+    @ApiResponse(responseCode = "200", description = "조회 성공")
+    @ApiResponse(responseCode = "400", description = "퀴즈 없음")
+    public ResponseEntity<?> submitList(@PathVariable String roomPin){
+        try {
+            int currentProblemNum = roomService.findRoomByPin(roomPin).getCurrentProblemNum();
+            return ResponseEntity.ok(answerService.findAnswerListByProblemIdx(roomPin, currentProblemNum));
+        }catch(InvalidRoomAccessException e){
+            log.error(e.getMessage());
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("/leaderboard")
+    @Operation(summary = "리더보드", description = "방의 지금까지 점수 리스트를 반환합니다.(내림차순)")
+    @ApiImplicitParam(name = "roomPin", value = "방의 핀번호(Path)", required = true, dataType = "String", paramType = "path")
+    @ApiResponse(responseCode = "200", description = "조회 성공")
+    @ApiResponse(responseCode = "400", description = "퀴즈 없음")
+    public ResponseEntity<?> leaderboard(@PathVariable String roomPin){
+        try {
+            List<ParticipantDto> resultLeaderboard = roomService.findParticipantsByRoomPin(roomPin).stream().map(p -> new ParticipantDto(p)).collect(Collectors.toList());
+
+            Collections.sort(resultLeaderboard,
+                    (p1, p2) -> p2.getCurrentScore() - p1.getCurrentScore());
+
+            return ResponseEntity.ok(resultLeaderboard);
+        }catch(InvalidRoomAccessException e){
+            log.error(e.getMessage());
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+    }
 }

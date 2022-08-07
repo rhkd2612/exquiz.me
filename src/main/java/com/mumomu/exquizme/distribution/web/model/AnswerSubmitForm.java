@@ -18,5 +18,5 @@ public class AnswerSubmitForm {
     private int problemIdx;
 
     @ApiModelProperty(value = "문제 정답", example = "1")
-    private String answer;
+    private String answerText;
 }
