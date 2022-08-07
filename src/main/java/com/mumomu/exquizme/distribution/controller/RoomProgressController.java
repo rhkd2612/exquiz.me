@@ -1,5 +1,6 @@
 package com.mumomu.exquizme.distribution.controller;
 
+import com.mumomu.exquizme.distribution.domain.Room;
 import com.mumomu.exquizme.distribution.exception.ClosedRoomAccessException;
 import com.mumomu.exquizme.distribution.exception.InvalidRoomAccessException;
 import com.mumomu.exquizme.distribution.exception.NoMoreProblemException;
@@ -19,6 +20,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequiredArgsConstructor
 @Slf4j
@@ -30,7 +33,7 @@ public class RoomProgressController {
     private final ProblemService problemService;
 
     // 퀴즈 시작
-    @PostMapping("/start")
+    @GetMapping("/start")
     @ApiImplicitParam(name = "roomPin", value = "방의 핀번호(Path)", required = true, dataType = "String", paramType = "path")
     public ResponseEntity<?> startRoom(@PathVariable String roomPin){
         // 1. Validation
@@ -74,8 +77,13 @@ public class RoomProgressController {
     @ApiImplicitParam(name = "roomPin", value = "방의 핀번호(Path)", required = true, dataType = "String", paramType = "path")
     @ApiResponse(responseCode = "200", description = "정답 제출 성공")
     @ApiResponse(responseCode = "400", description = "퀴즈 없음")
+    @ApiResponse(responseCode = "406", description = "현재 진행중이 아닌 문제 답이거나 이미 제출한 이력이 있을 경우")
     public ResponseEntity<?> submitAnswer(@PathVariable String roomPin, @RequestBody AnswerSubmitForm answerSubmitForm){
         // 1. Validation
+        int currentProblemNum = roomService.findRoomByPin(roomPin).getCurrentProblemNum();
+
+        if(currentProblemNum != answerSubmitForm.getProblemIdx())
+            return new ResponseEntity<>("잘못된 문제 번호입니다.", HttpStatus.NOT_ACCEPTABLE);
         try {
             // 2. Business Logic
             int currentScore = roomProgressService.updateParticipantInfo(roomPin, answerSubmitForm);
@@ -84,6 +92,14 @@ public class RoomProgressController {
         }catch(NullPointerException e){
             log.info(e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }catch(IllegalAccessException e){
+            log.info(e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
         }
     }
+
+//    @GetMapping("/submitList")
+//    public ResponseEntity<?> submitList(@PathVariable String roomPin){
+//        return ResponseEntity.ok();
+//    }
 }

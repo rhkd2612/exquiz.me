@@ -1,10 +1,13 @@
 package com.mumomu.exquizme.distribution.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.mumomu.exquizme.distribution.web.model.AnswerSubmitForm;
 import lombok.*;
 
 import javax.persistence.*;
 import javax.transaction.Transactional;
 import java.util.Date;
+import java.util.List;
 
 @Entity @Getter @Builder
 @AllArgsConstructor(access = AccessLevel.PROTECTED)

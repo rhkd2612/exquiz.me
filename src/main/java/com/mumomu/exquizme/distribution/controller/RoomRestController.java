@@ -5,6 +5,7 @@ import com.mumomu.exquizme.distribution.domain.Room;
 import com.mumomu.exquizme.distribution.exception.CreateRandomPinFailureException;
 import com.mumomu.exquizme.distribution.exception.DuplicateSignUpException;
 import com.mumomu.exquizme.distribution.exception.InvalidRoomAccessException;
+import com.mumomu.exquizme.distribution.exception.RoomNotReachableException;
 import com.mumomu.exquizme.distribution.service.RoomService;
 import com.mumomu.exquizme.distribution.web.dto.ParticipantDto;
 import com.mumomu.exquizme.distribution.web.dto.RoomDto;
@@ -98,7 +99,7 @@ public class RoomRestController {
     @ApiResponse(responseCode = "200", description = "방 입장 성공(기존 쿠키 정보를 토대로 입장 - 참여자 Dto 반환)")
     @ApiResponse(responseCode = "302", description = "방 입장 실패(사용자 정보 입력 필요 -> 사용자 이름/닉네임 등록 씬으로 입장)")
     @ApiResponse(responseCode = "400", description = "존재하지 않은 방 코드 입력")
-    @ApiResponse(responseCode = "403", description = "방 최대 인원 초과")
+    @ApiResponse(responseCode = "406", description = "방 최대 인원 초과")
     public ResponseEntity<?> joinRoom(@PathVariable String roomPin, HttpServletResponse response,
                                       @CookieValue(name = "anonymousCode", defaultValue = "") String anonymousCode) {
         // 1. Validation
@@ -109,13 +110,8 @@ public class RoomRestController {
 
             // 3. Make Response
             if (anonymousCode.equals("")) {
-                System.out.println(targetRoom.getMaxParticipantCount());
-                System.out.println(targetRoom.currentParticipantsSize());
-                if(targetRoom.getMaxParticipantCount() <= targetRoom.currentParticipantsSize())
-                {
-                    System.out.println("최대 인원 초과");
-                    return new ResponseEntity<>("최대 인원을 초과했습니다.", HttpStatus.FORBIDDEN);
-                }
+                if(targetRoom.getMaxParticipantCount() <= targetRoom.getMaxParticipantCount())
+                    return new ResponseEntity<>("최대 인원을 초과했습니다.", HttpStatus.NOT_ACCEPTABLE);
                 return new ResponseEntity<>(targetRoomDto, HttpStatus.MOVED_PERMANENTLY);
             } else {
                 Participant participant = roomService.findParticipantByUuid(anonymousCode);
@@ -143,7 +139,7 @@ public class RoomRestController {
     @Operation(summary = "익명사용자 정보 등록 후 방 입장", description = "닉네임(nickname)과 이름(name) 입력 후 방에 입장합니다.")
     @ApiResponse(responseCode = "201", description = "유저 생성 성공 -> 방 입장, 사용자 정보 포함")
     @ApiResponse(responseCode = "400", description = "이름 혹은 닉네임 불충분 혹은 부적절")
-    @ApiResponse(responseCode = "406", description = "이미 존재하는 참가자 정보")
+    @ApiResponse(responseCode = "406", description = "이미 존재하는 참가자 정보 혹은 더 이상 참가할 수 없는 방")
     public ResponseEntity<?> signUpParticipant(@PathVariable String roomPin, @RequestBody ParticipantCreateForm participateForm,
                                                HttpServletResponse response) {
         // 1. Validation
@@ -155,6 +151,10 @@ public class RoomRestController {
         try {
             // 2. Business Logic
             Room targetRoom = roomService.findRoomByPin(roomPin);
+            Room targetRoom2 = roomService.findRoomByPin(roomPin);
+
+            System.out.println(targetRoom);
+            System.out.println(targetRoom2);
 
             // 3. Make Response
             Cookie anonymousCookie = Room.setAnonymousCookie();
@@ -162,12 +162,11 @@ public class RoomRestController {
 
             Participant savedParticipant = roomService.joinParticipant(participateForm, targetRoom, UUID.fromString(anonymousCookie.getValue()).toString());
             ParticipantDto participantDto = new ParticipantDto(savedParticipant);
-
             return ResponseEntity.status(HttpStatus.CREATED).body(participantDto);
-        } catch(NullPointerException e){
+        }catch(NullPointerException e){
             log.error(e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        } catch(DuplicateSignUpException e){
+        }catch(IllegalAccessException e){
             log.error(e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
         }

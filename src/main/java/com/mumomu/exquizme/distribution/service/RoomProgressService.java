@@ -27,10 +27,11 @@ public class RoomProgressService {
     private final RoomService roomService;
 
     @Transactional
-    public int updateParticipantInfo(String roomPin, AnswerSubmitForm answerSubmitForm){
+    public int updateParticipantInfo(String roomPin, AnswerSubmitForm answerSubmitForm) throws IllegalAccessException {
         Room targetRoom = roomService.findRoomByPin(roomPin);
         Participant targetParticipant = roomService.findParticipantByUuid(answerSubmitForm.getUuid());
         Problem targetProblem = targetRoom.getProblemset().getProblems().get(answerSubmitForm.getProblemIdx());
+
         int score = 0;
         if(targetProblem.getAnswer().equals(answerSubmitForm.getAnswer()))
             score = targetProblem.solve();

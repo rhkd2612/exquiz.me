@@ -3,14 +3,12 @@ package com.mumomu.exquizme.distribution.service;
 import com.mumomu.exquizme.distribution.domain.Participant;
 import com.mumomu.exquizme.distribution.domain.Room;
 import com.mumomu.exquizme.distribution.domain.RoomState;
-import com.mumomu.exquizme.distribution.exception.CookieNotExistException;
-import com.mumomu.exquizme.distribution.exception.CreateRandomPinFailureException;
-import com.mumomu.exquizme.distribution.exception.DuplicateSignUpException;
-import com.mumomu.exquizme.distribution.exception.InvalidRoomAccessException;
+import com.mumomu.exquizme.distribution.exception.*;
 import com.mumomu.exquizme.distribution.repository.ParticipantRepository;
 import com.mumomu.exquizme.distribution.repository.RoomRepository;
 import com.mumomu.exquizme.distribution.web.dto.ParticipantDto;
 import com.mumomu.exquizme.distribution.web.model.ParticipantCreateForm;
+import com.mumomu.exquizme.formatter.SimpleDateFormatter;
 import com.mumomu.exquizme.production.domain.Problemset;
 import com.mumomu.exquizme.production.service.ProblemService;
 import lombok.RequiredArgsConstructor;
@@ -40,10 +38,15 @@ public class RoomService {
     @Value("${max.pin.value}")
     private String MAX_PIN_VALUE;
 
-    private SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
-
     @Transactional
-    public Participant joinParticipant(ParticipantCreateForm participateForm, Room targetRoom, String anonymousCookie) throws DuplicateSignUpException {
+    public Participant joinParticipant(ParticipantCreateForm participateForm, Room targetRoom, String anonymousCookie) throws IllegalAccessException {
+
+        for (Participant p : targetRoom.getParticipants()) {
+            if(p.getNickname() == participateForm.getNickname() || p.getName() == participateForm.getName()){
+                throw new RoomNotReachableException("이미 존재하는 닉네임입니다. 재설정 해주세요.");
+            }
+        }
+
         Participant participant =
                 Participant.ByBasicBuilder()
                         .name(participateForm.getName())
@@ -53,11 +56,19 @@ public class RoomService {
                         .build();
         Optional<Participant> findParticipant = participantRepository.findByUuid(participant.getUuid());
 
+
+        if(targetRoom.getParticipants().contains(participant))
+            throw new RoomNotReachableException("이미 참여 이력이 있는 참가자입니다.");
+        if(targetRoom.getParticipants().size() == targetRoom.getMaxParticipantCount())
+            throw new RoomNotReachableException("더 이상 방에 참가할 수 없습니다.");
+
+        // TODO 닉네임 구분하여 입장하도록 설정
         if(findParticipant.isEmpty()){
             participantRepository.save(participant);
             participant.getRoom().addParticipant(participant);
         }
         else{
+            // TODO 이거랑 맨 위의 이미 참여 이력이 있는거랑 차이가 뭘까?
             throw new DuplicateSignUpException("방문 이력이 있는 사용자입니다.");
         }
 
@@ -124,7 +135,7 @@ public class RoomService {
         Room targetRoom = optRoom.get();
 
         targetRoom.setEndDate(new Date());
-        targetRoom.setPin(formatter.format(targetRoom.getEndDate()) + targetRoom.getPin());
+        targetRoom.setPin(SimpleDateFormatter.formatDateToString(targetRoom.getEndDate()) + targetRoom.getPin());
         targetRoom.setCurrentState(RoomState.FINISH);
 
         return targetRoom;
