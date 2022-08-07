@@ -136,7 +136,7 @@ class RoomRestControllerTest {
         }
 
         mvc.perform(get("/api/room/{roomPin}", roomPin2))
-                .andExpect(status().isForbidden())
+                .andExpect(status().isNotAcceptable())
                 .andDo(MockMvcResultHandlers.print());
     }
 

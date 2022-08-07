@@ -1,10 +1,14 @@
 package com.mumomu.exquizme.distribution.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.mumomu.exquizme.distribution.web.model.AnswerSubmitForm;
 import lombok.*;
 
 import javax.persistence.*;
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity @Getter @Builder
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
@@ -21,6 +25,10 @@ public class Participant {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="room_id")
     private Room room; // 입장 방
+
+
+    @OneToMany(mappedBy = "participant", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    private List<Answer> answers;
 
 //    @OneToOne(fetch = FetchType.LAZY)
 //    @JoinColumns({
@@ -46,6 +54,16 @@ public class Participant {
         this.beforeScore = 0;
         this.continuousCorrect = 0;
         this.continuousFailure = 0;
+        this.answers = new ArrayList<>();
+    }
+
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 
     @Transactional

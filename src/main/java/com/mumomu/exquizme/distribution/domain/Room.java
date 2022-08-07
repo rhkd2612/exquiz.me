@@ -1,10 +1,8 @@
 package com.mumomu.exquizme.distribution.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.mumomu.exquizme.distribution.exception.ClosedRoomAccessException;
-import com.mumomu.exquizme.distribution.exception.InvalidParticipantAccessException;
-import com.mumomu.exquizme.distribution.exception.InvalidRoomAccessException;
-import com.mumomu.exquizme.distribution.exception.NoMoreProblemException;
+import com.mumomu.exquizme.distribution.exception.*;
+import com.mumomu.exquizme.distribution.web.model.AnswerSubmitForm;
 import com.mumomu.exquizme.production.domain.Problem;
 import com.mumomu.exquizme.production.domain.Problemset;
 import lombok.*;
@@ -14,10 +12,7 @@ import javax.persistence.*;
 import javax.servlet.http.Cookie;
 import javax.transaction.Transactional;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Entity @Getter @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -55,16 +50,9 @@ public class Room {
         this.participants = new ArrayList<>();
     }
 
-    public void addParticipant(Participant participant) {
-        if(!this.participants.contains(participant))
-            this.participants.add(participant);
-    }
-
-    public int currentParticipantsSize(){
-        System.out.println("participants" + this.participants);
-        if(this.participants == null || this.participants.isEmpty())
-            return 0;
-        return this.participants.size();
+    @Transactional
+    public void addParticipant(Participant participant){
+        this.participants.add(participant);
     }
 
     public static Cookie setAnonymousCookie(){

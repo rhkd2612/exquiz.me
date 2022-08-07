@@ -55,5 +55,25 @@ public class TestDataInit {
         ProblemOption problemOption2 = problemService.makeProblemOption(problem.getId(),2,"im second",null);
         ProblemOption problemOption3 = problemService.makeProblemOption(problem.getId(),3,"im third",null);
         ProblemOption problemOption4 = problemService.makeProblemOption(problem.getId(),4,"im fourth",null);
+
+        Problem problem2 = problemService.makeProblem(problemset.getId(), "MultipleChoiceProblem",1,"tempTitle2","tempDescription2",30,100,null,"1");
+
+        ProblemOption problemOption11 = problemService.makeProblemOption(problem2.getId(),1,"im first2",null);
+        ProblemOption problemOption22 = problemService.makeProblemOption(problem2.getId(),2,"im second2",null);
+        ProblemOption problemOption33 = problemService.makeProblemOption(problem2.getId(),3,"im third2",null);
+        ProblemOption problemOption44 = problemService.makeProblemOption(problem2.getId(),4,"im fourth2",null);
+
+        Problem problem3 = problemService.makeProblem(problemset.getId(), "OXProblem",1,"tempTitle3","tempDescription3",30,200,null,"1");
+
+        ProblemOption problemOption111 = problemService.makeProblemOption(problem3.getId(),1,"im first2",null);
+        ProblemOption problemOption222 = problemService.makeProblemOption(problem3.getId(),2,"im second2",null);
+
+        // 제출 파트 빌더 미수정으로 작동되지 않음
+//        problemset.getProblems().add(problem);
+//        problemset.getProblems().add(problem2);
+//        problemset.getProblems().add(problem3);
+//
+//        room1.setProblemset(problemset);
+//        room2.setProblemset(problemset);
     }
 }

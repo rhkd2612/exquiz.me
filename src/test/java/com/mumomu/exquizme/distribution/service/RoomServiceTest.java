@@ -103,7 +103,7 @@ class RoomServiceTest {
     @Test
     @Transactional
     @DisplayName("방참여")
-    void participateRoom() throws DuplicateSignUpException {
+    void participateRoom() throws IllegalAccessException {
         Participant participant = Participant.ByBasicBuilder().nickname("userA").uuid(UUID.randomUUID().toString()).room(room).build();
         Participant savedParticipant = roomService.joinParticipant(new ParticipantCreateForm(participant), room, participant.getUuid());
 
@@ -113,7 +113,7 @@ class RoomServiceTest {
     @Test
     @Transactional
     @DisplayName("방에참여한참여자목록조회")
-    void findParticipantsListInRoom() throws DuplicateSignUpException {
+    void findParticipantsListInRoom() throws IllegalAccessException {
         Participant participant = Participant.ByBasicBuilder().name("a").nickname("userA").uuid(UUID.randomUUID().toString()).room(room).build();
         Participant participant2 = Participant.ByBasicBuilder().name("b").nickname("userB").uuid(UUID.randomUUID().toString()).room(room).build();
         Participant participant3 = Participant.ByBasicBuilder().name("c").nickname("userC").uuid(UUID.randomUUID().toString()).room(room2).build();
@@ -151,7 +151,7 @@ class RoomServiceTest {
     @Test
     @Transactional
     @DisplayName("익명사용자입장")
-    public void joinAnonymousUser() throws DuplicateSignUpException {
+    public void joinAnonymousUser() throws IllegalAccessException {
         ParticipantCreateForm pcForm1 =
                 ParticipantCreateForm.builder().name("test").nickname("tester").build();
         Participant participant = roomService.joinParticipant(pcForm1, room, UUID.randomUUID().toString());
@@ -163,21 +163,24 @@ class RoomServiceTest {
     @Test
     @Transactional
     @DisplayName("익명사용자재가입")
-    public void joinSameAnonymousUserTwice() throws DuplicateSignUpException {
+    public void joinSameAnonymousUserTwice() throws IllegalAccessException {
         Participant participant =
                 Participant.ByBasicBuilder().name("test").nickname("tester").uuid(UUID.randomUUID().toString()).build();
+        Participant participant2 =
+                Participant.ByBasicBuilder().name("nani").nickname("nanida").uuid(participant.getUuid()).build();
 
         Participant anonymous = roomService.joinParticipant(new ParticipantCreateForm(participant), room, participant.getUuid());
+        Participant anonymous2 = roomService.joinParticipant(new ParticipantCreateForm(participant2), room, participant2.getUuid());
 
-        assertThrows(DuplicateSignUpException.class, ()-> {
-            Participant anonymous2 = roomService.joinParticipant(new ParticipantCreateForm(anonymous), room, anonymous.getUuid());
-        });
+        assertThat(anonymous.getUuid()).isEqualTo(anonymous2.getUuid());
+        assertThat(anonymous2.getNickname()).isEqualTo(participant2.getNickname());
+        assertThat(anonymous2.getName()).isEqualTo(participant2.getName());
     }
 
     @Test
     @Transactional
     @DisplayName("두익명사용자입장")
-    public void joinTwoAnonymousUser() throws DuplicateSignUpException {
+    public void joinTwoAnonymousUser() throws IllegalAccessException {
         ParticipantCreateForm pcForm1 =
                 ParticipantCreateForm.builder().name("test").nickname("tester").build();
         ParticipantCreateForm pcForm2 =
