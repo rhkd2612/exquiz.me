@@ -1,15 +1,15 @@
 package com.mumomu.exquizme.production.domain.problemtype;
 
 import com.mumomu.exquizme.production.domain.Problem;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import java.util.ArrayList;
+import java.util.Date;
 
-@Entity @Getter @SuperBuilder @NoArgsConstructor
-@DiscriminatorValue("SubjectiveProblem")
+@Entity @Getter @SuperBuilder
+@DiscriminatorValue("SubjectiveProblem") @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SubjectiveProblem extends Problem {
 }

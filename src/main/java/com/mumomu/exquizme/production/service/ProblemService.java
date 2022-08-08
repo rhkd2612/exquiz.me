@@ -96,6 +96,8 @@ public class ProblemService {
 
             multipleChoiceProblemRepository.save(multipleChoiceProblem);
 
+            problemsetRepository.findOneById(problemsetId).get().getProblems().add(multipleChoiceProblem);
+
             return multipleChoiceProblem;
         }
         else if (dtype.equals("OXProblem")) {
@@ -120,6 +122,8 @@ public class ProblemService {
 
             oxProblemRepository.save(oxProblem);
 
+            problemsetRepository.findOneById(problemsetId).get().getProblems().add(oxProblem);
+
             return oxProblem;
         }
         else if (dtype.equals("SubjectiveProblem")) {
@@ -142,6 +146,8 @@ public class ProblemService {
 
             subjectiveProblemRepository.save(subjectiveProblem);
 
+            problemsetRepository.findOneById(problemsetId).get().getProblems().add(subjectiveProblem);
+
             return subjectiveProblem;
         }
         else { //dtype error
@@ -163,10 +169,6 @@ public class ProblemService {
         }
         problem = problemOptional.get();
 
-        if (problem.getDtype().equals("SubjectiveProblem")) {
-            throw new Exception("Adding problem option in subjective problem is illegal");
-        }
-
         problemOption = ProblemOption.builder()
                 .problem(problem)
                 .idx(idx)
@@ -174,6 +176,20 @@ public class ProblemService {
                 .picture(picture)
                 .pickcount(0)
                 .build();
+
+        if (problem.getDtype().equals("MultipleChoiceProblem")) {
+            ((MultipleChoiceProblem) problem).getProblemOptions().add(problemOption);
+            System.out.println("Successfully added problem option");
+        }
+        else if (problem.getDtype().equals("OXProblem")) {
+            ((OXProblem) problem).getProblemOptions().add(problemOption);
+        }
+        else if (problem.getDtype().equals("SubjectiveProblem")) {
+            throw new Exception("Adding problem option in subjective problem is not accepted");
+        }
+        else {
+            throw new Exception("dtype doesn't fit into any of problem types");
+        }
 
         problemOptionRepository.save(problemOption);
 

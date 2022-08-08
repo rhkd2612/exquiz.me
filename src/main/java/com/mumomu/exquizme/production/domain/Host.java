@@ -18,9 +18,9 @@ public class Host {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @JsonIgnore
+    @JsonIgnore @Builder.Default
     @OneToMany(mappedBy = "host")
-    private List<Problemset> problemSets = new ArrayList<>(); //자신의 문제 목록
+    private List<Problemset> problemsets = new ArrayList<>(); //자신의 문제 목록
 
     private String name;
     private String phoneNumber; //000-0000-0000
