@@ -37,7 +37,7 @@ public class ProblemService {
     @Transactional
     public Problemset makeProblemset(
             Long hostId, String title,
-            String description, String closingMent) throws Exception {
+            String description, String closingMent) throws HostNotFoundException {
 
         Optional<Host> hostOptional = hostRepository.findOneById(hostId);
         if (hostOptional.isEmpty()) {
@@ -246,7 +246,7 @@ public class ProblemService {
     @Transactional
     public Problemset updateProblemset(
             Long problemsetId, String title,
-            String description, String closingMent) throws Exception {
+            String description, String closingMent) {
         Optional<Problemset> problemsetOptional = problemsetRepository.findOneById(problemsetId);
         if (problemsetOptional.isEmpty()) {
             throw new ProblemsetNotFoundException("Problemset not found");
@@ -336,7 +336,7 @@ public class ProblemService {
     @Transactional
     public ProblemOption updateProblemOption(
             Long problemOptionId, Integer idx,
-            String description, String picture) throws Exception {
+            String description, String picture) {
         Optional<ProblemOption> problemOptionOptional = problemOptionRepository.findOneById(problemOptionId);
         if (problemOptionOptional.isEmpty()) {
             throw new ProblemOptionNotFoundException("Problem option not found");
