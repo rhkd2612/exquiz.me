@@ -18,7 +18,7 @@ class ParticipantSessionTest {
     @Test
     @Transactional
     void 외래키를기본키로() throws Exception{
-        Participant participant = Participant.builder().nickname("temp").build();
+        Participant participant = Participant.ByBasicBuilder().nickname("temp").build();
         ParticipantSession participantSession = ParticipantSession.builder().participant(participant).build();
 
         em.persist(participantSession);
