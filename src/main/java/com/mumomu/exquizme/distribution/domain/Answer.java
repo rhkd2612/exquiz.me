@@ -1,8 +1,9 @@
 package com.mumomu.exquizme.distribution.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.util.JSONPObject;
+import com.fasterxml.jackson.databind.util.JSONWrappedObject;
 import lombok.*;
-
 import javax.persistence.*;
 
 @Entity @Getter
