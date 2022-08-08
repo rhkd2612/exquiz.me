@@ -9,6 +9,6 @@ import java.util.Optional;
 
 public interface ProblemRepository extends JpaRepository<Problem, Long> {
     List<Problem> findAllById(Long problemId);
-    List<Problem> findAllByProblemsetOrderByIdxAsc(Problemset problemset);
+    List<Problem> findAllByProblemsetAndDeletedOrderByIdxAsc(Problemset problemset, Boolean deleted);
     Optional<Problem> findOneById(Long problemId);
 }

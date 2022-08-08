@@ -23,12 +23,15 @@ public class Problemset {
     @JoinColumn(name = "host_id")
     private Host host;
 
+    @Builder.Default
     @OneToMany(mappedBy = "problemset")
-    private List<Problem> problems;
+    private List<Problem> problems = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "problemset")
-    private List<Room> rooms;
+    private List<Room> rooms = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "problemset")
     private List<ProblemsetTag> problemsetTags = new ArrayList<>();
 
@@ -42,7 +45,9 @@ public class Problemset {
     private Date createdAt;
     @Setter
     private Date updatedAt;
+    @Setter
     private Date deletedAt;
+    @Setter
     private Boolean deleted;
 
     private Integer totalParticipant;

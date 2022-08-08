@@ -24,6 +24,7 @@ import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
@@ -57,13 +58,13 @@ public class ProblemCRUDTest {
 
     @BeforeEach
     void initialize() throws Exception {
-        /*
+/*
         host = Host.builder()
                 .id(1L)
                 .name("이상빈")
                 .nickname("Mumomu")
                 .build();
-         */
+*/
         problemset = problemService.makeProblemset(1L, "2022년 7월 25일 쪽지시험", "쪽지시험입니다.", "수고하셨습니다");
         multipleChoiceProblem = (MultipleChoiceProblem) problemService.makeProblem(problemset.getId(), "MultipleChoiceProblem",
                 1, "가장 높은 산", "한국에서 가장 높은 산은?", 20, 100, null, "0");
@@ -88,6 +89,14 @@ public class ProblemCRUDTest {
     void getProblemsetTest() {
         List<Problemset> problemsets = problemService.getProblemsetsByHostId(1L);
         for (Problemset ps : problemsets) {
+            System.out.println("title : " + ps.getTitle());
+            System.out.println("description : " + ps.getDescription());
+            System.out.println("closing : " + ps.getClosingMent());
+        }
+         */
+
+        List<Problemset> problemsets2 = hostRepository.findOneById(1L).get().getProblemsets();
+        for (Problemset ps : problemsets2) {
             System.out.println("title : " + ps.getTitle());
             System.out.println("description : " + ps.getDescription());
             System.out.println("closing : " + ps.getClosingMent());
@@ -121,9 +130,40 @@ public class ProblemCRUDTest {
 
     @Test
     @Transactional
+    void deleteProblemsetTest() throws Exception {
+        problemService.deleteProblemset(problemService.getProblemset(1L).get(0).getId());
+
+        assertThrows(Exception.class, () -> {
+           problemService.deleteProblemset(99999L);
+        });
+    }
+
+    @Test
+    @Transactional
+    void deleteProblemTest() throws Exception {
+        problemService.deleteProblem(problemService.getProblems(problemset.getId()).get(0).getId());
+
+        assertThrows(Exception.class, () -> {
+            problemService.deleteProblem(99999L);
+        });
+    }
+
+    @Test
+    @Transactional
     void getProblemTest() {
         List<Problem> problems = problemService.getProblemsByProblemsetId(problemset.getId());
         for (Problem p : problems) {
+            System.out.println("id : " + p.getId());
+            System.out.println("title : " + p.getTitle());
+            System.out.println("dtype : " + p.getDtype());
+            System.out.println("description : " + p.getDescription());
+            System.out.println("idx : " + p.getIdx() + "\n"); //idx 순으로 정렬되어 나옴
+        }
+
+
+        List<Problem> problems2 = problemsetRepository.findOneById(problemset.getId()).get().getProblems();
+        System.out.println("size = " + problems2.size());
+        for (Problem p : problems2) {
             System.out.println("id : " + p.getId());
             System.out.println("title : " + p.getTitle());
             System.out.println("dtype : " + p.getDtype());
@@ -190,6 +230,18 @@ public class ProblemCRUDTest {
                 System.out.println("description : " + po.getDescription() + "\n"); //idx 순으로 정렬되어 나옴
             }
         }
+
+        for (int i = 0; i < problems.size(); i++) {
+            if (problems.get(i).getDtype().equals("MultipleChoiceProblem")) {
+                problemOptions = ((MultipleChoiceProblem) problems.get(i)).getProblemOptions();
+                System.out.println("size = " + problemOptions.size());
+                for (ProblemOption po : problemOptions) {
+                    System.out.println("id : " + po.getId());
+                    System.out.println("idx : " + po.getIdx());
+                    System.out.println("description : " + po.getDescription() + "\n"); //idx 순으로 정렬되어 나옴
+                }
+            }
+        }
     }
 
     @Test
@@ -230,4 +282,5 @@ public class ProblemCRUDTest {
 
         getProblemOptionTest();
     }
+
 }

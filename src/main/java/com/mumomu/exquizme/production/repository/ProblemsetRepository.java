@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface ProblemsetRepository extends JpaRepository<Problemset, Long> {
     List<Problemset> findAllById(Long problemsetId);
-    List<Problemset> findAllByHost(Host hostId);
+    List<Problemset> findAllByHostAndDeleted(Host hostId, Boolean deleted);
     Optional<Problemset> findOneById(Long problemsetId);
     //List<Problemset> findAllByHost
 }

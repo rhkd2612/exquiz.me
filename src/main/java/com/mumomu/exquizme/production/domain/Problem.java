@@ -12,41 +12,41 @@ import java.util.Date;
 @Table(name = "problem")
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn @Getter @SuperBuilder
-@AllArgsConstructor @NoArgsConstructor
+@AllArgsConstructor @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Problem {
     @Id
     @Column(name = "problem_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    protected Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "problemset_id")
     @JsonIgnore
-    private Problemset problemset;
+    protected Problemset problemset;
 
     @Column(insertable = false, updatable = false)
-    private String dtype;
+    protected String dtype;
 
     @Setter
-    private String title;
+    protected String title;
     @Setter
-    private String description;
+    protected String description;
     @Setter
-    private Integer timelimit;
+    protected Integer timelimit;
     @Setter
-    private Integer score;
+    protected Integer score;
     @Setter
-    private String picture;
+    protected String picture;
     @Setter
-    private String answer;
+    protected String answer;
 
     @Setter
-    private Integer idx; //ProblemSet에서 이 Problem이 몇 번째인지
+    protected Integer idx; //ProblemSet에서 이 Problem이 몇 번째인지
 
-    private Integer totalTry; //문제를 시도한 사람 수
-    private Integer totalCorrect; //문제를 맞춘 사람 수
+    protected Integer totalTry; //문제를 시도한 사람 수
+    protected Integer totalCorrect; //문제를 맞춘 사람 수
 
-    private Date createdAt;
+    protected Date createdAt;
     @Setter
     private Date updatedAt;
     private Date deletedAt;

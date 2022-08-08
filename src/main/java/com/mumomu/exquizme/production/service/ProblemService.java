@@ -8,6 +8,8 @@ import com.mumomu.exquizme.production.domain.Problemset;
 import com.mumomu.exquizme.production.domain.problemtype.MultipleChoiceProblem;
 import com.mumomu.exquizme.production.domain.problemtype.OXProblem;
 import com.mumomu.exquizme.production.domain.problemtype.SubjectiveProblem;
+import com.mumomu.exquizme.production.exception.ProblemNotFoundException;
+import com.mumomu.exquizme.production.exception.ProblemsetNotFoundException;
 import com.mumomu.exquizme.production.repository.HostRepository;
 import com.mumomu.exquizme.production.repository.ProblemOptionRepository;
 import com.mumomu.exquizme.production.repository.ProblemRepository;
@@ -95,6 +97,8 @@ public class ProblemService {
 
             multipleChoiceProblemRepository.save(multipleChoiceProblem);
 
+            problemsetRepository.findOneById(problemsetId).get().getProblems().add(multipleChoiceProblem);
+
             return multipleChoiceProblem;
         }
         else if (dtype.equals("OXProblem")) {
@@ -119,6 +123,8 @@ public class ProblemService {
 
             oxProblemRepository.save(oxProblem);
 
+            problemsetRepository.findOneById(problemsetId).get().getProblems().add(oxProblem);
+
             return oxProblem;
         }
         else if (dtype.equals("SubjectiveProblem")) {
@@ -141,6 +147,8 @@ public class ProblemService {
 
             subjectiveProblemRepository.save(subjectiveProblem);
 
+            problemsetRepository.findOneById(problemsetId).get().getProblems().add(subjectiveProblem);
+
             return subjectiveProblem;
         }
         else { //dtype error
@@ -162,10 +170,6 @@ public class ProblemService {
         }
         problem = problemOptional.get();
 
-        if (problem.getDtype().equals("SubjectiveProblem")) {
-            throw new Exception("Adding problem option in subjective problem is illegal");
-        }
-
         problemOption = ProblemOption.builder()
                 .problem(problem)
                 .idx(idx)
@@ -173,6 +177,20 @@ public class ProblemService {
                 .picture(picture)
                 .pickcount(0)
                 .build();
+
+        if (problem.getDtype().equals("MultipleChoiceProblem")) {
+            ((MultipleChoiceProblem) problem).getProblemOptions().add(problemOption);
+            System.out.println("Successfully added problem option");
+        }
+        else if (problem.getDtype().equals("OXProblem")) {
+            ((OXProblem) problem).getProblemOptions().add(problemOption);
+        }
+        else if (problem.getDtype().equals("SubjectiveProblem")) {
+            throw new Exception("Adding problem option in subjective problem is not accepted");
+        }
+        else {
+            throw new Exception("dtype doesn't fit into any of problem types");
+        }
 
         problemOptionRepository.save(problemOption);
 
@@ -183,7 +201,7 @@ public class ProblemService {
     @Transactional
     public List<Problemset> getProblemsetsByHostId(Long hostId) {
         try {
-            List<Problemset> problemsets = problemsetRepository.findAllByHost(hostRepository.findOneById(hostId).get());
+            List<Problemset> problemsets = problemsetRepository.findAllByHostAndDeleted(hostRepository.findOneById(hostId).get(), false);
             return problemsets;
         } catch (Exception e) {
             throw e;
@@ -203,7 +221,7 @@ public class ProblemService {
     @Transactional
     public List<Problem> getProblemsByProblemsetId(Long problemsetId) {
         try {
-            List<Problem> problems = problemRepository.findAllByProblemsetOrderByIdxAsc(problemsetRepository.findOneById(problemsetId).get());
+            List<Problem> problems = problemRepository.findAllByProblemsetAndDeletedOrderByIdxAsc(problemsetRepository.findOneById(problemsetId).get(), false);
             return problems;
         } catch (Exception e) {
             throw e;
@@ -339,5 +357,34 @@ public class ProblemService {
         problemOptionRepository.save(problemOption);
 
         return problemOption;
+    }
+
+
+    @Transactional
+    public void deleteProblemset(Long problemsetId) throws ProblemsetNotFoundException {
+        Optional<Problemset> problemsetOptional = problemsetRepository.findOneById(problemsetId);
+        if (problemsetOptional.isEmpty()) {
+            throw new ProblemsetNotFoundException("Problemset not found");
+        }
+        Problemset problemset = problemsetOptional.get();
+
+        problemset.setDeleted(true);
+        problemset.setDeletedAt(new Date());
+
+        problemsetRepository.save(problemset);
+    }
+
+    @Transactional
+    public void deleteProblem(Long problemId) throws ProblemNotFoundException {
+        Optional<Problem> problemOptional = problemRepository.findOneById(problemId);
+        if (problemOptional.isEmpty()) {
+            throw new ProblemNotFoundException("Problem not found");
+        }
+        Problem problem = problemOptional.get();
+
+        problem.setDeleted(true);
+        problem.setDeletedAt(new Date());
+
+        problemRepository.save(problem);
     }
 }
