@@ -1,6 +1,5 @@
 package com.mumomu.exquizme.production.service;
 
-import com.mumomu.exquizme.distribution.domain.Room;
 import com.mumomu.exquizme.production.domain.Host;
 import com.mumomu.exquizme.production.domain.Problem;
 import com.mumomu.exquizme.production.domain.ProblemOption;
@@ -8,8 +7,7 @@ import com.mumomu.exquizme.production.domain.Problemset;
 import com.mumomu.exquizme.production.domain.problemtype.MultipleChoiceProblem;
 import com.mumomu.exquizme.production.domain.problemtype.OXProblem;
 import com.mumomu.exquizme.production.domain.problemtype.SubjectiveProblem;
-import com.mumomu.exquizme.production.exception.ProblemNotFoundException;
-import com.mumomu.exquizme.production.exception.ProblemsetNotFoundException;
+import com.mumomu.exquizme.production.exception.*;
 import com.mumomu.exquizme.production.repository.HostRepository;
 import com.mumomu.exquizme.production.repository.ProblemOptionRepository;
 import com.mumomu.exquizme.production.repository.ProblemRepository;
@@ -43,7 +41,7 @@ public class ProblemService {
 
         Optional<Host> hostOptional = hostRepository.findOneById(hostId);
         if (hostOptional.isEmpty()) {
-            throw new Exception("Host not found");
+            throw new HostNotFoundException("Host not found");
         }
         Host host = hostOptional.get();
 
@@ -73,7 +71,7 @@ public class ProblemService {
 
         Optional<Problemset> optionalProblemset = problemsetRepository.findOneById(problemsetId);
         if (optionalProblemset.isEmpty()) {
-            throw new Exception("Problemset not found");
+            throw new ProblemsetNotFoundException("Problemset not found");
         }
         Problemset problemset = optionalProblemset.get();
 
@@ -152,7 +150,7 @@ public class ProblemService {
             return subjectiveProblem;
         }
         else { //dtype error
-            throw new Exception("dtype does not match any problem types");
+            throw new DtypeException("dtype does not match any problem types");
         }
     }
 
@@ -166,7 +164,7 @@ public class ProblemService {
 
         Optional<Problem> problemOptional = problemRepository.findOneById(problemId);
         if (problemOptional.isEmpty()) {
-            throw new Exception("Problem not found");
+            throw new ProblemNotFoundException("Problem not found");
         }
         problem = problemOptional.get();
 
@@ -180,16 +178,15 @@ public class ProblemService {
 
         if (problem.getDtype().equals("MultipleChoiceProblem")) {
             ((MultipleChoiceProblem) problem).getProblemOptions().add(problemOption);
-            System.out.println("Successfully added problem option");
         }
         else if (problem.getDtype().equals("OXProblem")) {
             ((OXProblem) problem).getProblemOptions().add(problemOption);
         }
         else if (problem.getDtype().equals("SubjectiveProblem")) {
-            throw new Exception("Adding problem option in subjective problem is not accepted");
+            throw new ProblemOptionAccessToSubjectiveProblemException("Adding problem option in subjective problem is not accepted");
         }
         else {
-            throw new Exception("dtype doesn't fit into any of problem types");
+            throw new DtypeException("dtype doesn't fit into any of problem types");
         }
 
         problemOptionRepository.save(problemOption);
@@ -203,7 +200,7 @@ public class ProblemService {
             List<Problemset> problemsets = problemsetRepository.findAllByHostAndDeleted(hostRepository.findOneById(hostId).get(), false);
             return problemsets;
         } catch (Exception e) {
-            throw e;
+            throw new HostNotFoundException("Host not found");
         }
     }
 
@@ -212,7 +209,7 @@ public class ProblemService {
         Optional<Problemset> targetProblemset = problemsetRepository.findOneById(problemsetId);
 
         if(targetProblemset.isEmpty())
-            throw new NullPointerException("존재하지 않는 문제셋입니다.");
+            throw new ProblemsetNotFoundException("존재하지 않는 문제셋입니다.");
 
         return targetProblemset.get();
     }
@@ -223,7 +220,7 @@ public class ProblemService {
             List<Problem> problems = problemRepository.findAllByProblemsetAndDeletedOrderByIdxAsc(problemsetRepository.findOneById(problemsetId).get(), false);
             return problems;
         } catch (Exception e) {
-            throw e;
+            throw new ProblemsetNotFoundException("Problemset Not Found");
         }
     }
 
@@ -231,18 +228,18 @@ public class ProblemService {
     public List<ProblemOption> getProblemOptionById(Long problemId) throws Exception {
         Optional<Problem> problemOptional = problemRepository.findOneById(problemId);
         if (problemOptional.isEmpty()) {
-            throw new Exception("Problem not found");
+            throw new ProblemNotFoundException("Problem not found");
         }
         Problem problem = problemOptional.get();
         if (problem.getDtype().equals("SubjectiveProblem")) {
-            throw new Exception("Subjective problem has no options");
+            throw new ProblemOptionAccessToSubjectiveProblemException("Subjective problem has no options");
         }
 
         try {
             List<ProblemOption> problemOptions = problemOptionRepository.findAllByProblemOrderByIdxAsc(problemRepository.findOneById(problemId).get());
             return problemOptions;
         } catch (Exception e) {
-            throw e;
+            throw new ProblemNotFoundException("Problem not found");
         }
     }
 
@@ -252,7 +249,7 @@ public class ProblemService {
             String description, String closingMent) throws Exception {
         Optional<Problemset> problemsetOptional = problemsetRepository.findOneById(problemsetId);
         if (problemsetOptional.isEmpty()) {
-            throw new Exception("Problemset not found");
+            throw new ProblemsetNotFoundException("Problemset not found");
         }
 
         Problemset problemset = problemsetOptional.get();
@@ -275,7 +272,7 @@ public class ProblemService {
             String answer) throws Exception {
         Optional<Problem> problemOptional = problemRepository.findOneById(problemId);
         if (problemOptional.isEmpty()) {
-            throw new Exception("Problem not found");
+            throw new ProblemNotFoundException("Problem not found");
         }
 
         Problem problem = problemOptional.get();
@@ -328,14 +325,12 @@ public class ProblemService {
                 return subjectiveProblem;
             }
             else {
-                throw new Exception("dtype error");
+                throw new DtypeException("dtype doesn't match with any of problem types");
             }
         }
         else {
-            //TODO : dtype 다를 경우 problem 수정 구현
+            throw new DifferentDtypeException("new dtype should be same with original problem dtype");
         }
-
-        return problem;
     }
 
     @Transactional
@@ -344,7 +339,7 @@ public class ProblemService {
             String description, String picture) throws Exception {
         Optional<ProblemOption> problemOptionOptional = problemOptionRepository.findOneById(problemOptionId);
         if (problemOptionOptional.isEmpty()) {
-            throw new Exception("Problem option not found");
+            throw new ProblemOptionNotFoundException("Problem option not found");
         }
 
         ProblemOption problemOption = problemOptionOptional.get();
