@@ -1,11 +1,14 @@
 package com.mumomu.exquizme.distribution.controller;
 
+import com.mumomu.exquizme.distribution.web.aws.AwsSnsClient;
 import com.mumomu.exquizme.distribution.web.model.QuizMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Controller
@@ -13,6 +16,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class RoomMessageController {
     private final SimpMessageSendingOperations sendingOperations;
+    private final AwsSnsClient awsSnsClient;
+
+    @Value("${cloud.aws.sns.arns.create-article}")
+    private String createArticleArn;
+
+    @PostMapping("/mypub")
+    public void pub(){
+        awsSnsClient.publish(createArticleArn, "test");
+    }
 
     /*
         /sub/room/100000 - 구독(roomPin : 100000)
