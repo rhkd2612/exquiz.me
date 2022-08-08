@@ -33,7 +33,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
             "/h2-console/**",
             "/ws/**",
             "/sub/**",
-            "/pub/**"
+            "/pub/**",
+            "/quiz/**"
     };
 
     @Override

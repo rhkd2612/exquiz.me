@@ -1,70 +1,87 @@
 package com.mumomu.exquizme.distribution.controller;
 
+import com.amazonaws.Response;
+import com.mumomu.exquizme.config.AwsConfig;
+import com.mumomu.exquizme.distribution.service.CredentialService;
 import com.mumomu.exquizme.distribution.web.aws.AwsSnsClient;
 import com.mumomu.exquizme.distribution.web.model.QuizMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+import software.amazon.awssdk.services.sns.SnsClient;
+import software.amazon.awssdk.services.sns.model.*;
 
-@Controller
+import java.util.Map;
+
+@RestController
 @Slf4j
 @RequiredArgsConstructor
+@RequestMapping("/quiz")
 public class RoomMessageController {
-    private final SimpMessageSendingOperations sendingOperations;
-    private final AwsSnsClient awsSnsClient;
+    private final CredentialService credentialService;
 
-    @Value("${cloud.aws.sns.arns.create-article}")
-    private String createArticleArn;
+    @PostMapping("/createTopic")
+    public ResponseEntity<String> createTopic(@RequestParam final String topicName) {
+        final CreateTopicRequest createTopicRequest = CreateTopicRequest.builder()
+                .name(topicName)
+                .build();
+        SnsClient snsClient = credentialService.getSnsClient();
+        final CreateTopicResponse createTopicResponse = snsClient.createTopic(createTopicRequest);
 
-    @PostMapping("/mypub")
-    public void pub(){
-        awsSnsClient.publish(createArticleArn, "test");
+        if (!createTopicResponse.sdkHttpResponse().isSuccessful()) {
+            throw getResponseStatusException(createTopicResponse);
+        }
+        log.info("topic name = " + createTopicResponse.topicArn());
+        log.info("topic list = " + snsClient.listTopics());
+        snsClient.close();
+        return new ResponseEntity<>("TOPIC CREATING SUCCESS", HttpStatus.OK);
     }
 
-    /*
-        /sub/room/100000 - 구독(roomPin : 100000)
-        /pub/hello - 메시지 발행
-     */
-    @MessageMapping("/message")
-    public void enter(QuizMessage message) {
-//        if (message == null)
-//            message = new QuizMessage();
+    @PostMapping("/subscribe")
+    public ResponseEntity<String> subscribe(@RequestParam final String endpoint, @RequestParam final String topicArn) {
+        final SubscribeRequest subscribeRequest = SubscribeRequest.builder()
+                .protocol("https")
+                .topicArn(topicArn)
+                .endpoint(endpoint)
+                .build();
+        SnsClient snsClient = credentialService.getSnsClient();
+        final SubscribeResponse subscribeResponse = snsClient.subscribe(subscribeRequest);
 
-//        log.info("MessageController: enter; message={}", message.toString());
-//
-//        // 2. Business Logic
-//        // (1) 메시지 형식에 따라 대화를 생성한다.
-//        if (QuizMessage.MessageType.ENTER.equals(message.getType())) {
-//            // DB에 대화방 입장 처리는 여기에 추가 필요
-//            message.setMessage(String.format("%s 님이 입장하였습니다.", message.getSender()));
-//
-//        } else if (QuizMessage.MessageType.OUT.equals(message.getType())) {
-//            // DB에 대화방 퇴장 처리는 여기에 추가 필요
-//            message.setMessage(String.format("%s 님이 나갔습니다.", message.getSender()));
-//
-//        } else if (QuizMessage.MessageType.WHISPER.equals(message.getType())) {
-//            // 특정 사용자에게만 메시지를 전달할 때 처리 (예: 귓속말)
-//            // message.setMessage(String.format("%s 님이 귓속말로 전달합니다.<br />", message.getSender(), message.getMessage()));
-//
-//            String destination = "/topic/chat/room/" + message.getRoomPin();
-//            log.info("send ws; destination={}, payload={}", destination, message.toString());
+        if (!subscribeResponse.sdkHttpResponse().isSuccessful()) {
+            throw getResponseStatusException(subscribeResponse);
+        }
+        log.info("topicARN to subscribe = " + subscribeResponse.subscriptionArn());
+        log.info("subscription list = " + snsClient.listSubscriptions());
+        snsClient.close();
+        return new ResponseEntity<>("TOPIC SUBSCRIBE SUCCESS", HttpStatus.OK);
+    }
 
-        // (2) 대화를 DB에 저장해야 한다면, 별도의 Thread를 생성하여 처리한다.
-        /*
-        new Thread(() -> {
+    @PostMapping("/publish")
+    public String publish(@RequestParam String topicArn, @RequestBody Map<String, Object> message) {
+        SnsClient snsClient = credentialService.getSnsClient();
+        final PublishRequest publishRequest = PublishRequest.builder()
+                .topicArn(topicArn)
+                .subject("HTTP ENDPOINT TEST MESSAGE")
+                .message(message.toString())
+                .build();
+        PublishResponse publishResponse = snsClient.publish(publishRequest);
+        log.info("message status:" + publishResponse.sdkHttpResponse().statusCode());
+        snsClient.close();
 
-            // 여기에서 DB에 저장하는 코드를 추가한다.
+        return "sent MSG ID = " + publishResponse.messageId();
 
-        }).start();
-        */
+    }
 
-        // 3. Make Response
-        String destination = "/sub/room/" + message.getRoomPin();
-        sendingOperations.convertAndSend(destination, message);
+    private ResponseStatusException getResponseStatusException(SnsResponse response){
+        return new ResponseStatusException(
+                HttpStatus.INTERNAL_SERVER_ERROR, response.sdkHttpResponse().statusText().get()
+        );
     }
 }

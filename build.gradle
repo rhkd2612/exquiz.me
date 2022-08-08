@@ -39,6 +39,11 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 	implementation 'org.webjars:sockjs-client:1.1.2'
 	implementation 'org.webjars:stomp-websocket:2.3.3-1'
+
+	//aws sns+sqs
+	implementation 'org.springframework.cloud:spring-cloud-starter-aws-messaging:2.2.6.RELEASE'
+	implementation 'software.amazon.awssdk:sns'
+	implementation platform('software.amazon.awssdk:bom:2.5.29')
 }
 
 tasks.named('test') {
