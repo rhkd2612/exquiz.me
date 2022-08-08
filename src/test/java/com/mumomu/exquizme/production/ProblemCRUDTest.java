@@ -93,7 +93,6 @@ public class ProblemCRUDTest {
             System.out.println("description : " + ps.getDescription());
             System.out.println("closing : " + ps.getClosingMent());
         }
-         */
 
         List<Problemset> problemsets2 = hostRepository.findOneById(1L).get().getProblemsets();
         for (Problemset ps : problemsets2) {
@@ -131,7 +130,7 @@ public class ProblemCRUDTest {
     @Test
     @Transactional
     void deleteProblemsetTest() throws Exception {
-        problemService.deleteProblemset(problemService.getProblemset(1L).get(0).getId());
+        problemService.deleteProblemset(problemService.getProblemsetsByHostId(1L).get(0).getId());
 
         assertThrows(Exception.class, () -> {
            problemService.deleteProblemset(99999L);
@@ -141,7 +140,7 @@ public class ProblemCRUDTest {
     @Test
     @Transactional
     void deleteProblemTest() throws Exception {
-        problemService.deleteProblem(problemService.getProblems(problemset.getId()).get(0).getId());
+        problemService.deleteProblem(problemService.getProblemsByProblemsetId(problemset.getId()).get(0).getId());
 
         assertThrows(Exception.class, () -> {
             problemService.deleteProblem(99999L);

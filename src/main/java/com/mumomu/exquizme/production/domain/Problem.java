@@ -3,9 +3,9 @@ package com.mumomu.exquizme.production.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
-import javax.transaction.Transactional;
 import java.util.Date;
 
 @Entity
@@ -48,9 +48,11 @@ public class Problem {
 
     protected Date createdAt;
     @Setter
-    private Date updatedAt;
-    private Date deletedAt;
-    private Boolean deleted;
+    protected Date updatedAt;
+    @Setter
+    protected Date deletedAt;
+    @Setter
+    protected Boolean deleted;
 
     @Transactional
     public int solve(){

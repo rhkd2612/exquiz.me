@@ -197,7 +197,6 @@ public class ProblemService {
         return problemOption;
     }
 
-    // TODO getProblemsetListByHostId로 변경해야 함
     @Transactional
     public List<Problemset> getProblemsetsByHostId(Long hostId) {
         try {
