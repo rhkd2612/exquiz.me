@@ -1,12 +1,7 @@
-package com.mumomu.exquizme.distribution.web.actovemq.queue;
+package com.mumomu.exquizme.distribution.web.activemq.queue;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mumomu.exquizme.distribution.web.model.AnswerSubmitForm;
 import lombok.RequiredArgsConstructor;
-import org.springframework.jms.core.JmsTemplate;
 import org.springframework.web.bind.annotation.*;
-
-import javax.jms.Queue;
 
 @RestController
 @RequestMapping("/api/room/consume")

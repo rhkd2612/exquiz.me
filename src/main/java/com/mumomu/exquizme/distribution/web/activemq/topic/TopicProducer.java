@@ -1,11 +1,8 @@
-package com.mumomu.exquizme.distribution.web.actovemq.topic;
+package com.mumomu.exquizme.distribution.web.activemq.topic;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mumomu.exquizme.distribution.web.model.AnswerSubmitForm;
 import lombok.RequiredArgsConstructor;
-import org.apache.activemq.Message;
 import org.apache.activemq.command.ActiveMQTopic;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.PostMapping;

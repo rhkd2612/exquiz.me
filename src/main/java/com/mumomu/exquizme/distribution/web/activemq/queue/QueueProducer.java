@@ -1,14 +1,8 @@
-package com.mumomu.exquizme.distribution.web.actovemq.queue;
+package com.mumomu.exquizme.distribution.web.activemq.queue;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mumomu.exquizme.distribution.web.model.AnswerSubmitForm;
 import lombok.RequiredArgsConstructor;
-import org.springframework.jms.core.JmsTemplate;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import javax.jms.Queue;
 
 @RestController
 @RequestMapping("/api/room/produce")

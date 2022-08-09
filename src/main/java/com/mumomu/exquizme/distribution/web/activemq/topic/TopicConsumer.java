@@ -1,22 +1,15 @@
-package com.mumomu.exquizme.distribution.web.actovemq.topic;
+package com.mumomu.exquizme.distribution.web.activemq.topic;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mumomu.exquizme.distribution.web.model.AnswerSubmitForm;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jms.annotation.EnableJms;
 import org.springframework.jms.annotation.JmsListener;
-import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.support.JmsMessageHeaderAccessor;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
-import javax.jms.Queue;
 import java.util.Map;
 
 @Component
