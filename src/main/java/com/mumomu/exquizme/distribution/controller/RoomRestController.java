@@ -230,7 +230,6 @@ public class RoomRestController {
         try {
             // 2. Business Logic
             Room targetRoom = roomService.findRoomByPin(roomPin);
-            Room targetRoom2 = roomService.findRoomByPin(roomPin);
 
             // 3. Make Response
             Cookie anonymousCookie = Room.setAnonymousCookie();

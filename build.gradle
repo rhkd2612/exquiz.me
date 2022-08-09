@@ -47,9 +47,11 @@ dependencies {
 
 	implementation 'com.amazonaws:aws-java-sdk-sqs'
 
-	//amazon mq
-	compileOnly("org.springframework.boot:spring-boot-starter-activemq")
+	//amazon mq - apache activemq
+	implementation "org.springframework.boot:spring-boot-starter-activemq"
 	compileOnly("com.fasterxml.jackson.core:jackson-databind")
+	implementation "org.apache.activemq:activemq-client"
+	implementation "org.apache.activemq:activemq-pool"
 }
 
 tasks.named('test') {
