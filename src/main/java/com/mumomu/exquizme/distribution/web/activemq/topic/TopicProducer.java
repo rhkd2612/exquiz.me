@@ -16,7 +16,7 @@ import java.util.UUID;
 @RestController
 @Component
 @RequiredArgsConstructor
-@RequestMapping("/api/room/produce")
+@RequestMapping("/api/room/topic/producer")
 public class TopicProducer {
     private final JmsTemplate jmsTemplate;
     private final ActiveMQTopic answerTopic;

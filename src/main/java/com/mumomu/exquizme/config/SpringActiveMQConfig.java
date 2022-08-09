@@ -27,8 +27,8 @@ public class SpringActiveMQConfig {
     private String activeMqUsername;
     @Value("${spring.activemq.password}")
     private String activeMqPassword;
-    @Value("${cloud.aws.activemq.topic-name}")
-    private static String TOPIC_NAME;
+    @Value("${spring.activemq.topic.name}")
+    private String TOPIC_NAME;
 
     @Bean
     public Queue queue() {
@@ -37,7 +37,8 @@ public class SpringActiveMQConfig {
 
     @Bean
     public ActiveMQTopic answerTopic(){
-        return new ActiveMQTopic("answer.topic");
+        System.out.println("topicName = " + TOPIC_NAME);
+        return new ActiveMQTopic(TOPIC_NAME);
     }
 
     @Bean

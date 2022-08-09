@@ -28,7 +28,6 @@ logging.level:
 min:
   pin:
     value: 100000
-
 max:
   pin:
     value: 100500
