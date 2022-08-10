@@ -45,7 +45,7 @@ class ProblemControllerTest {
         MvcResult result = mockMvc.perform(post("/api/problemset")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(toJson(problemsetSaveDto)))
-                .andExpect(status().isOk())
+                .andExpect(status().is2xxSuccessful())
                 .andExpect(jsonPath("$.title", is("Test Problemset Title")))
                 .andExpect(jsonPath("$.description", is("Test Problemset Description")))
                 .andExpect(jsonPath("$.closingMent", is("Test Problemset Closing Ment")))
@@ -76,7 +76,7 @@ class ProblemControllerTest {
         MvcResult result = mockMvc.perform(post("/api/problem")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJson(problemSaveDto)))
-                .andExpect(status().isOk())
+                .andExpect(status().is2xxSuccessful())
                 .andExpect(jsonPath("$.dtype", is("MultipleChoiceProblem")))
                 .andExpect(jsonPath("$.title", is("Test Problem Title1")))
                 .andExpect(jsonPath("$.score", is(20)))
@@ -100,7 +100,7 @@ class ProblemControllerTest {
         MvcResult result = mockMvc.perform(post("/api/problem_option")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJson(problemOptionSaveDto)))
-                .andExpect(status().isOk())
+                .andExpect(status().is2xxSuccessful())
                 .andExpect(jsonPath("$.idx", is(1)))
                 .andExpect(jsonPath("$.description", is("Test Problem Option Description")))
                 .andExpect(jsonPath("$.pickcount", is(0)))
@@ -115,7 +115,7 @@ class ProblemControllerTest {
         makeProblemset();
 
         mockMvc.perform(get("/api/problemsets/{hostId}", hostId))
-                .andExpect(status().isOk())
+                .andExpect(status().is2xxSuccessful())
                 .andExpect(jsonPath("$[1].title", is("Test Problemset Title")))
                 .andReturn();
     }
@@ -127,7 +127,7 @@ class ProblemControllerTest {
         makeProblem();
 
         mockMvc.perform(get("/api/problems/{problemsetId}", problemsetId))
-                .andExpect(status().isOk())
+                .andExpect(status().is2xxSuccessful())
                 .andExpect(jsonPath("$[0].title", is("Test Problem Title1")))
                 .andReturn();
     }
@@ -137,7 +137,7 @@ class ProblemControllerTest {
         makeProblemOption();
 
         mockMvc.perform(get("/api/problem_options/{problemId}", problemId))
-                .andExpect(status().isOk())
+                .andExpect(status().is2xxSuccessful())
                 .andExpect(jsonPath("$[0].description", is("Test Problem Option Description")))
                 .andReturn();
     }
@@ -156,7 +156,7 @@ class ProblemControllerTest {
         mockMvc.perform(put("/api/problemset")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(toJson(problemsetModifyDto)))
-                .andExpect(status().isOk())
+                .andExpect(status().is2xxSuccessful())
                 .andExpect(jsonPath("$.title", is("Updated Problemset Title")))
                 .andReturn();
     }
@@ -180,7 +180,7 @@ class ProblemControllerTest {
         mockMvc.perform(put("/api/problem")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJson(problemModifyDto)))
-                .andExpect(status().isOk())
+                .andExpect(status().is2xxSuccessful())
                 .andExpect(jsonPath("$.title", is("Updated Problem Title")))
                 .andExpect(jsonPath("$.score", is(100)))
                 .andReturn();
@@ -200,7 +200,7 @@ class ProblemControllerTest {
         mockMvc.perform(put("/api/problem_option")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJson(problemOptionModifyDto)))
-                .andExpect(status().isOk())
+                .andExpect(status().is2xxSuccessful())
                 .andExpect(jsonPath("$.description", is("Updated Problem Option Description")))
                 .andReturn();
     }
@@ -210,7 +210,7 @@ class ProblemControllerTest {
         makeProblemset();
 
         mockMvc.perform(delete("/api/problemset/{problemsetId}", problemsetId))
-                .andExpect(status().isOk())
+                .andExpect(status().is2xxSuccessful())
                 .andReturn();
     }
 
@@ -219,7 +219,7 @@ class ProblemControllerTest {
         makeProblem();
 
         mockMvc.perform(delete("/api/problem/{problemId}", problemId))
-                .andExpect(status().isOk())
+                .andExpect(status().is2xxSuccessful())
                 .andReturn();
     }
 

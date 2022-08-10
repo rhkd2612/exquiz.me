@@ -10,6 +10,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,14 +26,10 @@ import java.util.stream.Collectors;
 public class ProblemController {
     private final ProblemService problemService;
 
-    //TODO RepsonseEntity + Dto로 변경
     @PostMapping("/problemset")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "hostId", value = "problemset이 추가될 host id", required = true, dataType = "Long", paramType = "query"),
-            @ApiImplicitParam(name = "title", value = "problemset 제목", required = true, dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "description", value = "problemset 설명", required = true, dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "closingMent", value = "클로징 멘트", required = true, dataType = "String", paramType = "query"),
-    })
+    @Operation(summary = "문제 셋 생성", description = "문제 셋을 생성합니다.")
+    @ApiResponse(responseCode = "201", description = "문제 셋 생성 성공")
+    @ApiResponse(responseCode = "404", description = "호스트 없음")
     public ResponseEntity<?> makeProblemset(@RequestBody ProblemsetSaveDto problemsetSaveDto) {
         try {
             Problemset problemset = problemService.makeProblemset(
@@ -40,24 +37,17 @@ public class ProblemController {
                     problemsetSaveDto.getTitle(),
                     problemsetSaveDto.getDescription(),
                     problemsetSaveDto.getClosingMent());
-            return new ResponseEntity<>(new ProblemsetDto(problemset), HttpStatus.OK);
+            return new ResponseEntity<>(new ProblemsetDto(problemset), HttpStatus.CREATED);
         } catch (HostNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 
     @PostMapping("/problem")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "problemsetId", value = "문제가 추가될 problemset의 id", required = true, dataType = "Long", paramType = "query"),
-            @ApiImplicitParam(name = "dtype", value = "문제 유형", required = true, dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "idx", value = "문제 번호", required = true, dataType = "Integer", paramType = "query"),
-            @ApiImplicitParam(name = "title", value = "문제 제목", required = true, dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "description", value = "문제 설명", required = true, dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "timelimit", value = "문제 시간 제한", required = true, dataType = "Integer", paramType = "query"),
-            @ApiImplicitParam(name = "score", value = "문제 점수", required = true, dataType = "Integer", paramType = "query"),
-            @ApiImplicitParam(name = "picture", value = "첨부 이미지", required = false, dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "answer", value = "답을 String으로 변환한 값", required = true, dataType = "String", paramType = "query")
-    })
+    @Operation(summary = "문제 생성", description = "문제를 생성합니다.")
+    @ApiResponse(responseCode = "201", description = "문제 생성 성공")
+    @ApiResponse(responseCode = "400", description = "dtype 오류")
+    @ApiResponse(responseCode = "404", description = "문제 셋 없음")
     public ResponseEntity<?> makeProblem(@RequestBody ProblemSaveDto problemSaveDto) {
         try {
             Problem problem = problemService.makeProblem(
@@ -67,9 +57,9 @@ public class ProblemController {
                     problemSaveDto.getScore(), problemSaveDto.getPicture(),
                     problemSaveDto.getAnswer());
 
-            return new ResponseEntity<>(new ProblemDto(problem), HttpStatus.OK);
+            return new ResponseEntity<>(new ProblemDto(problem), HttpStatus.CREATED);
         } catch (ProblemsetNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (DtypeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
@@ -78,12 +68,10 @@ public class ProblemController {
     }
 
     @PostMapping("/problem_option")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "problem", value = "problem option이 추가될 problem id", required = true, dataType = "Long", paramType = "query"),
-            @ApiImplicitParam(name = "idx", value = "problem option 번호", required = true, dataType = "Integer", paramType = "query"),
-            @ApiImplicitParam(name = "description", value = "problem option 설명", required = true, dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "picture", value = "problem option 사진", required = false, dataType = "String", paramType = "query"),
-    })
+    @Operation(summary = "선택지 생성", description = "선택지를 생성합니다.")
+    @ApiResponse(responseCode = "201", description = "선택지 생성 성공")
+    @ApiResponse(responseCode = "400", description = "dtype 오류")
+    @ApiResponse(responseCode = "404", description = "문제 없음")
     public ResponseEntity<?> makeProblemOption(@RequestBody ProblemOptionSaveDto problemOptionSaveDto) {
         try {
             ProblemOption problemOption = problemService.makeProblemOption(
@@ -92,9 +80,9 @@ public class ProblemController {
                     problemOptionSaveDto.getDescription(),
                     problemOptionSaveDto.getPicture()
             );
-            return new ResponseEntity<>(new ProblemOptionDto(problemOption), HttpStatus.OK);
+            return new ResponseEntity<>(new ProblemOptionDto(problemOption), HttpStatus.CREATED);
         } catch (ProblemNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (ProblemOptionAccessToSubjectiveProblemException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (DtypeException e) {
@@ -107,42 +95,52 @@ public class ProblemController {
     @GetMapping("/problemsets/{hostId}")
     @ApiImplicitParam(name = "hostId", value = "호스트 id", required = true, dataType = "Long", paramType = "path")
     @Operation(summary = "호스트가 가지고 있는 problemset 목록 조회", description = "유효한 호스트 id인지 검사 후 problemset 리스트 전송")
+    @ApiResponse(responseCode = "200", description = "문제 셋 조회 성공")
+    @ApiResponse(responseCode = "404", description = "호스트 없음")
     public ResponseEntity<?> findProblemsets(@PathVariable Long hostId) {
         try {
             List<ProblemsetDto> problemsetDtos = problemService.getProblemsetsByHostId(hostId).stream().map(ps -> new ProblemsetDto(ps)).collect(Collectors.toList());
             return new ResponseEntity<>(problemsetDtos, HttpStatus.OK);
         } catch (HostNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 
     @GetMapping("/problems/{problemsetId}")
     @ApiImplicitParam(name = "problemsetId", value = "problemset id", required = true, dataType = "Long", paramType = "path")
     @Operation(summary = "호스트가 가지고 있는 problem 목록 조회", description = "유효한 problemset id인지 검사 후 problem 리스트 idx순으로 전송")
+    @ApiResponse(responseCode = "200", description = "문제 조회 성공")
+    @ApiResponse(responseCode = "404", description = "문제 셋 없음")
     public ResponseEntity<?> findProblems(@PathVariable Long problemsetId) {
         try {
             List<ProblemDto> problemDtos = problemService.getProblemsByProblemsetId(problemsetId).stream().map(p -> new ProblemDto(p)).collect(Collectors.toList());
             return new ResponseEntity<>(problemDtos, HttpStatus.OK);
         } catch (ProblemsetNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 
     @GetMapping("/problem_options/{problemId}")
     @ApiImplicitParam(name = "problemId", value = "problem id", required = true, dataType = "Long", paramType = "path")
     @Operation(summary = "호스트가 가지고 있는 problem option 목록 조회", description = "유효한 problem id인지 검사 후 problem option 리스트 idx순으로 전송")
+    @ApiResponse(responseCode = "200", description = "선택지 조회 성공")
+    @ApiResponse(responseCode = "400", description = "주관식 문제에서 선택지 조회 불가")
+    @ApiResponse(responseCode = "404", description = "문제 없음")
     public ResponseEntity<?> findProblemOptions(@PathVariable Long problemId) throws Exception {
         try {
             List<ProblemOptionDto> problemOptionDtos = problemService.getProblemOptionById(problemId).stream().map(po -> new ProblemOptionDto(po)).collect(Collectors.toList());
             return new ResponseEntity<>(problemOptionDtos, HttpStatus.OK);
         } catch (ProblemNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (ProblemOptionAccessToSubjectiveProblemException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
     @PutMapping("/problemset")
+    @Operation(summary = "문제 셋 수정", description = "문제 셋을 수정합니다.")
+    @ApiResponse(responseCode = "200", description = "문제 셋 수정 성공")
+    @ApiResponse(responseCode = "404", description = "호스트 없음")
     public ResponseEntity<?> updateProblemset(@RequestBody ProblemsetModifyDto problemsetModifyDto) {
         try {
             Problemset problemset = problemService.updateProblemset(
@@ -151,11 +149,15 @@ public class ProblemController {
 
             return new ResponseEntity<>(new ProblemsetDto(problemset), HttpStatus.OK);
         } catch (ProblemsetNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 
     @PutMapping("/problem")
+    @Operation(summary = "문제 수정", description = "문제를 수정합니다.")
+    @ApiResponse(responseCode = "200", description = "문제 수정 성공")
+    @ApiResponse(responseCode = "400", description = "dtype 오류")
+    @ApiResponse(responseCode = "404", description = "문제 셋 없음")
     public ResponseEntity<?> updateProblem(@RequestBody ProblemModifyDto problemModifyDto) throws Exception {
         try {
             Problem problem = problemService.updateProblem(
@@ -167,7 +169,7 @@ public class ProblemController {
 
             return new ResponseEntity<>(new ProblemDto(problem), HttpStatus.OK);
         } catch (ProblemNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (DtypeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (DifferentDtypeException e) {
@@ -176,6 +178,9 @@ public class ProblemController {
     }
 
     @PutMapping("/problem_option")
+    @Operation(summary = "선택지 수정", description = "선택지를 수정합니다.")
+    @ApiResponse(responseCode = "200", description = "선택지 수정 성공")
+    @ApiResponse(responseCode = "404", description = "문제 없음")
     public ResponseEntity<?> updateProblemOption(@RequestBody ProblemOptionModifyDto problemOptionModifyDto) throws Exception {
         try {
             ProblemOption problemOption = problemService.updateProblemOption(
@@ -184,28 +189,34 @@ public class ProblemController {
 
             return new ResponseEntity<>(new ProblemOptionDto(problemOption), HttpStatus.OK);
         } catch (ProblemOptionNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 
     @DeleteMapping("/problemset/{problemsetId}")
+    @Operation(summary = "문제 셋 삭제", description = "문제 셋을 삭제합니다.")
+    @ApiResponse(responseCode = "204", description = "문제 셋 삭제 성공")
+    @ApiResponse(responseCode = "404", description = "문제 셋 없음")
     public ResponseEntity<?> deleteProblemset(@PathVariable Long problemsetId) {
         try {
             problemService.deleteProblemset(problemsetId);
         } catch (ProblemsetNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(null, HttpStatus.OK);
+        return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
     }
 
     @DeleteMapping("/problem/{problemId}")
+    @Operation(summary = "문제 삭제", description = "문제를 삭제합니다.")
+    @ApiResponse(responseCode = "204", description = "문제 삭제 성공")
+    @ApiResponse(responseCode = "404", description = "문제 없음")
     public ResponseEntity<?> deleteProblem(@PathVariable Long problemId) {
         try {
             problemService.deleteProblem(problemId);
         } catch (ProblemNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(null, HttpStatus.OK);
+        return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
     }
 
 }
