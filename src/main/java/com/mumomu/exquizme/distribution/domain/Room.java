@@ -71,6 +71,7 @@ public class Room {
         this.endDate = endDate;
     }
 
+    @Transactional
     public void setProblemset(Problemset problemset) {
         this.problemset = problemset;
     }
@@ -83,8 +84,6 @@ public class Room {
     public Problem startRoom() throws InvalidRoomAccessException {
         if(this.currentState != RoomState.READY)
             throw new InvalidRoomAccessException("해당하는 시작 대기 중인 방이 없습니다.");
-
-        this.participants = new ArrayList<>();
         this.currentState = RoomState.PLAY;
         this.currentProblemNum = 0;
         return this.problemset.getProblems().get(this.currentProblemNum);
