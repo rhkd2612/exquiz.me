@@ -20,6 +20,8 @@ import org.apache.activemq.command.ActiveMQTopic;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jms.core.JmsTemplate;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.web.bind.annotation.*;
 
 import javax.jms.DeliveryMode;
@@ -79,13 +81,13 @@ public class RoomProgressMQController {
     }
 
     // 퀴즈 정답 제출
-    @PostMapping("/submit")
+    @MessageMapping("/submit")
     @Operation(summary = "정답 제출", description = "참여자가 퀴즈 정답을 제출합니다.")
     @ApiImplicitParam(name = "roomPin", value = "방의 핀번호(Path)", required = true, dataType = "String", paramType = "path")
     @ApiResponse(responseCode = "200", description = "정답 제출 성공")
     @ApiResponse(responseCode = "400", description = "퀴즈 없음")
     @ApiResponse(responseCode = "406", description = "현재 진행중이 아닌 문제 답이거나 이미 제출한 이력이 있을 경우")
-    public ResponseEntity<?> submitAnswer(@PathVariable String roomPin, @RequestBody AnswerSubmitForm answerSubmitForm){
+    public ResponseEntity<?> submitAnswer(@DestinationVariable String roomPin, @RequestBody AnswerSubmitForm answerSubmitForm){
         // TODO 방 닫힐 때 topic 제거해주어야함 혹은 비워주기
         ActiveMQTopic roomTopic = new ActiveMQTopic("room" + roomPin);
 

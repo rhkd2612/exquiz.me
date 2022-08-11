@@ -61,6 +61,7 @@ public class SpringActiveMQConfig {
 
     @Bean
     public MappingJackson2MessageConverter jacksonJmsMessageConverter(){
+        //LocalDateTime serializable을 위해
         MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
         converter.setTargetType(MessageType.TEXT);
         converter.setTypeIdPropertyName("_type");

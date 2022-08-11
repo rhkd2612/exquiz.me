@@ -22,6 +22,8 @@ public class AnswerDto implements Serializable {
     private int problemIdx;
     private String answerText;
 
+    // @JsonDeserialize(using = LocalDateTimeDeserializer.class
+
     public AnswerDto(Answer answer) {
         this.problemIdx = answer.getProblemIdx();
         this.answerText = answer.getAnswerText();
