@@ -16,7 +16,7 @@ import java.util.Map;
 @EnableJms
 @RequiredArgsConstructor
 public class TopicConsumer {
-    @JmsListener(destination = "${spring.activemq.topic.name}", containerFactory = "jsaFactory")
+    @JmsListener(destination = "room100234", containerFactory = "jsaFactory")
     public void appleReceive(@Payload AnswerSubmitForm answer,
                              @Headers Map<String, Object> headers,
                              MessageHeaders messageHeaders,

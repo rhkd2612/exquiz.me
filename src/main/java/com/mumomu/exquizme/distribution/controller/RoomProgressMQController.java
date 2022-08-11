@@ -96,14 +96,14 @@ public class RoomProgressMQController {
             return new ResponseEntity<>("잘못된 문제 번호입니다.", HttpStatus.NOT_ACCEPTABLE);
         try {
             // 2. Business Logic
+            int currentScore = roomProgressService.updateParticipantInfo(roomPin, answerSubmitForm);
+
             jmsTemplate.convertAndSend(roomTopic, answerSubmitForm, message -> {
                 message.setJMSDeliveryMode(DeliveryMode.NON_PERSISTENT);
                 message.setJMSCorrelationID(UUID.randomUUID().toString());
                 message.setJMSPriority(10);
                 return message;
             });
-
-            int currentScore = roomProgressService.updateParticipantInfo(roomPin, answerSubmitForm);
             // 3. Make Response
             return ResponseEntity.ok(currentScore);
         }catch(NullPointerException e){
