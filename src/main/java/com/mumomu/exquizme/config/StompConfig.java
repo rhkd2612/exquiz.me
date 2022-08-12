@@ -9,6 +9,8 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
+import java.net.InetSocketAddress;
+
 @Configuration
 @EnableWebSocketMessageBroker
 public class StompConfig implements WebSocketMessageBrokerConfigurer {
@@ -16,6 +18,8 @@ public class StompConfig implements WebSocketMessageBrokerConfigurer {
     private String brokerRelayHost;
     @Value("${spring.activemq.broker-virtual-host}")
     private String brokerVirtualHost;
+    @Value("${spring.activemq.broker-port}")
+    private int brokerPort;
     @Value("${spring.activemq.user}")
     private String activeMqUsername;
     @Value("${spring.activemq.password}")
@@ -32,12 +36,14 @@ public class StompConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
+        registry.setPathMatcher(new AntPathMatcher("."));
         registry.setApplicationDestinationPrefixes("/pub");
-        registry.enableStompBrokerRelay("/queue","/topic")
+        registry.enableStompBrokerRelay("/queue","/topic","jms.topic.messages")
                 .setRelayHost(brokerRelayHost)
-                .setVirtualHost(brokerVirtualHost)
-                .setRelayPort(61617)
+                .setVirtualHost("/")
+                .setRelayPort(brokerPort)
                 .setClientLogin(activeMqUsername)
                 .setClientPasscode(activeMqPassword);
     }
 }
+
