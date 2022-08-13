@@ -31,9 +31,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
             "/",
             "/api/**",
             "/h2-console/**",
-            "/ws/**",
+//            "/ws/**",
+            "/stomp/**",
             "/sub/**",
             "/pub/**",
+            "/topic/**",
+            "/queue/**",
             "/quiz/**",
             "/index.html"
     };

@@ -9,6 +9,7 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
+import javax.websocket.server.ServerEndpoint;
 import java.net.InetSocketAddress;
 
 @Configuration
@@ -28,22 +29,26 @@ public class StompConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // 클라이언트가 ws://domain/stomp/room으로 커넥션을 연결하고 메세지 통신을 할 수 있다.
-        registry.addEndpoint("/stomp/room")
-                .setAllowedOrigins("*") // TODO setAllowedOrigins는 나중에 바꿔주어야한다(보안이슈)
-                .withSockJS()
-                .setClientLibraryUrl("https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.2/sockjs.js");
+        registry.addEndpoint("/stomp")
+                .setAllowedOrigins("*"); // TODO setAllowedOrigins는 나중에 바꿔주어야한다(보안이슈)
+                //.withSockJS()
+                //.setClientLibraryUrl("https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.2/sockjs.js");
     }
+
+
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.setPathMatcher(new AntPathMatcher("."));
+        System.out.println("StompConfig init");
+        //registry.setPathMatcher(new AntPathMatcher("."));
         registry.setApplicationDestinationPrefixes("/pub");
-        registry.enableStompBrokerRelay("/queue","/topic","jms.topic.messages")
-                .setRelayHost(brokerRelayHost)
-                .setVirtualHost("/")
-                .setRelayPort(brokerPort)
-                .setClientLogin(activeMqUsername)
-                .setClientPasscode(activeMqPassword);
+        //registry.enableSimpleBroker("/sub");
+
+        registry.enableStompBrokerRelay("/queue","/topic");
+//                .setRelayHost(brokerRelayHost)
+//                .setRelayPort(brokerPort)
+//                .setClientLogin(activeMqUsername)
+//                .setSystemPasscode(activeMqPassword);
     }
 }
 

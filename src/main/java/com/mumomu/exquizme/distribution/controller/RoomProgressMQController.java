@@ -90,6 +90,7 @@ public class RoomProgressMQController {
     @ApiResponse(responseCode = "406", description = "현재 진행중이 아닌 문제 답이거나 이미 제출한 이력이 있을 경우")
     public ResponseEntity<?> submitAnswer(@DestinationVariable String roomPin, @RequestBody AnswerSubmitForm answerSubmitForm){
         // TODO 방 닫힐 때 topic 제거해주어야함 혹은 비워주기
+        System.out.println("asjdnaskldnakjdnklsndaka");
         //ActiveMQTopic roomTopic = new ActiveMQTopic("room" + roomPin);
 
         // 1. Validation
