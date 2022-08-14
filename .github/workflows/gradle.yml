@@ -9,7 +9,7 @@ name: Java CI with Gradle
 
 on:
   push:
-    branches: [ "feature/aws-sns-sqs" ]
+    branches: [ "feature/websocket" ]
   pull_request:
     branches: [ "develop" ]
 

@@ -6,6 +6,9 @@ spring:
   config:
     import: application-secret.yml
 
+  main:
+    allow-circular-references: true
+
   datasource:
     url: jdbc:h2:mem:test # test 부분을 자신이 원하는 것으로 바꾸시면 됩니다.
     username: sa # username과 password는 자신의 설정에 맞게

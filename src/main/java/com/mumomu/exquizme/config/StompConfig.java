@@ -1,16 +1,26 @@
 package com.mumomu.exquizme.config;
 
+import com.mumomu.exquizme.distribution.handler.RoomHandler;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.jms.activemq.ActiveMQProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.simp.broker.AbstractBrokerMessageHandler;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
-import org.springframework.util.AntPathMatcher;
+import org.springframework.messaging.simp.stomp.StompBrokerRelayMessageHandler;
+import org.springframework.messaging.simp.stomp.StompDecoder;
+import org.springframework.messaging.simp.stomp.StompEncoder;
+import org.springframework.messaging.simp.stomp.StompReactorNettyCodec;
+import org.springframework.messaging.tcp.reactor.ReactorNettyCodec;
+import org.springframework.messaging.tcp.reactor.ReactorNettyTcpClient;
+import org.springframework.web.socket.config.annotation.DelegatingWebSocketMessageBrokerConfiguration;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
-
-import javax.websocket.server.ServerEndpoint;
-import java.net.InetSocketAddress;
+import reactor.netty.tcp.SslProvider;
+import reactor.netty.tcp.TcpClient;
 
 @Configuration
 @EnableWebSocketMessageBroker
@@ -31,7 +41,7 @@ public class StompConfig implements WebSocketMessageBrokerConfigurer {
         // 클라이언트가 ws://domain/stomp/room으로 커넥션을 연결하고 메세지 통신을 할 수 있다.
         registry.addEndpoint("/stomp")
                 .setAllowedOrigins("*"); // TODO setAllowedOrigins는 나중에 바꿔주어야한다(보안이슈)
-                //.withSockJS()
+                //.withSockJS();
                 //.setClientLibraryUrl("https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.2/sockjs.js");
     }
 
@@ -39,16 +49,20 @@ public class StompConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        System.out.println("StompConfig init");
         //registry.setPathMatcher(new AntPathMatcher("."));
         registry.setApplicationDestinationPrefixes("/pub");
         //registry.enableSimpleBroker("/sub");
 
-        registry.enableStompBrokerRelay("/queue","/topic");
-//                .setRelayHost(brokerRelayHost)
-//                .setRelayPort(brokerPort)
-//                .setClientLogin(activeMqUsername)
-//                .setSystemPasscode(activeMqPassword);
+        ReactorNettyTcpClient<byte[]> client = new ReactorNettyTcpClient<>(tcpClient -> tcpClient.host(brokerRelayHost).port(brokerPort)
+                .secure(SslProvider.defaultClientProvider()),
+                new StompReactorNettyCodec());
+
+        registry.enableStompBrokerRelay("/queue","/topic")
+                .setClientLogin(activeMqUsername)
+                .setClientPasscode(activeMqPassword)
+                .setSystemLogin(activeMqUsername)
+                .setSystemPasscode(activeMqPassword)
+                .setTcpClient(client);
     }
 }
 
