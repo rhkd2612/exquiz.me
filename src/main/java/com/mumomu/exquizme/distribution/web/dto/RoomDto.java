@@ -3,7 +3,6 @@ package com.mumomu.exquizme.distribution.web.dto;
 import com.mumomu.exquizme.distribution.domain.Room;
 import com.mumomu.exquizme.distribution.domain.RoomState;
 import com.mumomu.exquizme.production.dto.ProblemsetDto;
-import com.mumomu.exquizme.production.dto.ProblemsetSaveDto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;

@@ -1,18 +1,10 @@
 package com.mumomu.exquizme.distribution.controller;
 
-import com.amazonaws.Response;
-import com.mumomu.exquizme.config.AwsConfig;
 import com.mumomu.exquizme.distribution.service.CredentialService;
-import com.mumomu.exquizme.distribution.web.aws.AwsSnsClient;
-import com.mumomu.exquizme.distribution.web.model.QuizMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.simp.SimpMessageSendingOperations;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import software.amazon.awssdk.services.sns.SnsClient;

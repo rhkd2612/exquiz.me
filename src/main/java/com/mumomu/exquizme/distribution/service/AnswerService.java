@@ -2,7 +2,6 @@ package com.mumomu.exquizme.distribution.service;
 
 import com.mumomu.exquizme.distribution.domain.Answer;
 import com.mumomu.exquizme.distribution.repository.AnswerRepository;
-import com.mumomu.exquizme.distribution.web.dto.AnswerDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

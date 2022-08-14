@@ -2,11 +2,9 @@ package com.mumomu.exquizme.distribution.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mumomu.exquizme.distribution.exception.*;
-import com.mumomu.exquizme.distribution.web.model.AnswerSubmitForm;
 import com.mumomu.exquizme.production.domain.Problem;
 import com.mumomu.exquizme.production.domain.Problemset;
 import lombok.*;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.*;
 import javax.servlet.http.Cookie;

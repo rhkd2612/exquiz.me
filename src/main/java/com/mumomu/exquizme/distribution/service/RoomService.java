@@ -6,7 +6,6 @@ import com.mumomu.exquizme.distribution.domain.RoomState;
 import com.mumomu.exquizme.distribution.exception.*;
 import com.mumomu.exquizme.distribution.repository.ParticipantRepository;
 import com.mumomu.exquizme.distribution.repository.RoomRepository;
-import com.mumomu.exquizme.distribution.web.dto.ParticipantDto;
 import com.mumomu.exquizme.distribution.web.model.ParticipantCreateForm;
 import com.mumomu.exquizme.formatter.SimpleDateFormatter;
 import com.mumomu.exquizme.production.domain.Problemset;
@@ -16,11 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.servlet.http.Cookie;
-import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor

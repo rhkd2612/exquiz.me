@@ -1,14 +1,8 @@
 package com.mumomu.exquizme.distribution.controller;
 
 import com.mumomu.exquizme.distribution.web.model.AnswerSubmitForm;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.apache.activemq.command.ActiveMQTopic;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;

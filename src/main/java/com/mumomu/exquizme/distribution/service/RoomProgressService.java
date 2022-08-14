@@ -3,7 +3,6 @@ package com.mumomu.exquizme.distribution.service;
 import com.mumomu.exquizme.distribution.domain.Answer;
 import com.mumomu.exquizme.distribution.domain.Participant;
 import com.mumomu.exquizme.distribution.domain.Room;
-import com.mumomu.exquizme.distribution.exception.ClosedRoomAccessException;
 import com.mumomu.exquizme.distribution.exception.InvalidRoomAccessException;
 import com.mumomu.exquizme.distribution.exception.NoMoreProblemException;
 import com.mumomu.exquizme.distribution.repository.AnswerRepository;

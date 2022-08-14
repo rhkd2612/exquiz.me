@@ -9,7 +9,6 @@ import com.mumomu.exquizme.distribution.web.dto.ParticipantDto;
 import com.mumomu.exquizme.distribution.web.model.AnswerSubmitForm;
 import com.mumomu.exquizme.production.domain.Problem;
 import com.mumomu.exquizme.production.dto.ProblemDto;
-import com.mumomu.exquizme.production.service.ProblemService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.v3.oas.annotations.Operation;
