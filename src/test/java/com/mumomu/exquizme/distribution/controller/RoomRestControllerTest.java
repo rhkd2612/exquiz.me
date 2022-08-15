@@ -123,8 +123,9 @@ class RoomRestControllerTest {
     @Transactional
     @DisplayName("방최대인원초과")
     void joinRoomFailureByMaxParticipantsOver() throws Exception{
-        for(int i = 0; i < 2; i++){
-            Room room2 = roomService.findRoomByPin(roomPin2);
+        Room room2 = roomService.findRoomByPin(roomPin2);
+
+        for(int i = 0; i < room2.getMaxParticipantCount(); i++){
             String pUuid = UUID.randomUUID().toString();
             ParticipantCreateForm pcForm1 = ParticipantCreateForm.builder()
                     .name("test" + i)
