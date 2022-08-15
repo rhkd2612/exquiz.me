@@ -44,7 +44,7 @@ public class Room {
         this.problemset = problemset;
         this.startDate = new Date();
         this.currentState = RoomState.READY;
-        this.currentProblemNum = 0;
+        this.currentProblemNum = -1;
         this.participants = new ArrayList<>();
     }
 

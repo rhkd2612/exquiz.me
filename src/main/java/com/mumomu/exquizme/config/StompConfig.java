@@ -35,6 +35,7 @@ public class StompConfig implements WebSocketMessageBrokerConfigurer {
 
 
 
+    // TODO 계속 ALB로 topic이 연결 되어있으면 요금이 계속 나올텐데, 연결 처리 방법은?
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         //registry.setPathMatcher(new AntPathMatcher("."));

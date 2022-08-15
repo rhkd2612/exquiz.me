@@ -95,10 +95,8 @@ class RoomRestControllerTest {
         String myRoomPin = roomService.newRoom(problemset,5).getPin();
 
         mvc.perform(post("/api/room/{roomPin}/close", myRoomPin))
-                .andExpect(status().isAccepted())
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(jsonPath("$.id",notNullValue()))
-                .andExpect(jsonPath("$.currentState").value("FINISH"));
+                .andExpect(status().isMovedPermanently())
+                .andDo(MockMvcResultHandlers.print());
     }
 
     @Test
@@ -106,7 +104,7 @@ class RoomRestControllerTest {
     @DisplayName("존재하지않는퀴즈방폐쇄")
     void closeInvalidRoomTest() throws Exception {
         mvc.perform(post("/api/room/{roomPin}/close", invalidPin))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isNotFound())
                 .andDo(MockMvcResultHandlers.print());
     }
 
@@ -125,8 +123,9 @@ class RoomRestControllerTest {
     @Transactional
     @DisplayName("방최대인원초과")
     void joinRoomFailureByMaxParticipantsOver() throws Exception{
-        for(int i = 0; i < 2; i++){
-            Room room2 = roomService.findRoomByPin(roomPin2);
+        Room room2 = roomService.findRoomByPin(roomPin2);
+
+        for(int i = 0; i < room2.getMaxParticipantCount(); i++){
             String pUuid = UUID.randomUUID().toString();
             ParticipantCreateForm pcForm1 = ParticipantCreateForm.builder()
                     .name("test" + i)
@@ -191,22 +190,22 @@ class RoomRestControllerTest {
     @DisplayName("존재하지않는방참가")
     void joinInvalidRoomTest() throws Exception{
         mvc.perform(get("/api/room/{roomPin}", invalidPin))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isNotFound())
                 .andDo(MockMvcResultHandlers.print());
     }
 
-    @Test
-    @Transactional
-    @DisplayName("새로운참여자추가")
-    void signUpParticipantTest() throws Exception{
-        ParticipantCreateForm participantCreateForm = new ParticipantCreateForm("test","tester");
-
-        mvc.perform(post("/api/room/{roomPin}/signup", roomPin)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(toJson(participantCreateForm)))
-                .andExpect(status().isCreated())
-                .andDo(MockMvcResultHandlers.print());
-    }
+//    @Test
+//    @Transactional
+//    @DisplayName("새로운참여자추가")
+//    void signUpParticipantTest() throws Exception{
+//        ParticipantCreateForm participantCreateForm = new ParticipantCreateForm("test","tester");
+//
+//        mvc.perform(post("/api/room/{roomPin}/signup", roomPin)
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(toJson(participantCreateForm)))
+//                .andExpect(status().isCreated())
+//                .andDo(MockMvcResultHandlers.print());
+//    }
 
     @Test
     @Transactional
@@ -222,7 +221,7 @@ class RoomRestControllerTest {
     @DisplayName("존재하지않는퀴즈방의참여자출력")
     void printInvalidRoomParticipantsTest() throws Exception{
         mvc.perform(get("/api/room/{roomPin}/participants", invalidPin))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isNotFound())
                 .andDo(MockMvcResultHandlers.print());
     }
 
