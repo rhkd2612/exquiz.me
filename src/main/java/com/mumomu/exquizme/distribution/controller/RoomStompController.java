@@ -20,9 +20,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.web.bind.annotation.*;
 
 import javax.jms.DeliveryMode;
+import javax.jms.Message;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.util.UUID;
@@ -137,6 +139,19 @@ public class RoomStompController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
         }
     }
+
+    @MessageMapping("/test")
+    public void testMethod(@Payload AnswerSubmitForm answerSubmitForm){
+        ActiveMQTopic roomTopic = new ActiveMQTopic("room");
+
+        jmsTemplate.convertAndSend(roomTopic,answerSubmitForm, message -> {
+            message.setJMSDeliveryMode(DeliveryMode.NON_PERSISTENT);
+            message.setJMSCorrelationID(UUID.randomUUID().toString());
+            message.setJMSPriority(10);
+            return message;
+        });
+    }
+
 
     private void messageToSubscribers(String roomPin, Object sendMessage) {
         ActiveMQTopic roomTopic = new ActiveMQTopic(PREFIX_TOPIC_NAME + roomPin);

@@ -26,6 +26,9 @@ public class TopicConsumer {
         System.out.println(answer.getProblemIdx());
         System.out.println(answer.getAnswerText());
 
+        System.out.println(headers);
+        System.out.println(messageHeaders);
+
         System.out.println(" [ContentType]:" + messageHeaderAccessor.getContentType());
         System.out.println(" [CorrelationId]:" + messageHeaderAccessor.getCorrelationId());
         System.out.println(" [DeliveryMode]:" + messageHeaderAccessor.getDeliveryMode());
