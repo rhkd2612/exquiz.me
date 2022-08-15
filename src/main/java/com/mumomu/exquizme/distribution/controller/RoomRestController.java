@@ -120,7 +120,7 @@ public class RoomRestController {
     @PostMapping("/newRoom")
     @Operation(summary = "퀴즈방 생성", description = "새로운 방을 생성합니다(사용자 인증 정보 요구 예정)")
     @ApiResponse(responseCode = "201", description = "방 생성 성공")
-    @ApiResponse(responseCode = "400", description = "퀴즈셋 없음")
+    @ApiResponse(responseCode = "404", description = "존재하지 않는 퀴즈 셋")
     @ApiResponse(responseCode = "408", description = "방 생성 실패, 시간 초과(다시 시도 권유)")
     public ResponseEntity<?> newRoom(@RequestBody RoomCreateForm roomCreateForm){
         // 1. Validation
@@ -137,7 +137,7 @@ public class RoomRestController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.REQUEST_TIMEOUT);
         }catch(NullPointerException e){
             log.info(e.getMessage());
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 
@@ -146,8 +146,8 @@ public class RoomRestController {
     // pin번호만 보내면 되서 patch mapping을 안해도 되지 않을까? 여쭤봐야될 것 같다
     @PostMapping("/{roomPin}/close")
     @Operation(summary = "퀴즈방 삭제", description = "기존 방을 삭제합니다(DB에선 삭제되지 않고 PIN 변경)")
-    @ApiResponse(responseCode = "202", description = "방 삭제 성공")
-    @ApiResponse(responseCode = "400", description = "존재하지 않는 방 삭제 시도")
+    @ApiResponse(responseCode = "301", description = "방 삭제 성공")
+    @ApiResponse(responseCode = "404", description = "존재하지 않는 방 삭제 시도")
     public ResponseEntity<?> closeRoom(@PathVariable String roomPin){
         // 1. Validation
         try{
@@ -156,10 +156,10 @@ public class RoomRestController {
             RoomDto deleteRoomDto = new RoomDto(room);
 
             // 3. Make Response
-            return new ResponseEntity(deleteRoomDto, HttpStatus.ACCEPTED);
+            return new ResponseEntity(null, HttpStatus.MOVED_PERMANENTLY);
         } catch(NullPointerException e){
             log.info(e.getMessage());
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
     }
 
@@ -172,8 +172,8 @@ public class RoomRestController {
     @ApiImplicitParam(name = "roomPin", value = "방의 핀번호(Path)", required = true, dataType = "String", paramType = "path")
     @Operation(summary = "퀴즈방 조회", description = "쿠키가 있는지 확인 후 존재 시 방 입장(참여자 Dto 반환), 미 존재 시 등록 화면으로 이동합니다.(방 Dto 반환)")
     @ApiResponse(responseCode = "200", description = "방 입장 성공(기존 쿠키 정보를 토대로 입장 - 참여자 Dto 반환)")
-    @ApiResponse(responseCode = "302", description = "방 입장 실패(사용자 정보 입력 필요 -> 사용자 이름/닉네임 등록 씬으로 입장)")
-    @ApiResponse(responseCode = "400", description = "존재하지 않은 방 코드 입력")
+    @ApiResponse(responseCode = "302", description = "쿠키 없음(사용자 정보 입력 필요 -> 사용자 이름/닉네임 등록 씬으로 입장)")
+    @ApiResponse(responseCode = "404", description = "존재하지 않은 방 코드 입력")
     @ApiResponse(responseCode = "406", description = "방 최대 인원 초과")
     public ResponseEntity<?> joinRoom(@PathVariable String roomPin, HttpServletResponse response,
                                       @CookieValue(name = "anonymousCode", defaultValue = "") String anonymousCode) {
@@ -202,7 +202,7 @@ public class RoomRestController {
             }
         } catch (NullPointerException e){
             log.error(e.getMessage());
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 
@@ -251,14 +251,14 @@ public class RoomRestController {
     @GetMapping("/{roomPin}/participants")
     @ApiImplicitParam(name = "roomPin", value = "방의 핀번호(Path)", required = true, dataType = "String", paramType = "path")
     @Operation(summary = "방 참여자 목록 조회", description = "해당 방에 참여한 참여자 목록을 조회합니다.")
-    @ApiResponse(responseCode = "200", description = "참여자 목록 조회 성공!")
-    @ApiResponse(responseCode = "400", description = "존재하지 않는 방 코드 입력")
+    @ApiResponse(responseCode = "200", description = "참여자 목록 조회 성공")
+    @ApiResponse(responseCode = "404", description = "존재하지 않는 방 코드 입력")
     public ResponseEntity<List<ParticipantDto>> printParticipants(@PathVariable String roomPin){
         try {
             Room targetRoom = roomService.findRoomByPin(roomPin);
         } catch(InvalidRoomAccessException e){
             log.error(e.getMessage());
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
 
         return ResponseEntity.ok(roomService.findParticipantsByRoomPin(roomPin).stream().map(p -> new ParticipantDto(p)).collect(Collectors.toList()));

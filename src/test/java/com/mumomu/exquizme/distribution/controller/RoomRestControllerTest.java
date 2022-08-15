@@ -95,10 +95,8 @@ class RoomRestControllerTest {
         String myRoomPin = roomService.newRoom(problemset,5).getPin();
 
         mvc.perform(post("/api/room/{roomPin}/close", myRoomPin))
-                .andExpect(status().isAccepted())
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(jsonPath("$.id",notNullValue()))
-                .andExpect(jsonPath("$.currentState").value("FINISH"));
+                .andExpect(status().isMovedPermanently())
+                .andDo(MockMvcResultHandlers.print());
     }
 
     @Test
@@ -106,7 +104,7 @@ class RoomRestControllerTest {
     @DisplayName("존재하지않는퀴즈방폐쇄")
     void closeInvalidRoomTest() throws Exception {
         mvc.perform(post("/api/room/{roomPin}/close", invalidPin))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isNotFound())
                 .andDo(MockMvcResultHandlers.print());
     }
 
@@ -191,7 +189,7 @@ class RoomRestControllerTest {
     @DisplayName("존재하지않는방참가")
     void joinInvalidRoomTest() throws Exception{
         mvc.perform(get("/api/room/{roomPin}", invalidPin))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isNotFound())
                 .andDo(MockMvcResultHandlers.print());
     }
 
@@ -222,7 +220,7 @@ class RoomRestControllerTest {
     @DisplayName("존재하지않는퀴즈방의참여자출력")
     void printInvalidRoomParticipantsTest() throws Exception{
         mvc.perform(get("/api/room/{roomPin}/participants", invalidPin))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isNotFound())
                 .andDo(MockMvcResultHandlers.print());
     }
 
