@@ -1,7 +1,5 @@
 package com.mumomu.exquizme.distribution.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.mumomu.exquizme.distribution.web.model.AnswerSubmitForm;
 import lombok.*;
 
 import javax.persistence.*;

@@ -1,14 +1,8 @@
 package com.mumomu.exquizme.config;
 
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.UUID;
 
@@ -31,9 +25,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
             "/",
             "/api/**",
             "/h2-console/**",
-            "/ws/**",
+//            "/ws/**",
+            "/stomp/**",
             "/sub/**",
-            "/pub/**"
+            "/pub/**",
+            "/topic/**",
+            "/queue/**",
+            "/quiz/**",
+            "/index.html"
     };
 
     @Override

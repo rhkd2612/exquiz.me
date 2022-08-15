@@ -2,11 +2,9 @@ package com.mumomu.exquizme.distribution.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mumomu.exquizme.distribution.exception.*;
-import com.mumomu.exquizme.distribution.web.model.AnswerSubmitForm;
 import com.mumomu.exquizme.production.domain.Problem;
 import com.mumomu.exquizme.production.domain.Problemset;
 import lombok.*;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.*;
 import javax.servlet.http.Cookie;
@@ -71,6 +69,7 @@ public class Room {
         this.endDate = endDate;
     }
 
+    @Transactional
     public void setProblemset(Problemset problemset) {
         this.problemset = problemset;
     }
@@ -83,8 +82,6 @@ public class Room {
     public Problem startRoom() throws InvalidRoomAccessException {
         if(this.currentState != RoomState.READY)
             throw new InvalidRoomAccessException("해당하는 시작 대기 중인 방이 없습니다.");
-
-        this.participants = new ArrayList<>();
         this.currentState = RoomState.PLAY;
         this.currentProblemNum = 0;
         return this.problemset.getProblems().get(this.currentProblemNum);

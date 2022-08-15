@@ -129,8 +129,8 @@ class RoomRestControllerTest {
             Room room2 = roomService.findRoomByPin(roomPin2);
             String pUuid = UUID.randomUUID().toString();
             ParticipantCreateForm pcForm1 = ParticipantCreateForm.builder()
-                    .name("test")
-                    .nickname("test_nickname")
+                    .name("test" + i)
+                    .nickname("test_nickname123123123131" + i)
                     .build();
             roomService.joinParticipant(pcForm1, room2, pUuid);
         }

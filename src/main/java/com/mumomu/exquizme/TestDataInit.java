@@ -2,10 +2,8 @@ package com.mumomu.exquizme;
 
 import com.mumomu.exquizme.distribution.domain.Participant;
 import com.mumomu.exquizme.distribution.domain.Room;
-import com.mumomu.exquizme.distribution.domain.RoomResult;
 import com.mumomu.exquizme.distribution.repository.ParticipantRepository;
 import com.mumomu.exquizme.distribution.repository.RoomRepository;
-import com.mumomu.exquizme.distribution.service.RoomService;
 import com.mumomu.exquizme.production.domain.Host;
 import com.mumomu.exquizme.production.domain.Problem;
 import com.mumomu.exquizme.production.domain.ProblemOption;
@@ -19,8 +17,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.List;
 
 //
 @Component

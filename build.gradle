@@ -37,8 +37,26 @@ dependencies {
 
 	//websocket
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
-	implementation 'org.webjars:sockjs-client:1.1.2'
-	implementation 'org.webjars:stomp-websocket:2.3.3-1'
+	implementation 'org.springframework:spring-messaging'
+	implementation 'org.webjars:sockjs-client:1.5.1'
+
+	//외부 브로커 사용을 위함
+	implementation 'org.springframework.boot:spring-boot-starter-reactor-netty'
+	implementation 'io.projectreactor.netty:reactor-netty:1.0.8'
+
+	//aws sns+sqs
+	implementation 'org.springframework.cloud:spring-cloud-starter-aws-messaging:2.2.6.RELEASE'
+	implementation 'software.amazon.awssdk:sns'
+	implementation platform('software.amazon.awssdk:bom:2.5.29')
+
+	implementation 'com.amazonaws:aws-java-sdk-sqs'
+
+	//amazon mq - apache activemq
+	implementation 'org.apache.activemq:activemq-stomp:5.16.2'
+	implementation "org.springframework.boot:spring-boot-starter-activemq"
+	compileOnly("com.fasterxml.jackson.core:jackson-databind")
+	implementation "org.apache.activemq:activemq-client"
+	implementation "org.apache.activemq:activemq-pool"
 }
 
 tasks.named('test') {

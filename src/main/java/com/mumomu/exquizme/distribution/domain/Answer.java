@@ -2,7 +2,6 @@ package com.mumomu.exquizme.distribution.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
-
 import javax.persistence.*;
 
 @Entity @Getter
