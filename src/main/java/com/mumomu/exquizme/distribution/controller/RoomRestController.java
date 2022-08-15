@@ -206,12 +206,13 @@ public class RoomRestController {
         }
     }
 
+    // 테스트용으로 추가
     // TODO 비적절 이름 필터 넣은 후 관련 예외 추가하여야함 + 테스트도
     @PostMapping("/{roomPin}/signup")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "roomPin", value = "방의 핀번호(Path)", required = true, dataType = "String", paramType = "path"),
     })
-    @Operation(summary = "익명사용자 정보 등록 후 방 입장", description = "닉네임(nickname)과 이름(name) 입력 후 방에 입장합니다.")
+    @Operation(summary = "익명사용자 정보 등록 후 방 입장(테스트용, 프론트에서 사용X)", description = "닉네임(nickname)과 이름(name) 입력 후 방에 입장합니다.")
     @ApiResponse(responseCode = "201", description = "유저 생성 성공 혹은 기존 유저 정보 변경 -> 방 입장, 사용자 정보 포함")
     @ApiResponse(responseCode = "400", description = "이름 혹은 닉네임 불충분 혹은 부적절")
     @ApiResponse(responseCode = "406", description = "이미 존재하는 참가자 정보 혹은 더 이상 참가할 수 없는 방")

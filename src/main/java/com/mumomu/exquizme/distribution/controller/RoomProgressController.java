@@ -37,71 +37,71 @@ public class RoomProgressController {
     private final ProblemService problemService;
     private final AnswerService answerService;
 
-    // 퀴즈 시작
-    @GetMapping("/start")
-    @ApiImplicitParam(name = "roomPin", value = "방의 핀번호(Path)", required = true, dataType = "String", paramType = "path")
-    public ResponseEntity<?> startRoom(@PathVariable String roomPin){
-        // 1. Validation
-        try {
-            // 2. Business Logic
-            Problem problem = roomProgressService.startRoom(roomPin);
-            // 3. Make Response
-            return new ResponseEntity<>(new ProblemDto(problem), HttpStatus.FOUND);
-        }catch(InvalidRoomAccessException e) {
-            log.info(e.getMessage());
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    // 다음 퀴즈
-    @GetMapping("/next")
-    @Operation(summary = "다음 문제 조회", description = "현재 방의 다음 문제를 반환합니다")
-    @ApiImplicitParam(name = "roomPin", value = "방의 핀번호(Path)", required = true, dataType = "String", paramType = "path")
-    @ApiResponse(responseCode = "301", description = "퀴즈 종료")
-    @ApiResponse(responseCode = "302", description = "다음 문제")
-    @ApiResponse(responseCode = "400", description = "존재하지 않는 방 번호 입력")
-    public ResponseEntity<?> nextProblem(@PathVariable String roomPin){
-        // 1. Validation
-        try {
-            // 2. Business Logic
-            Problem problem = roomProgressService.nextProblem(roomPin);
-            // 3. Make Response
-            return new ResponseEntity<>(new ProblemDto(problem), HttpStatus.FOUND);
-        }catch(InvalidRoomAccessException e) {
-            log.info(e.getMessage());
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }catch(NoMoreProblemException e){
-            log.info(e.getMessage());
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.MOVED_PERMANENTLY);
-        }
-    }
-
-    // 퀴즈 정답 제출
-    @PostMapping("/submit")
-    @Operation(summary = "정답 제출", description = "참여자가 퀴즈 정답을 제출합니다.")
-    @ApiImplicitParam(name = "roomPin", value = "방의 핀번호(Path)", required = true, dataType = "String", paramType = "path")
-    @ApiResponse(responseCode = "200", description = "정답 제출 성공")
-    @ApiResponse(responseCode = "400", description = "퀴즈 없음")
-    @ApiResponse(responseCode = "406", description = "현재 진행중이 아닌 문제 답이거나 이미 제출한 이력이 있을 경우")
-    public ResponseEntity<?> submitAnswer(@PathVariable String roomPin, @RequestBody AnswerSubmitForm answerSubmitForm){
-        // 1. Validation
-        int currentProblemNum = roomService.findRoomByPin(roomPin).getCurrentProblemNum();
-
-        if(currentProblemNum != answerSubmitForm.getProblemIdx())
-            return new ResponseEntity<>("잘못된 문제 번호입니다.", HttpStatus.NOT_ACCEPTABLE);
-        try {
-            // 2. Business Logic
-            int currentScore = roomProgressService.updateParticipantInfo(roomPin, answerSubmitForm);
-            // 3. Make Response
-            return ResponseEntity.ok(currentScore);
-        }catch(NullPointerException e){
-            log.info(e.getMessage());
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }catch(IllegalStateException e){
-            log.info(e.getMessage());
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
-        }
-    }
+//    // 퀴즈 시작
+//    @GetMapping("/start")
+//    @ApiImplicitParam(name = "roomPin", value = "방의 핀번호(Path)", required = true, dataType = "String", paramType = "path")
+//    public ResponseEntity<?> startRoom(@PathVariable String roomPin){
+//        // 1. Validation
+//        try {
+//            // 2. Business Logic
+//            Problem problem = roomProgressService.startRoom(roomPin);
+//            // 3. Make Response
+//            return new ResponseEntity<>(new ProblemDto(problem), HttpStatus.FOUND);
+//        }catch(InvalidRoomAccessException e) {
+//            log.info(e.getMessage());
+//            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+//        }
+//    }
+//
+//    // 다음 퀴즈
+//    @GetMapping("/next")
+//    @Operation(summary = "다음 문제 조회", description = "현재 방의 다음 문제를 반환합니다")
+//    @ApiImplicitParam(name = "roomPin", value = "방의 핀번호(Path)", required = true, dataType = "String", paramType = "path")
+//    @ApiResponse(responseCode = "301", description = "퀴즈 종료")
+//    @ApiResponse(responseCode = "302", description = "다음 문제")
+//    @ApiResponse(responseCode = "400", description = "존재하지 않는 방 번호 입력")
+//    public ResponseEntity<?> nextProblem(@PathVariable String roomPin){
+//        // 1. Validation
+//        try {
+//            // 2. Business Logic
+//            Problem problem = roomProgressService.nextProblem(roomPin);
+//            // 3. Make Response
+//            return new ResponseEntity<>(new ProblemDto(problem), HttpStatus.FOUND);
+//        }catch(InvalidRoomAccessException e) {
+//            log.info(e.getMessage());
+//            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+//        }catch(NoMoreProblemException e){
+//            log.info(e.getMessage());
+//            return new ResponseEntity<>(e.getMessage(), HttpStatus.MOVED_PERMANENTLY);
+//        }
+//    }
+//
+//    // 퀴즈 정답 제출
+//    @PostMapping("/submit")
+//    @Operation(summary = "정답 제출", description = "참여자가 퀴즈 정답을 제출합니다.")
+//    @ApiImplicitParam(name = "roomPin", value = "방의 핀번호(Path)", required = true, dataType = "String", paramType = "path")
+//    @ApiResponse(responseCode = "200", description = "정답 제출 성공")
+//    @ApiResponse(responseCode = "400", description = "퀴즈 없음")
+//    @ApiResponse(responseCode = "406", description = "현재 진행중이 아닌 문제 답이거나 이미 제출한 이력이 있을 경우")
+//    public ResponseEntity<?> submitAnswer(@PathVariable String roomPin, @RequestBody AnswerSubmitForm answerSubmitForm){
+//        // 1. Validation
+//        int currentProblemNum = roomService.findRoomByPin(roomPin).getCurrentProblemNum();
+//
+//        if(currentProblemNum != answerSubmitForm.getProblemIdx())
+//            return new ResponseEntity<>("잘못된 문제 번호입니다.", HttpStatus.NOT_ACCEPTABLE);
+//        try {
+//            // 2. Business Logic
+//            int currentScore = roomProgressService.updateParticipantInfo(roomPin, answerSubmitForm);
+//            // 3. Make Response
+//            return ResponseEntity.ok(currentScore);
+//        }catch(NullPointerException e){
+//            log.info(e.getMessage());
+//            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+//        }catch(IllegalStateException e){
+//            log.info(e.getMessage());
+//            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
+//        }
+//    }
 
     // TODO DTO로 변경해야함
     @GetMapping("/submitList")

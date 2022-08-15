@@ -195,18 +195,18 @@ class RoomRestControllerTest {
                 .andDo(MockMvcResultHandlers.print());
     }
 
-    @Test
-    @Transactional
-    @DisplayName("새로운참여자추가")
-    void signUpParticipantTest() throws Exception{
-        ParticipantCreateForm participantCreateForm = new ParticipantCreateForm("test","tester");
-
-        mvc.perform(post("/api/room/{roomPin}/signup", roomPin)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(toJson(participantCreateForm)))
-                .andExpect(status().isCreated())
-                .andDo(MockMvcResultHandlers.print());
-    }
+//    @Test
+//    @Transactional
+//    @DisplayName("새로운참여자추가")
+//    void signUpParticipantTest() throws Exception{
+//        ParticipantCreateForm participantCreateForm = new ParticipantCreateForm("test","tester");
+//
+//        mvc.perform(post("/api/room/{roomPin}/signup", roomPin)
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(toJson(participantCreateForm)))
+//                .andExpect(status().isCreated())
+//                .andDo(MockMvcResultHandlers.print());
+//    }
 
     @Test
     @Transactional
