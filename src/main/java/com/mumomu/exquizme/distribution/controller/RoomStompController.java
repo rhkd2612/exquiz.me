@@ -18,15 +18,18 @@ import org.apache.activemq.command.ActiveMQTopic;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jms.core.JmsTemplate;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.MessageHeaders;
+import org.springframework.messaging.handler.annotation.*;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
+import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.web.bind.annotation.*;
 
 import javax.jms.DeliveryMode;
 import javax.jms.Message;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -150,6 +153,40 @@ public class RoomStompController {
             message.setJMSPriority(10);
             return message;
         });
+    }
+
+    @ResponseBody
+    @MessageMapping("/good/{id}")
+    public String handle(MessageHeaders messageHeaders,
+                         MessageHeaderAccessor messageHeaderAccessor, SimpMessageHeaderAccessor simpMessageHeaderAccessor,
+                         StompHeaderAccessor stompHeaderAccessor, @Payload String payload,
+                         @Header("destination") String destination, @Headers Map<String, String> headers,
+                         @DestinationVariable String id) {
+        System.out.println("---- MessageHeaders ----");
+        System.out.println(messageHeaders);
+
+        System.out.println("---- MessageHeaderAccessor ----");
+        System.out.println(messageHeaderAccessor);
+
+        System.out.println("---- SimpMessageHeaderAccessor ----");
+        System.out.println(simpMessageHeaderAccessor);
+
+        System.out.println("---- StompHeaderAccessor ----");
+        System.out.println(stompHeaderAccessor);
+
+        System.out.println("---- @Payload ----");
+        System.out.println(payload);
+
+        System.out.println("---- @Header(\"destination\") ----");
+        System.out.println(destination);
+
+        System.out.println("----  @Headers ----");
+        System.out.println(headers);
+
+        System.out.println("----  @DestinationVariable ----");
+        System.out.println(id);
+
+        return payload;
     }
 
 
