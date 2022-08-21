@@ -48,6 +48,7 @@ public class StompConfig implements WebSocketMessageBrokerConfigurer {
                 new StompReactorNettyCodec());
 
         registry.enableStompBrokerRelay("/queue","/topic")
+                .setVirtualHost(brokerVirtualHost)
                 .setClientLogin(activeMqUsername)
                 .setClientPasscode(activeMqPassword)
                 .setSystemLogin(activeMqUsername)
