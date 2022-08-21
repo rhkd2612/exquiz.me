@@ -18,7 +18,6 @@ spring:
     properties:
       hibernate:
         format_sql: true # 실행되는 query를 보여줌
-
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher

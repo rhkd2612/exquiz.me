@@ -57,6 +57,9 @@ dependencies {
 	compileOnly("com.fasterxml.jackson.core:jackson-databind")
 	implementation "org.apache.activemq:activemq-client"
 	implementation "org.apache.activemq:activemq-pool"
+
+	// google oauth2
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 }
 
 tasks.named('test') {
