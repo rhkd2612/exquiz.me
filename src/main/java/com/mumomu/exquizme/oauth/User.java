@@ -1,7 +1,13 @@
 package com.mumomu.exquizme.oauth;
 
+import lombok.*;
+
 import javax.persistence.*;
 
+@Builder
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
 public class User extends TimeEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
