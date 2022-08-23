@@ -1,4 +1,4 @@
-package com.mumomu.exquizme.config;
+package com.mumomu.exquizme.common.config;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQQueue;

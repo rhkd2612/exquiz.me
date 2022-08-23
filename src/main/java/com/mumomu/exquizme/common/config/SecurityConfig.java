@@ -1,4 +1,4 @@
-package com.mumomu.exquizme.config;
+package com.mumomu.exquizme.common.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;

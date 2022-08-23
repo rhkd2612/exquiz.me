@@ -1,4 +1,4 @@
-package com.mumomu.exquizme.formatter;
+package com.mumomu.exquizme.common.formatter;
 
 import org.springframework.stereotype.Component;
 
