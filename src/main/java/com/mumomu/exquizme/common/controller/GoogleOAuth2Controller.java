@@ -85,16 +85,9 @@ public class GoogleOAuth2Controller {
             String requestUrl = UriComponentsBuilder.fromHttpUrl(configUtils.getGoogleAuthUrl() + "/tokeninfo").queryParam("id_token", jwtToken).toUriString();
             String resultJson = restTemplate.getForObject(requestUrl, String.class);
 
-            GoogleLoginDto googleLoginDto = objectMapper.readValue(resultJson, new TypeReference<GoogleLoginDto>() {});
-
-            log.info(googleLoginDto.toString());
-
-            OAuth2AccountDto oAuth2AccountDto = oAuth2AccountService.signupWithGoogleOAuth2(googleLoginDto);
-
-            log.info(oAuth2AccountDto.getAccessToken());
-
             if(resultJson != null) {
-
+                GoogleLoginDto googleLoginDto = objectMapper.readValue(resultJson, new TypeReference<GoogleLoginDto>() {});
+                OAuth2AccountDto oAuth2AccountDto = oAuth2AccountService.signupWithGoogleOAuth2(googleLoginDto);
                 return ResponseEntity.ok().body(oAuth2AccountDto);
             }
             else {
