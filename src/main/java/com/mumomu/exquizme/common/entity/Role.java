@@ -1,4 +1,4 @@
-package com.mumomu.exquizme.common.oauth;
+package com.mumomu.exquizme.common.entity;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -6,8 +6,8 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum Role {
-    USER("ROLE_USER"),
     ADMIN("ROLE_ADMIN"),
+    USER("ROLE_USER"),
     SOCIAL("ROLE_SOCIAL");
 
     private final String value;

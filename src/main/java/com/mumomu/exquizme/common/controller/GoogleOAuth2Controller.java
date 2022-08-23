@@ -1,9 +1,17 @@
-package com.mumomu.exquizme.common.oauth.google;
+package com.mumomu.exquizme.common.controller;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.mumomu.exquizme.common.dto.GoogleLoginDto;
+import com.mumomu.exquizme.common.dto.GoogleLoginRequest;
+import com.mumomu.exquizme.common.dto.GoogleLoginResponse;
+import com.mumomu.exquizme.common.dto.OAuth2AccountDto;
+import com.mumomu.exquizme.common.service.OAuth2AccountService;
+import com.mumomu.exquizme.common.util.ConfigUtils;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,22 +24,23 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 @Controller
-@RequestMapping("/google")
+@Slf4j
+@RequiredArgsConstructor
+@RequestMapping("/api/google")
 public class GoogleOAuth2Controller {
     private final ConfigUtils configUtils;
-
-    public GoogleOAuth2Controller(ConfigUtils configUtils) {
-        this.configUtils = configUtils;
-    }
+    private final OAuth2AccountService oAuth2AccountService;
 
     @GetMapping(value = "/login")
     public ResponseEntity<Object> moveGoogleInitUrl() {
         String authUrl = configUtils.googleInitUrl();
+
         URI redirectUri = null;
         try {
             redirectUri = new URI(authUrl);
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.setLocation(redirectUri);
+
             return new ResponseEntity<>(httpHeaders, HttpStatus.SEE_OTHER);
         } catch (URISyntaxException e) {
             e.printStackTrace();
@@ -41,7 +50,7 @@ public class GoogleOAuth2Controller {
     }
 
     @GetMapping(value = "/login/redirect")
-    public ResponseEntity<GoogleLoginDto> redirectGoogleLogin(
+    public ResponseEntity<?> redirectGoogleLogin(
             @RequestParam(value = "code") String authCode
     ) {
         // HTTP 통신을 위해 RestTemplate 활용
@@ -70,15 +79,23 @@ public class GoogleOAuth2Controller {
             // 사용자의 정보는 JWT Token으로 저장되어 있고, Id_Token에 값을 저장한다.
             String jwtToken = googleLoginResponse.getIdToken();
 
+            log.info("jwtToken is = " + jwtToken);
+
             // JWT Token을 전달해 JWT 저장된 사용자 정보 확인
             String requestUrl = UriComponentsBuilder.fromHttpUrl(configUtils.getGoogleAuthUrl() + "/tokeninfo").queryParam("id_token", jwtToken).toUriString();
-
             String resultJson = restTemplate.getForObject(requestUrl, String.class);
 
-            if(resultJson != null) {
-                GoogleLoginDto userInfoDto = objectMapper.readValue(resultJson, new TypeReference<GoogleLoginDto>() {});
+            GoogleLoginDto googleLoginDto = objectMapper.readValue(resultJson, new TypeReference<GoogleLoginDto>() {});
 
-                return ResponseEntity.ok().body(userInfoDto);
+            log.info(googleLoginDto.toString());
+
+            OAuth2AccountDto oAuth2AccountDto = oAuth2AccountService.signupWithGoogleOAuth2(googleLoginDto);
+
+            log.info(oAuth2AccountDto.getAccessToken());
+
+            if(resultJson != null) {
+
+                return ResponseEntity.ok().body(oAuth2AccountDto);
             }
             else {
                 throw new Exception("Google OAuth failed!");

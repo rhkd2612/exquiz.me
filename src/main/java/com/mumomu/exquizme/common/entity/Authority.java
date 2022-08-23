@@ -1,4 +1,4 @@
-package com.mumomu.exquizme.common.oauth;
+package com.mumomu.exquizme.common.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
