@@ -1,15 +1,19 @@
 package com.mumomu.exquizme.oauth;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
 
+@Entity
 @Builder
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name="oauth_user")
 @Getter
 public class User extends TimeEntity{
     @Id
+    @Column(name="user_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -24,6 +28,10 @@ public class User extends TimeEntity{
 
     @Column(nullable = false, length = 50)
     private String email;
+
+    @JsonIgnore
+    @Column(name="activated")
+    private boolean activated;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
