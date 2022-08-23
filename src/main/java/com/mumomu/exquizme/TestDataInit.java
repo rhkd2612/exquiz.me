@@ -1,5 +1,10 @@
 package com.mumomu.exquizme;
 
+import com.mumomu.exquizme.common.dto.GoogleLoginDto;
+import com.mumomu.exquizme.common.entity.OAuth2Account;
+import com.mumomu.exquizme.common.entity.Role;
+import com.mumomu.exquizme.common.repository.OAuth2AccountRepository;
+import com.mumomu.exquizme.common.service.OAuth2AccountService;
 import com.mumomu.exquizme.distribution.domain.Participant;
 import com.mumomu.exquizme.distribution.domain.Room;
 import com.mumomu.exquizme.distribution.repository.ParticipantRepository;
@@ -13,6 +18,7 @@ import com.mumomu.exquizme.production.repository.ProblemsetRepository;
 import com.mumomu.exquizme.production.service.ProblemService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -27,13 +33,44 @@ public class TestDataInit {
     private final ParticipantRepository participantRepository;
     private final HostRepository hostRepository;
     private final ProblemService problemService;
+    private final OAuth2AccountRepository oAuth2AccountRepository;
     private final ProblemsetRepository problemsetRepository;
+    private final PasswordEncoder passwordEncoder;
 
     // 테스트용 데이터 추가
     @PostConstruct
     @Transactional
     public void init() throws Exception{
-        log.info("Test Data Init Complete");
+        oAuth2AccountRepository.save(OAuth2Account.builder()
+                .email("rhkd2612@gmail.com")
+                .nickname("이상빈")
+                .username("rhkd2612@gmail.com^google")
+                .activated(true)
+                .password(passwordEncoder.encode("NO_PASSWORD"))
+                .role(Role.ADMIN)
+                .build()
+        );
+
+        oAuth2AccountRepository.save(OAuth2Account.builder()
+                .email("netcopjr@gmail.com")
+                .nickname("김민겸")
+                .username("netcopjr@gmail.com^google")
+                .activated(true)
+                .password(passwordEncoder.encode("NO_PASSWORD"))
+                .role(Role.ADMIN)
+                .build()
+        );
+
+        oAuth2AccountRepository.save(OAuth2Account.builder()
+                .email("wnsgus821@gmail.com")
+                .nickname("임준현")
+                .username("wnsgus821@gmail.com^google")
+                .activated(true)
+                .password(passwordEncoder.encode("NO_PASSWORD"))
+                .role(Role.ADMIN)
+                .build()
+        );
+
         Room room1 = roomRepository.save(Room.ByBasicBuilder().pin("100000").maxParticipantCount(5).build());
         Room room2 = roomRepository.save(Room.ByBasicBuilder().pin("200000").maxParticipantCount(5).build());
 
@@ -71,5 +108,7 @@ public class TestDataInit {
 //
 //        room1.setProblemset(problemset);
 //        room2.setProblemset(problemset);
+
+        log.info("Test Data Init Complete");
     }
 }

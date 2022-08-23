@@ -55,7 +55,6 @@ public class OAuth2AccountService {
         final String username = googleLoginDto.getEmail() + GOOGLE_PROVIDER; // email + provider로 username 설정
 
         OAuth2Account oAuth2Account = userRepository.findByUsername(username).orElse(null);
-        OAuth2AccountDto retOAuth2AccountDto = null;
 
         if (oAuth2Account == null) {
             // 이렇게 가입한 사람은 일반 출제자 ROLE_USER
@@ -75,8 +74,10 @@ public class OAuth2AccountService {
                     .activated(true)
                     .build();
 
-            retOAuth2AccountDto = OAuth2AccountDto.from(userRepository.save(oAuth2Account));
+            userRepository.save(oAuth2Account);
         }
+
+        OAuth2AccountDto retOAuth2AccountDto = OAuth2AccountDto.from(oAuth2Account);
         // throw new DuplicateMemberException("이미 가입되어 있는 유저입니다.");
 
         // 받아온 유저네임과 패스워드를 이용해 UsernamePasswordAuthenticationToken 객체 생성, oauth이므로 패스워드는 NO_PASSWORD
