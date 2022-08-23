@@ -7,7 +7,7 @@ import com.mumomu.exquizme.distribution.exception.*;
 import com.mumomu.exquizme.distribution.repository.ParticipantRepository;
 import com.mumomu.exquizme.distribution.repository.RoomRepository;
 import com.mumomu.exquizme.distribution.web.model.ParticipantCreateForm;
-import com.mumomu.exquizme.formatter.SimpleDateFormatter;
+import com.mumomu.exquizme.common.formatter.SimpleDateFormatter;
 import com.mumomu.exquizme.production.domain.Problemset;
 import com.mumomu.exquizme.production.service.ProblemService;
 import lombok.RequiredArgsConstructor;

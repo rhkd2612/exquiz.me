@@ -1,6 +1,6 @@
 package com.mumomu.exquizme.distribution.service;
 
-import com.mumomu.exquizme.config.AwsConfig;
+import com.mumomu.exquizme.common.config.AwsConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
