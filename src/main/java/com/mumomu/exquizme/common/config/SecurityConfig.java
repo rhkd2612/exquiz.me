@@ -91,6 +91,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
                 .sameOrigin()
 
                 // 세션을 사용하지 않기 때문에 STATELESS로 설정
+                // TODO 이 설정 때문에 세션을 남기지 못해서 나중에 재접속이 어려워지지 않을까?
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
