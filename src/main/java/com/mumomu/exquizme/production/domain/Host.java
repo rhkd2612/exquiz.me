@@ -1,6 +1,7 @@
 package com.mumomu.exquizme.production.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.mumomu.exquizme.common.entity.OAuth2Account;
 import lombok.*;
 
 import javax.persistence.*;
@@ -18,14 +19,19 @@ public class Host {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @OneToOne(mappedBy = "host", fetch = FetchType.LAZY)
+    private OAuth2Account oAuth2Account;
+
     @JsonIgnore @Builder.Default
-    @OneToMany(mappedBy = "host")
+    @OneToMany(mappedBy = "host", fetch = FetchType.LAZY)
     private List<Problemset> problemsets = new ArrayList<>(); //자신의 문제 목록
 
+    // TODO 사용자와 관련있는 것들(문제셋 제외)는 전부 OAuth2Account로 보내도 될듯?
     private String name;
     private String phoneNumber; //000-0000-0000
     private String nickname;
 
+    // TODO OAuth2Account에 TimeEntity 상속으로 만들었으니 추후 제거
     private Date createdAt;
     private Date updatedAt;
     private Date deletedAt;

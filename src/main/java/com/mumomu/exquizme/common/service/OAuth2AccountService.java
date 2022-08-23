@@ -8,6 +8,8 @@ import com.mumomu.exquizme.common.jwt.TokenProvider;
 import com.mumomu.exquizme.common.repository.OAuth2AccountRepository;
 import com.mumomu.exquizme.common.util.ConfigUtils;
 import com.mumomu.exquizme.common.util.SecurityUtil;
+import com.mumomu.exquizme.production.domain.Host;
+import com.mumomu.exquizme.production.repository.HostRepository;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -30,37 +32,50 @@ public class OAuth2AccountService {
 
     private final ConfigUtils configUtils;
 
+    private final HostRepository hostRepository;
+
     private final static String NO_PASSWORD = "NO_PASSWORD";
     private final String GOOGLE_PROVIDER = "^google";
 
-    public OAuth2AccountService(OAuth2AccountRepository userRepository, PasswordEncoder passwordEncoder, TokenProvider tokenProvider, AuthenticationManagerBuilder authenticationManagerBuilder, ConfigUtils configUtils) {
+    public OAuth2AccountService(OAuth2AccountRepository userRepository,
+                                PasswordEncoder passwordEncoder,
+                                TokenProvider tokenProvider,
+                                AuthenticationManagerBuilder authenticationManagerBuilder,
+                                ConfigUtils configUtils, HostRepository hostRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.tokenProvider = tokenProvider;
-        this.configUtils = configUtils;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
+        this.configUtils = configUtils;
+        this.hostRepository = hostRepository;
     }
 
     @Transactional
     public OAuth2AccountDto signupWithGoogleOAuth2(GoogleLoginDto googleLoginDto) {
         final String username = googleLoginDto.getEmail() + GOOGLE_PROVIDER; // email + provider로 username 설정
 
-        OAuth2Account user = userRepository.findByUsername(username).orElse(null);
+        OAuth2Account oAuth2Account = userRepository.findByUsername(username).orElse(null);
         OAuth2AccountDto retOAuth2AccountDto = null;
 
-        if (user == null) {
+        if (oAuth2Account == null) {
             // 이렇게 가입한 사람은 일반 출제자 ROLE_USER
-            user = OAuth2Account.builder()
+
+            // Host 생성
+            Host host = Host.builder().oAuth2Account(oAuth2Account).build();
+            hostRepository.save(host);
+
+            oAuth2Account = OAuth2Account.builder()
                     .username(username)
                     .nickname(googleLoginDto.getName())
                     .email(googleLoginDto.getEmail())
                     .password(passwordEncoder.encode(NO_PASSWORD))
                     .picture(googleLoginDto.getPicture())
+                    .host(host)
                     .role(Role.USER)
                     .activated(true)
                     .build();
 
-            retOAuth2AccountDto = OAuth2AccountDto.from(userRepository.save(user));
+            retOAuth2AccountDto = OAuth2AccountDto.from(userRepository.save(oAuth2Account));
         }
         // throw new DuplicateMemberException("이미 가입되어 있는 유저입니다.");
 

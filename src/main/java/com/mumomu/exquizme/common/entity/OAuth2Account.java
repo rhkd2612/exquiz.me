@@ -1,6 +1,7 @@
 package com.mumomu.exquizme.common.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.mumomu.exquizme.production.domain.Host;
 import lombok.*;
 
 import javax.persistence.*;
@@ -16,6 +17,10 @@ public class OAuth2Account extends TimeEntity{
     @Column(name="oauth_user_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "host_id")
+    private Host host;
 
     @Column(nullable = false, length=30, unique = true)
     private String username;
