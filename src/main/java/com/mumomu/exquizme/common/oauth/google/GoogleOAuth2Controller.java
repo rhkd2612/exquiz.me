@@ -1,10 +1,11 @@
-package com.mumomu.exquizme.oauth.google;
+package com.mumomu.exquizme.common.oauth.google;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import org.springframework.http.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,7 +17,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 @Controller
-@RequestMapping("/google")
+@RequestMapping("/api/google")
 public class GoogleOAuth2Controller {
     private final ConfigUtils configUtils;
 
@@ -24,6 +25,7 @@ public class GoogleOAuth2Controller {
         this.configUtils = configUtils;
     }
 
+    @PreAuthorize("hasAnyRole('USER')")
     @GetMapping(value = "/login")
     public ResponseEntity<Object> moveGoogleInitUrl() {
         String authUrl = configUtils.googleInitUrl();

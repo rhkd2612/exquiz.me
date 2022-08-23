@@ -58,8 +58,13 @@ dependencies {
 	implementation "org.apache.activemq:activemq-client"
 	implementation "org.apache.activemq:activemq-pool"
 
-	// google oauth2
+	//google oauth2
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
+	//jwt
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.2'
+	implementation 'io.jsonwebtoken:jjwt-impl:0.11.2.RUNTIME'
+	implementation 'io.jsonwebtoken:jjwt-jackson:0.11.2.RUNTIME'
 }
 
 tasks.named('test') {

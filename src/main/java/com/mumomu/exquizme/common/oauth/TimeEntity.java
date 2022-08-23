@@ -1,4 +1,4 @@
-package com.mumomu.exquizme.oauth;
+package com.mumomu.exquizme.common.oauth;
 
 import com.mumomu.exquizme.formatter.SimpleDateFormatter;
 import lombok.Getter;

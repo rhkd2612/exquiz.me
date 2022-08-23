@@ -1,4 +1,4 @@
-package com.mumomu.exquizme.config;
+package com.mumomu.exquizme.common.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,4 +1,4 @@
-package com.mumomu.exquizme.config;
+package com.mumomu.exquizme.common.config;
 
 import io.netty.channel.ChannelFuture;
 import lombok.RequiredArgsConstructor;

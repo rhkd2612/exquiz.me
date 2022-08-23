@@ -1,4 +1,4 @@
-package com.mumomu.exquizme.oauth;
+package com.mumomu.exquizme.common.oauth;
 
 import lombok.*;
 
@@ -37,7 +37,7 @@ public class OAuthAttributes {
                 .username(email)
                 .email(email)
                 .nickname(nickname)
-                .role(Role.SOCIAL)
+                .role(Role.USER)
                 .build();
     }
 }

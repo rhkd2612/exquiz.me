@@ -1,4 +1,4 @@
-package com.mumomu.exquizme.oauth;
+package com.mumomu.exquizme.common.oauth;
 
 import lombok.*;
 
@@ -42,6 +42,6 @@ public class User extends TimeEntity{
     }
 
     public String getRoleValue(){
-        return this.role.getValue();
+        return this.role.getKey();
     }
 }

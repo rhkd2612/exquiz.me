@@ -1,4 +1,4 @@
-package com.mumomu.exquizme.oauth.google;
+package com.mumomu.exquizme.common.oauth.google;
 
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
