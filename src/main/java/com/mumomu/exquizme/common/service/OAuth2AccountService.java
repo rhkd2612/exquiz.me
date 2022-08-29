@@ -35,7 +35,17 @@ public class OAuth2AccountService {
     private final HostRepository hostRepository;
 
     private final static String NO_PASSWORD = "NO_PASSWORD";
-    private final String GOOGLE_PROVIDER = "^google";
+    private final String CONNECT_CHAR = "=";
+
+    public String getCONNECT_CHAR() {
+        return CONNECT_CHAR;
+    }
+
+    public String getGOOGLE_PROVIDER() {
+        return GOOGLE_PROVIDER;
+    }
+
+    private final String GOOGLE_PROVIDER = "google";
 
     public OAuth2AccountService(OAuth2AccountRepository userRepository,
                                 PasswordEncoder passwordEncoder,
@@ -52,7 +62,7 @@ public class OAuth2AccountService {
 
     @Transactional
     public OAuth2AccountDto signupWithGoogleOAuth2(GoogleLoginDto googleLoginDto) {
-        final String username = googleLoginDto.getEmail() + GOOGLE_PROVIDER; // email + provider로 username 설정
+        final String username = googleLoginDto.getEmail() + CONNECT_CHAR + GOOGLE_PROVIDER; // email + provider로 username 설정
 
         OAuth2Account oAuth2Account = userRepository.findByUsername(username).orElse(null);
 
