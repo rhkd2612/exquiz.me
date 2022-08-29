@@ -1,13 +1,12 @@
-package com.mumomu.exquizme.oauth;
+package com.mumomu.exquizme.common.entity;
 
-import com.mumomu.exquizme.formatter.SimpleDateFormatter;
+import com.mumomu.exquizme.common.formatter.SimpleDateFormatter;
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter

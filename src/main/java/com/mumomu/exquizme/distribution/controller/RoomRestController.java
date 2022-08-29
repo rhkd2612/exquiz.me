@@ -156,7 +156,7 @@ public class RoomRestController {
             RoomDto deleteRoomDto = new RoomDto(room);
 
             // 3. Make Response
-            return new ResponseEntity(null, HttpStatus.MOVED_PERMANENTLY);
+            return new ResponseEntity<>(null, HttpStatus.MOVED_PERMANENTLY);
         } catch(NullPointerException e){
             log.info(e.getMessage());
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);

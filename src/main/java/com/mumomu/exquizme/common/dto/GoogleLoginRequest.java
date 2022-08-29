@@ -1,4 +1,4 @@
-package com.mumomu.exquizme.oauth.google;
+package com.mumomu.exquizme.common.dto;
 
 import lombok.Builder;
 import lombok.Data;
