@@ -1,6 +1,6 @@
 spring:
   config:
-    import: application-secret.yml
+    import: application-prod-secret.yml
   jackson:
     serialization:
       fail-on-empty-beans: false
