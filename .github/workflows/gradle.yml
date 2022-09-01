@@ -32,9 +32,14 @@ jobs:
         env:
           OCCUPY_SECRET: ${{ secrets.OCCUPY_SECRET }}
           OCCUPY_SECRET_DIR: src/main/resources
+          OCCUPY_SECRET_DIR_FILE_NAME: application-prod-secret.yml
+        run: echo $OCCUPY_SECRET | base64 --decode > $OCCUPY_SECRET_DIR/$OCCUPY_SECRET_DIR_FILE_NAME
+      - name: Copy Secret DEV
+        env:
+          OCCUPY_SECRET: ${{ secrets.OCCUPY_SECRET_DEV }}
           OCCUPY_SECRET_TEST_DIR: src/test/resources
-          OCCUPY_SECRET_DIR_FILE_NAME: application-secret.yml
-        run: echo $OCCUPY_SECRET | base64 --decode > $OCCUPY_SECRET_DIR/$OCCUPY_SECRET_DIR_FILE_NAME && echo $OCCUPY_SECRET | base64 --decode > $OCCUPY_SECRET_TEST_DIR/$OCCUPY_SECRET_DIR_FILE_NAME
+          OCCUPY_SECRET_DIR_FILE_NAME: application-dev-secret.yml
+        run: echo $OCCUPY_SECRET | base64 --decode > $OCCUPY_SECRET_TEST_DIR/$OCCUPY_SECRET_DIR_FILE_NAME
       - name: Build with Gradle
         uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
         with:

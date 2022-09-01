@@ -1,10 +1,6 @@
 spring:
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
   config:
-    import: application-dev-secret.yml
+    import: application-prod-secret.yml
   jackson:
     serialization:
       fail-on-empty-beans: false
@@ -25,4 +21,4 @@ min:
     value: 100000
 max:
   pin:
-    value: 100050
+    value: 999999
