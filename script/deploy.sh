@@ -14,12 +14,15 @@ CURRENT_PID=$(pgrep -f jar)
 if [ -z $CURRENT_PID ]
 then
   echo "> Nothing to end."
+  sleep 10
 else
   echo "> kill -9 $CURRENT_PID"
   kill -15 $CURRENT_PID
-  sleep 5
+  sleep 20
 fi
 
 echo "> $JAR_PATH deploy"
 #nohup java -jar $JAR_PATH --spring.profiles.active=dev &
 nohup java -jar $JAR_PATH --spring.profiles.active=prod > /dev/null 2> /dev/null < /dev/null &
+
+echo "> $JAR_PATH deploy successful"
