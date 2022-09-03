@@ -2,8 +2,6 @@
 
 REPOSITORY=/home/ubuntu/exquiz.me-distribution
 
-sleep 30
-
 cd $REPOSITORY
 
 JAR_NAME=$(ls $REPOSITORY/ | grep 'SNAPSHOT.jar' | tail -n 1)
@@ -17,7 +15,7 @@ if [ -z $CURRENT_PID ]
 then
   echo "> Nothing to end."
 else
-  echo "> kill -9 $CURRENT_PID"
+  echo "> kill -15 $CURRENT_PID"
   kill -15 $CURRENT_PID
   sleep 5
 fi

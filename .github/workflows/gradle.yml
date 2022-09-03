@@ -63,5 +63,5 @@ jobs:
         run: aws s3 cp --region ap-northeast-2 exquiz-me-was.zip s3://s3-exquiz-me-cd/exquiz-me-was.zip
       # Deploy
       - name: Code Deploy
-        run: aws deploy create-deployment --application-name cd-exquiz-me --deployment-config-name CodeDeployDefault.AllAtOnce --file-exists-behavior OVERWRITE --deployment-group-name grp-exquiz-me-deployment --s3-location bucket=s3-exquiz-me-cd,bundleType=zip,key=exquiz-me-was.zip
+        run: aws deploy create-deployment --application-name cd-exquiz-me --deployment-config-name CodeDeployDefault.OneAtATime --file-exists-behavior OVERWRITE --deployment-group-name grp-exquiz-me-deployment --s3-location bucket=s3-exquiz-me-cd,bundleType=zip,key=exquiz-me-was.zip
 
