@@ -7,9 +7,7 @@ import com.mumomu.exquizme.production.domain.Problemset;
 import lombok.*;
 
 import javax.persistence.*;
-import javax.servlet.http.Cookie;
 import javax.transaction.Transactional;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Entity @Getter @Builder
@@ -51,14 +49,6 @@ public class Room {
     @Transactional
     public void addParticipant(Participant participant){
         this.participants.add(participant);
-    }
-
-    public static Cookie setAnonymousCookie(){
-        UUID uuid = UUID.randomUUID();
-        Cookie anonymousCookie = new Cookie("anonymousCode", uuid.toString());
-        anonymousCookie.setComment("사용자 구분 코드");
-        anonymousCookie.setMaxAge(60 * 60 * 3); // 쿠키 지속 시간
-        return anonymousCookie;
     }
 
     public void setPin(String pin) {

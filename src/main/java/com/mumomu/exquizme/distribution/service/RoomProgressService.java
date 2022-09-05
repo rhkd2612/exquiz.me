@@ -32,7 +32,7 @@ public class RoomProgressService {
     @Transactional
     public int updateParticipantInfo(String roomPin, AnswerSubmitForm answerSubmitForm) throws IllegalStateException {
         Room targetRoom = roomService.findRoomByPin(roomPin);
-        Participant targetParticipant = roomService.findParticipantByUuid(answerSubmitForm.getUuid());
+        Participant targetParticipant = roomService.findParticipantBySessionId(answerSubmitForm.getSessionId(), roomPin);
         Problem targetProblem = targetRoom.getProblemset().getProblems().get(answerSubmitForm.getProblemIdx());
 
         targetParticipant.getAnswers().forEach(a -> {

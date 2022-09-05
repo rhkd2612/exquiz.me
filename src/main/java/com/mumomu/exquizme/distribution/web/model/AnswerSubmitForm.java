@@ -11,8 +11,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AnswerSubmitForm {
-    @ApiModelProperty(value = "사용자 uuid", example = "asdkasdni214i21io42189dh210db")
-    private String uuid;
+    @ApiModelProperty(value = "사용자 sessionId", example = "asdkasdni214i21io42189dh210db")
+    private String sessionId;
 
     @ApiModelProperty(value = "제출 문제 번호", example = "1")
     private int problemIdx;

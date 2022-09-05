@@ -1,14 +1,20 @@
 package com.mumomu.exquizme.common.config;
 
+import com.mumomu.exquizme.common.interceptor.HttpHandshakeInterceptor;
 import io.netty.channel.ChannelFuture;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.jms.activemq.ActiveMQProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.server.ServerHttpRequest;
+import org.springframework.http.server.ServerHttpResponse;
+import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.messaging.simp.config.StompBrokerRelayRegistration;
 import org.springframework.messaging.simp.stomp.StompReactorNettyCodec;
 import org.springframework.messaging.tcp.reactor.ReactorNettyTcpClient;
+import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
@@ -16,7 +22,6 @@ import reactor.netty.tcp.SslProvider;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.List;
 import java.util.function.Supplier;
 
 @Configuration
@@ -35,14 +40,15 @@ public class StompConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        // 클라이언트가 ws://domain/stomp/room으로 커넥션을 연결하고 메세지 통신을 할 수 있다.
+        // 클라이언트가 https://{domain}/stomp/room으로 커넥션을 연결하고 메세지 통신을 할 수 있다.
         registry.addEndpoint("/stomp")
                 .setAllowedOriginPatterns("*") // TODO setAllowedOrigins는 나중에 바꿔주어야한다(보안이슈)
-                .withSockJS();
+                .withSockJS()
+                .setInterceptors(new HttpHandshakeInterceptor());
+                //.setInterceptors(httpSessionHandshakeInterceptor());
         //.setHeartbeatTime(60);
         //.setClientLibraryUrl("https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.2/sockjs.js");
     }
-
 
     // TODO 계속 ALB로 topic이 연결 되어있으면 요금이 계속 나올텐데, 연결 처리 방법은?
     @Override

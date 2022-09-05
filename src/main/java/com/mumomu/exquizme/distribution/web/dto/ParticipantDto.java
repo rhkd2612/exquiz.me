@@ -12,7 +12,7 @@ import java.util.Date;
 @Builder @AllArgsConstructor
 public class ParticipantDto {
     private Long id;
-    private String uuid;
+    private String sessionId;
     private String name; // 사용자 구분 이름
     private String nickname;
     private RoomDto roomDto;
@@ -21,7 +21,7 @@ public class ParticipantDto {
 
     public ParticipantDto(Participant participant) {
         this.id = participant.getId();
-        this.uuid = participant.getUuid();
+        this.sessionId = participant.getSessionId();
         this.name = participant.getName();
         this.nickname = participant.getNickname();
         this.roomDto = new RoomDto(participant.getRoom());
