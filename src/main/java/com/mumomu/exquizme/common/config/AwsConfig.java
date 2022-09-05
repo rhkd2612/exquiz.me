@@ -9,10 +9,10 @@ import org.springframework.context.annotation.Configuration;
 @Slf4j
 @Getter
 public class AwsConfig {
-    @Value("${cloud.aws.credentials.access-key}")
+    @Value("${cloud.aws.deploy-credentials.access-key}")
     private String accessKey;
 
-    @Value("${cloud.aws.credentials.secret-key}")
+    @Value("${cloud.aws.deploy-credentials.secret-key}")
     private String secretKey;
 
     @Value("${cloud.aws.region.static}")
