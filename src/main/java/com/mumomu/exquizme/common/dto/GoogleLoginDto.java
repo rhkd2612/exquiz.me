@@ -17,6 +17,7 @@ public class GoogleLoginDto {
     private String aud;
     private String sub;
     private String email;
+    private String hd;
     private String emailVerified;
     private String atHash;
     private String name;
