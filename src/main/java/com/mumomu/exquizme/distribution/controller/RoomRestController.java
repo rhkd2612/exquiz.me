@@ -208,42 +208,38 @@ public class RoomRestController {
 
     // 테스트용으로 추가
     // TODO 비적절 이름 필터 넣은 후 관련 예외 추가하여야함 + 테스트도
-    @PostMapping("/{roomPin}/signup")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "roomPin", value = "방의 핀번호(Path)", required = true, dataType = "String", paramType = "path"),
-    })
-    @Operation(summary = "익명사용자 정보 등록 후 방 입장(테스트용, 프론트에서 사용X)", description = "닉네임(nickname)과 이름(name) 입력 후 방에 입장합니다.")
-    @ApiResponse(responseCode = "201", description = "유저 생성 성공 혹은 기존 유저 정보 변경 -> 방 입장, 사용자 정보 포함")
-    @ApiResponse(responseCode = "400", description = "이름 혹은 닉네임 불충분 혹은 부적절")
-    @ApiResponse(responseCode = "406", description = "이미 존재하는 참가자 정보 혹은 더 이상 참가할 수 없는 방")
-    public ResponseEntity<?> signUpParticipant(@PathVariable String roomPin, @RequestBody ParticipantCreateForm participateForm,
-                                               HttpServletResponse response) {
-        // 1. Validation
-//        if(bindingResult.hasErrors()){
-//            log.info("errors = {}", bindingResult);
-//            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+    // websocket 기능으로 이전
+//    @PostMapping("/{roomPin}/signup")
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "roomPin", value = "방의 핀번호(Path)", required = true, dataType = "String", paramType = "path"),
+//    })
+//    @Operation(summary = "익명사용자 정보 등록 후 방 입장(테스트용, 프론트에서 사용X)", description = "닉네임(nickname)과 이름(name) 입력 후 방에 입장합니다.")
+//    @ApiResponse(responseCode = "201", description = "유저 생성 성공 혹은 기존 유저 정보 변경 -> 방 입장, 사용자 정보 포함")
+//    @ApiResponse(responseCode = "400", description = "이름 혹은 닉네임 불충분 혹은 부적절")
+//    @ApiResponse(responseCode = "406", description = "이미 존재하는 참가자 정보 혹은 더 이상 참가할 수 없는 방")
+//    public ResponseEntity<?> signUpParticipant(@PathVariable String roomPin, @RequestBody ParticipantCreateForm participateForm,
+//                                               HttpServletResponse response) {
+//        // 1. Validation
+//        try {
+//            // 2. Business Logic
+//
+//            // 3. Make Response
+//            Cookie anonymousCookie = Room.setAnonymousCookie();
+//
+//            Participant savedParticipant = roomService.joinParticipant(participateForm, roomPin, UUID.fromString(anonymousCookie.getValue()).toString());
+//            ParticipantDto participantDto = new ParticipantDto(savedParticipant);
+//
+//            response.addCookie(anonymousCookie);
+//
+//            return ResponseEntity.status(HttpStatus.CREATED).body(participantDto);
+//        }catch(NullPointerException e){
+//            log.error(e.getMessage());
+//            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+//        }catch(IllegalAccessException e){
+//            log.error(e.getMessage());
+//            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
 //        }
-
-        try {
-            // 2. Business Logic
-
-            // 3. Make Response
-            Cookie anonymousCookie = Room.setAnonymousCookie();
-
-            Participant savedParticipant = roomService.joinParticipant(participateForm, roomPin, UUID.fromString(anonymousCookie.getValue()).toString());
-            ParticipantDto participantDto = new ParticipantDto(savedParticipant);
-
-            response.addCookie(anonymousCookie);
-
-            return ResponseEntity.status(HttpStatus.CREATED).body(participantDto);
-        }catch(NullPointerException e){
-            log.error(e.getMessage());
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }catch(IllegalAccessException e){
-            log.error(e.getMessage());
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
-        }
-    }
+//    }
 
     // TODO Pageable 적용해야함.. 왠지 모르겠는데 오류남
     // TODO 쿼리 효율이 좋지 않다. 방을 조회하고, 유저를 조회하여서.. 유저로만 조회할 수 있도록 uuid에 방pin을 붙여도 좋아보인다.

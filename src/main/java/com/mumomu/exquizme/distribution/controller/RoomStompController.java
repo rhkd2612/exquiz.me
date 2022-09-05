@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.converter.MessageConversionException;
@@ -119,13 +120,14 @@ public class RoomStompController {
 //    @ApiResponse(responseCode = "400", description = "이름 혹은 닉네임 불충분 혹은 부적절")
 //    @ApiResponse(responseCode = "406", description = "이미 존재하는 참가자 정보 혹은 더 이상 참가할 수 없는 방")
     public ResponseEntity<?> signUpParticipant(@DestinationVariable String roomPin, @RequestBody ParticipantCreateForm participateForm){
-                                               //HttpServletResponse response) { // websocket에선 httpservlet response를 사용할 수 없다?
+                                              // ServerHttpResponse response) { // websocket에선 httpservlet response를 사용할 수 없다?
         // 1. Validation
 
         try {
             // 2. Business Logic
 
             // 3. Make Response
+            // TODO 쿠키 제거해야하나..? websocket에선 쿠키를 사용하지 못하나보다
             Cookie anonymousCookie = Room.setAnonymousCookie();
 
             Participant savedParticipant = roomService.joinParticipant(participateForm, roomPin, UUID.fromString(anonymousCookie.getValue()).toString());
