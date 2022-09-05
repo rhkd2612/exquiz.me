@@ -39,10 +39,17 @@ class RoomServiceTest {
 
     Room room;
     Room room2;
+
+    String roomPin;
+    String roomPin2;
+
     @BeforeEach
     void setUp(){
         room = roomService.newRoom(1L,5);
         room2 = roomService.newRoom(1L,2);
+
+        roomPin = room.getPin();
+        roomPin2 = room2.getPin();
     }
 
     @AfterEach
@@ -105,7 +112,7 @@ class RoomServiceTest {
     @DisplayName("방참여")
     void participateRoom() throws IllegalAccessException {
         Participant participant = Participant.ByBasicBuilder().nickname("userA").uuid(UUID.randomUUID().toString()).room(room).build();
-        Participant savedParticipant = roomService.joinParticipant(new ParticipantCreateForm(participant), room, participant.getUuid());
+        Participant savedParticipant = roomService.joinParticipant(new ParticipantCreateForm(participant), roomPin, participant.getUuid());
 
         assertThat(room).isEqualTo(savedParticipant.getRoom());
     }
@@ -118,9 +125,9 @@ class RoomServiceTest {
         Participant participant2 = Participant.ByBasicBuilder().name("b").nickname("userB").uuid(UUID.randomUUID().toString()).room(room).build();
         Participant participant3 = Participant.ByBasicBuilder().name("c").nickname("userC").uuid(UUID.randomUUID().toString()).room(room2).build();
 
-        roomService.joinParticipant(new ParticipantCreateForm(participant), room, participant.getUuid());
-        roomService.joinParticipant(new ParticipantCreateForm(participant2), room, participant2.getUuid());
-        roomService.joinParticipant(new ParticipantCreateForm(participant3), room2, participant3.getUuid());
+        roomService.joinParticipant(new ParticipantCreateForm(participant), roomPin, participant.getUuid());
+        roomService.joinParticipant(new ParticipantCreateForm(participant2), roomPin, participant2.getUuid());
+        roomService.joinParticipant(new ParticipantCreateForm(participant3), roomPin2, participant3.getUuid());
 
         assertThat(roomService.findParticipantsByRoomPin(room.getPin()).size()).isEqualTo(2);
         assertThat(roomService.findParticipantsByRoomPin(room2.getPin()).size()).isEqualTo(1);
@@ -154,7 +161,7 @@ class RoomServiceTest {
     public void joinAnonymousUser() throws IllegalAccessException {
         ParticipantCreateForm pcForm1 =
                 ParticipantCreateForm.builder().name("test").nickname("tester").build();
-        Participant participant = roomService.joinParticipant(pcForm1, room, UUID.randomUUID().toString());
+        Participant participant = roomService.joinParticipant(pcForm1, roomPin, UUID.randomUUID().toString());
         Participant anonymous = roomService.findParticipantByUuid(participant.getUuid());
 
         assertThat(anonymous).isEqualTo(participant);
@@ -169,8 +176,8 @@ class RoomServiceTest {
         Participant participant2 =
                 Participant.ByBasicBuilder().name("nani").nickname("nanida").uuid(participant.getUuid()).build();
 
-        Participant anonymous = roomService.joinParticipant(new ParticipantCreateForm(participant), room, participant.getUuid());
-        Participant anonymous2 = roomService.joinParticipant(new ParticipantCreateForm(participant2), room, participant2.getUuid());
+        Participant anonymous = roomService.joinParticipant(new ParticipantCreateForm(participant), roomPin, participant.getUuid());
+        Participant anonymous2 = roomService.joinParticipant(new ParticipantCreateForm(participant2), roomPin, participant2.getUuid());
 
         assertThat(anonymous.getUuid()).isEqualTo(anonymous2.getUuid());
         assertThat(anonymous2.getNickname()).isEqualTo(participant2.getNickname());
@@ -186,8 +193,8 @@ class RoomServiceTest {
         ParticipantCreateForm pcForm2 =
                 ParticipantCreateForm.builder().name("test2").nickname("tester2").build();
 
-        Participant participant = roomService.joinParticipant(pcForm1, room, UUID.randomUUID().toString());
-        Participant participant2 = roomService.joinParticipant(pcForm2, room, UUID.randomUUID().toString());
+        Participant participant = roomService.joinParticipant(pcForm1, roomPin, UUID.randomUUID().toString());
+        Participant participant2 = roomService.joinParticipant(pcForm2, roomPin, UUID.randomUUID().toString());
 
         Participant anonymous = roomService.findParticipantByUuid(participant.getUuid());
         Participant anonymous2 = roomService.findParticipantByUuid(participant2.getUuid());

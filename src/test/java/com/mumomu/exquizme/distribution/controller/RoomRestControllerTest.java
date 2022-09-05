@@ -131,7 +131,7 @@ class RoomRestControllerTest {
                     .name("test" + i)
                     .nickname("test_nickname123123123131" + i)
                     .build();
-            roomService.joinParticipant(pcForm1, room2, pUuid);
+            roomService.joinParticipant(pcForm1, roomPin2, pUuid);
         }
 
         mvc.perform(get("/api/room/{roomPin}", roomPin2))
@@ -152,7 +152,7 @@ class RoomRestControllerTest {
                 .uuid(pUuid)
                 .room(room)
                 .build();
-       roomService.joinParticipant(new ParticipantCreateForm(participant), room, pUuid);
+       roomService.joinParticipant(new ParticipantCreateForm(participant), roomPin, pUuid);
 
         mvc.perform(get("/api/room/{roomPin}", roomPin)
                         .cookie(new Cookie("anonymousCode",pUuid)))
@@ -175,7 +175,7 @@ class RoomRestControllerTest {
                 .uuid(pUuid)
                 .room(room2)
                 .build();
-        roomService.joinParticipant(new ParticipantCreateForm(participant), room2, pUuid);
+        roomService.joinParticipant(new ParticipantCreateForm(participant), roomPin2, pUuid);
 
         mvc.perform(get("/api/room/{roomPin}", roomPin)
                         .cookie(new Cookie("anonymousCode",pUuid)))

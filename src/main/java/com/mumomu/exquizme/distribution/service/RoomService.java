@@ -145,11 +145,14 @@ public class RoomService {
         return targetRoom;
     }
 
-    // TODO null처리
     @Transactional(readOnly = true)
     public List<Participant> findParticipantsByRoomPin(String roomPin) {
-        Room room = roomRepository.findRoomByPin(roomPin).get();
-        return room.getParticipants();
+        Optional<Room> targetOptRoom = roomRepository.findRoomByPin(roomPin);
+
+        if(targetOptRoom.isEmpty())
+            throw new InvalidRoomAccessException("존재하지 않는 방입니다.");
+
+        return targetOptRoom.get().getParticipants();
         //return participantRepository.findAllByRoom(room).stream().map(p -> new ParticipantDto(p)).collect(Collectors.toList());
     }
 
