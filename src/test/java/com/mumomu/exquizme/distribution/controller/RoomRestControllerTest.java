@@ -24,16 +24,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import javax.persistence.EntityManager;
-import javax.servlet.http.Cookie;
-
-import java.util.UUID;
 
 import static org.hamcrest.Matchers.notNullValue;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -107,105 +101,6 @@ class RoomRestControllerTest {
                 .andExpect(status().isNotFound())
                 .andDo(MockMvcResultHandlers.print());
     }
-
-    @Test
-    @Transactional
-    @DisplayName("쿠키없이퀴즈방참가")
-    void joinRoomWithNoCookieTest() throws Exception{
-        mvc.perform(get("/api/room/{roomPin}", roomPin))
-                .andExpect(status().isMovedPermanently())
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(jsonPath("$.id",notNullValue()))
-                .andExpect(jsonPath("$.pin").value(roomPin));
-    }
-
-    @Test
-    @Transactional
-    @DisplayName("방최대인원초과")
-    void joinRoomFailureByMaxParticipantsOver() throws Exception{
-        Room room2 = roomService.findRoomByPin(roomPin2);
-
-        for(int i = 0; i < room2.getMaxParticipantCount(); i++){
-            String pUuid = UUID.randomUUID().toString();
-            ParticipantCreateForm pcForm1 = ParticipantCreateForm.builder()
-                    .name("test" + i)
-                    .nickname("test_nickname123123123131" + i)
-                    .build();
-            roomService.joinParticipant(pcForm1, roomPin2, pUuid);
-        }
-
-        mvc.perform(get("/api/room/{roomPin}", roomPin2))
-                .andExpect(status().isNotAcceptable())
-                .andDo(MockMvcResultHandlers.print());
-    }
-
-    @Test
-    @Transactional
-    @DisplayName("쿠키와함께퀴즈방참가")
-    void joinRoomWithCookieTest() throws Exception{
-        Room room = roomService.findRoomByPin(roomPin);
-        String pUuid = UUID.randomUUID().toString();
-
-        Participant participant = Participant.ByBasicBuilder()
-                .name("test")
-                .nickname("test_nickname")
-                .uuid(pUuid)
-                .room(room)
-                .build();
-       roomService.joinParticipant(new ParticipantCreateForm(participant), roomPin, pUuid);
-
-        mvc.perform(get("/api/room/{roomPin}", roomPin)
-                        .cookie(new Cookie("anonymousCode",pUuid)))
-                .andExpect(status().isOk())
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(jsonPath("$.id",notNullValue()))
-                .andExpect(jsonPath("$.uuid").value(pUuid));
-    }
-
-    @Test
-    @Transactional
-    @DisplayName("다른방의쿠키를소지한채퀴즈방참가")
-    void joinRoomWithBeforeRoomCookieTest() throws Exception{
-        Room room2 = roomService.findRoomByPin(roomPin2);
-        String pUuid = UUID.randomUUID().toString();
-
-        Participant participant = Participant.ByBasicBuilder()
-                .name("test")
-                .nickname("test_nickname")
-                .uuid(pUuid)
-                .room(room2)
-                .build();
-        roomService.joinParticipant(new ParticipantCreateForm(participant), roomPin2, pUuid);
-
-        mvc.perform(get("/api/room/{roomPin}", roomPin)
-                        .cookie(new Cookie("anonymousCode",pUuid)))
-                .andExpect(status().isMovedPermanently())
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(jsonPath("$.id",notNullValue()))
-                .andExpect(jsonPath("$.pin").value(roomPin));
-    }
-
-    @Test
-    @Transactional
-    @DisplayName("존재하지않는방참가")
-    void joinInvalidRoomTest() throws Exception{
-        mvc.perform(get("/api/room/{roomPin}", invalidPin))
-                .andExpect(status().isNotFound())
-                .andDo(MockMvcResultHandlers.print());
-    }
-
-//    @Test
-//    @Transactional
-//    @DisplayName("새로운참여자추가")
-//    void signUpParticipantTest() throws Exception{
-//        ParticipantCreateForm participantCreateForm = new ParticipantCreateForm("test","tester");
-//
-//        mvc.perform(post("/api/room/{roomPin}/signup", roomPin)
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(toJson(participantCreateForm)))
-//                .andExpect(status().isCreated())
-//                .andDo(MockMvcResultHandlers.print());
-//    }
 
     @Test
     @Transactional

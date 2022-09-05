@@ -16,13 +16,14 @@ import java.util.Map;
 @EnableJms
 @RequiredArgsConstructor
 public class TopicConsumer {
+    // 테스트용
     @JmsListener(destination = "${spring.activemq.topic.name}", containerFactory = "jsaFactory")
     public void appleReceive(@Payload AnswerSubmitForm answer,
                              @Headers Map<String, Object> headers,
                              MessageHeaders messageHeaders,
                              JmsMessageHeaderAccessor messageHeaderAccessor) {
         System.out.println("Receive Answer 1");
-        System.out.println(answer.getUuid());
+        System.out.println(answer.getSessionId());
         System.out.println(answer.getProblemIdx());
         System.out.println(answer.getAnswerText());
 

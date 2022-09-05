@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ParticipantRepository extends JpaRepository<Participant, Long> {
-    Optional<Participant> findByUuid(String uuid);
+    Optional<Participant> findBySessionId(String sessionId);
     List<Participant> findAllByRoom(Room room);
 }
 

@@ -13,6 +13,8 @@ import com.mumomu.exquizme.production.service.ProblemService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
@@ -35,21 +37,19 @@ public class RoomService {
 
     // DTO 변환은 서비스? 컨트롤러?
     @Transactional
-    public Participant joinParticipant(ParticipantCreateForm participateForm, String roomPin, String anonymousCookie) throws IllegalAccessException {
+    public Participant joinParticipant(ParticipantCreateForm participateForm, String roomPin, String sessionId) throws IllegalAccessException {
         Room targetRoom = findRoomByPin(roomPin);
-
-        if (targetRoom.getParticipants().size() == targetRoom.getMaxParticipantCount())
-            throw new RoomNotReachableException("더 이상 방에 참가할 수 없습니다.(최대인원 초과)");
+        checkRoomState(targetRoom);
 
         Participant participant =
                 Participant.ByBasicBuilder()
                         .name(participateForm.getName())
                         .nickname(participateForm.getNickname())
                         .room(targetRoom)
-                        .uuid(anonymousCookie)
+                        .sessionId(sessionId)
                         .build();
 
-        Optional<Participant> findParticipant = participantRepository.findByUuid(participant.getUuid());
+        Optional<Participant> findParticipant = participantRepository.findBySessionId(participant.getSessionId());
 
         // TODO 닉네임 구분하여 입장하도록 설정
         if (findParticipant.isEmpty()) {
@@ -62,7 +62,7 @@ public class RoomService {
             participantRepository.save(participant);
             participant.getRoom().addParticipant(participant);
         } else {
-            if (participant.getUuid().equals(anonymousCookie)) {
+            if (participant.getSessionId().equals(sessionId)) {
                 participant.setName(participateForm.getName());
                 participant.setNickname(participateForm.getNickname());
                 return participant;
@@ -93,11 +93,19 @@ public class RoomService {
     }
 
     @Transactional(readOnly = true)
-    public Participant findParticipantByUuid(String uuid) {
-        Optional<Participant> optParticipant = participantRepository.findByUuid(uuid);
+    public Participant findParticipantBySessionId(String sessionId, String roomPin) throws SessionNotExistException {
+        Optional<Participant> optParticipant = participantRepository.findBySessionId(sessionId);
 
         if (optParticipant.isEmpty())
-            throw new CookieNotExistException("쿠키가 존재하지 않습니다.");
+            throw new SessionNotExistException("기존 입장 정보가 존재하지 않습니다.");
+
+        Participant participant = optParticipant.get();
+
+        if (!participant.getRoom().getPin().equals(roomPin)) {
+            // 방이 다르다면 참여자 정보 제거
+            deleteParticipantUserDataBySessionId(sessionId);
+            throw new SessionNotExistException("기존에 입장한 방과 다른 방입니다.");
+        }
 
         return optParticipant.get();
     }
@@ -118,8 +126,6 @@ public class RoomService {
 
         if (optRoom.isEmpty() || optRoom.get().getCurrentState() == RoomState.FINISH)
             throw new InvalidRoomAccessException("존재하지 않는 방입니다.");
-
-        // optRoom.get().getParticipants();
 
         return optRoom.get();
     }
@@ -156,6 +162,17 @@ public class RoomService {
         //return participantRepository.findAllByRoom(room).stream().map(p -> new ParticipantDto(p)).collect(Collectors.toList());
     }
 
+    @Transactional
+    public void deleteParticipantUserDataBySessionId(String sessionId){
+        Optional<Participant> targetParticipant = participantRepository.findBySessionId(sessionId);
+
+        if(targetParticipant.isEmpty())
+            throw new InvalidParticipantAccessException("존재하지 않는 참여자입니다.");
+
+        // 이건 굳이 데이터 남길 필요 없을듯..?
+        participantRepository.delete(targetParticipant.get());
+    }
+
     private Room newRoomLogic(Problemset roomProblemset, int maxParticipantCount) {
         String randomPin;
         Optional<Room> targetRoom;
@@ -176,5 +193,20 @@ public class RoomService {
         log.info("random Pin is {}", randomPin);
 
         return roomRepository.save(room);
+    }
+
+    @Transactional(readOnly = false)
+    public boolean checkRoomState(String roomPin) {
+        Room targetRoom = findRoomByPin(roomPin);
+        if (targetRoom.getMaxParticipantCount() <= targetRoom.getParticipants().size())
+            return false;
+        return true;
+    }
+
+    @Transactional(readOnly = false)
+    public boolean checkRoomState(Room targetRoom) {
+        if (targetRoom.getMaxParticipantCount() <= targetRoom.getParticipants().size())
+            return false;
+        return true;
     }
 }

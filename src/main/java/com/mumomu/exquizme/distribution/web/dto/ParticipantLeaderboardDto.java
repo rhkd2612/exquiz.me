@@ -11,7 +11,7 @@ import java.util.Date;
 @Builder @AllArgsConstructor
 public class ParticipantLeaderboardDto {
     private Long id;
-    private String uuid;
+    private String sessionId;
     private String name; // 사용자 구분 이름
     private String nickname;
     private Date entryDate; // 생성일(입장시간)
@@ -22,7 +22,7 @@ public class ParticipantLeaderboardDto {
 
     public ParticipantLeaderboardDto(Participant participant) {
         this.id = participant.getId();
-        this.uuid = participant.getUuid();
+        this.sessionId = participant.getSessionId();
         this.name = participant.getName();
         this.nickname = participant.getNickname();
         this.entryDate = participant.getEntryDate();

@@ -15,7 +15,7 @@ public class Participant {
     @Id @GeneratedValue
     @Column(name="participant_id")
     private Long id;
-    private String uuid;
+    private String sessionId;
 
     private String name; // 사용자 구분 이름
     private String nickname;
@@ -42,10 +42,10 @@ public class Participant {
     private int continuousFailure; // 연속 실패
 
     @Builder(builderClassName = "ByBasicBuilder", builderMethodName = "ByBasicBuilder")
-    public Participant(String name, String nickname, String uuid, Room room){
+    public Participant(String name, String nickname, String sessionId, Room room){
         this.name = name;
         this.nickname = nickname;
-        this.uuid = uuid;
+        this.sessionId = sessionId;
         this.room = room;
         this.entryDate = new Date();
         this.currentScore = 0;

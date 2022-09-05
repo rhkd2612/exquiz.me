@@ -74,8 +74,8 @@ public class TestDataInit {
         Room room1 = roomRepository.save(Room.ByBasicBuilder().pin("100000").maxParticipantCount(5).build());
         Room room2 = roomRepository.save(Room.ByBasicBuilder().pin("200000").maxParticipantCount(5).build());
 
-        Participant p1 = participantRepository.save(Participant.ByBasicBuilder().name("홍길동").nickname("홍길동무새").uuid("0aed126c-9b08-4581-b3d3-9630b45c3989").room(room1).build());
-        Participant p2 = participantRepository.save(Participant.ByBasicBuilder().name("곽두팔").nickname("곽두팔무새").uuid("1aed126c-9b08-4581-b3d3-9630b45c3989").room(room2).build());
+        Participant p1 = participantRepository.save(Participant.ByBasicBuilder().name("홍길동").nickname("홍길동무새").sessionId("0aed126c-9b08-4581-b3d3-9630b45c3989").room(room1).build());
+        Participant p2 = participantRepository.save(Participant.ByBasicBuilder().name("곽두팔").nickname("곽두팔무새").sessionId("1aed126c-9b08-4581-b3d3-9630b45c3989").room(room2).build());
 
         room1.addParticipant(p1);
         room2.addParticipant(p2);
