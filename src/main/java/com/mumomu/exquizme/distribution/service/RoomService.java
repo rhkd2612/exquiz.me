@@ -35,7 +35,12 @@ public class RoomService {
 
     // DTO 변환은 서비스? 컨트롤러?
     @Transactional
-    public Participant joinParticipant(ParticipantCreateForm participateForm, Room targetRoom, String anonymousCookie) throws IllegalAccessException {
+    public Participant joinParticipant(ParticipantCreateForm participateForm, String roomPin, String anonymousCookie) throws IllegalAccessException {
+        Room targetRoom = findRoomByPin(roomPin);
+
+        if (targetRoom.getParticipants().size() == targetRoom.getMaxParticipantCount())
+            throw new RoomNotReachableException("더 이상 방에 참가할 수 없습니다.(최대인원 초과)");
+
         Participant participant =
                 Participant.ByBasicBuilder()
                         .name(participateForm.getName())
@@ -43,10 +48,8 @@ public class RoomService {
                         .room(targetRoom)
                         .uuid(anonymousCookie)
                         .build();
-        Optional<Participant> findParticipant = participantRepository.findByUuid(participant.getUuid());
 
-        if (targetRoom.getParticipants().size() == targetRoom.getMaxParticipantCount())
-            throw new RoomNotReachableException("더 이상 방에 참가할 수 없습니다.(최대인원 초과)");
+        Optional<Participant> findParticipant = participantRepository.findByUuid(participant.getUuid());
 
         // TODO 닉네임 구분하여 입장하도록 설정
         if (findParticipant.isEmpty()) {
@@ -115,6 +118,8 @@ public class RoomService {
 
         if (optRoom.isEmpty() || optRoom.get().getCurrentState() == RoomState.FINISH)
             throw new InvalidRoomAccessException("존재하지 않는 방입니다.");
+
+        // optRoom.get().getParticipants();
 
         return optRoom.get();
     }

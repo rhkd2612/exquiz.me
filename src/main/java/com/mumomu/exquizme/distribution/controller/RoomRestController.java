@@ -226,12 +226,11 @@ public class RoomRestController {
 
         try {
             // 2. Business Logic
-            Room targetRoom = roomService.findRoomByPin(roomPin);
 
             // 3. Make Response
             Cookie anonymousCookie = Room.setAnonymousCookie();
 
-            Participant savedParticipant = roomService.joinParticipant(participateForm, targetRoom, UUID.fromString(anonymousCookie.getValue()).toString());
+            Participant savedParticipant = roomService.joinParticipant(participateForm, roomPin, UUID.fromString(anonymousCookie.getValue()).toString());
             ParticipantDto participantDto = new ParticipantDto(savedParticipant);
 
             response.addCookie(anonymousCookie);
@@ -255,13 +254,12 @@ public class RoomRestController {
     @ApiResponse(responseCode = "404", description = "존재하지 않는 방 코드 입력")
     public ResponseEntity<List<ParticipantDto>> printParticipants(@PathVariable String roomPin){
         try {
-            Room targetRoom = roomService.findRoomByPin(roomPin);
+            List<Participant> targetParticipants = roomService.findParticipantsByRoomPin(roomPin);
+            return ResponseEntity.ok(targetParticipants.stream().map(ParticipantDto::new).collect(Collectors.toList()));
         } catch(InvalidRoomAccessException e){
             log.error(e.getMessage());
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
-
-        return ResponseEntity.ok(roomService.findParticipantsByRoomPin(roomPin).stream().map(p -> new ParticipantDto(p)).collect(Collectors.toList()));
     }
 
     private void deleteAnonymousCodeCookie(HttpServletResponse response) {

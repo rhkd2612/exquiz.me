@@ -35,7 +35,7 @@ public class StompConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        // 클라이언트가 ws://domain/stomp/room으로 커넥션을 연결하고 메세지 통신을 할 수 있다.
+        // 클라이언트가 https://{domain}/stomp/room으로 커넥션을 연결하고 메세지 통신을 할 수 있다.
         registry.addEndpoint("/stomp")
                 .setAllowedOriginPatterns("*") // TODO setAllowedOrigins는 나중에 바꿔주어야한다(보안이슈)
                 .withSockJS();

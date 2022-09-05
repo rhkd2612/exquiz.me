@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.messaging.MessageHeaders;
+import org.springframework.messaging.converter.MessageConversionException;
 import org.springframework.messaging.handler.annotation.*;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
@@ -109,6 +110,7 @@ public class RoomStompController {
 
     // TODO 비적절 이름 필터 넣은 후 관련 예외 추가하여야함 + 테스트도
     @MessageMapping("/room/{roomPin}/signup")
+    @MessageExceptionHandler(MessageConversionException.class)
 //    @ApiImplicitParams({
 //            @ApiImplicitParam(name = "roomPin", value = "방의 핀번호(Path)", required = true, dataType = "String", paramType = "path"),
 //    })
@@ -116,21 +118,20 @@ public class RoomStompController {
 //    @ApiResponse(responseCode = "201", description = "유저 생성 성공 혹은 기존 유저 정보 변경 -> 방 입장, 사용자 정보 포함")
 //    @ApiResponse(responseCode = "400", description = "이름 혹은 닉네임 불충분 혹은 부적절")
 //    @ApiResponse(responseCode = "406", description = "이미 존재하는 참가자 정보 혹은 더 이상 참가할 수 없는 방")
-    public ResponseEntity<?> signUpParticipant(@DestinationVariable String roomPin, @RequestBody ParticipantCreateForm participateForm,
-                                               HttpServletResponse response) {
+    public ResponseEntity<?> signUpParticipant(@DestinationVariable String roomPin, @RequestBody ParticipantCreateForm participateForm){
+                                               //HttpServletResponse response) { // websocket에선 httpservlet response를 사용할 수 없다?
         // 1. Validation
 
         try {
             // 2. Business Logic
-            Room targetRoom = roomService.findRoomByPin(roomPin);
 
             // 3. Make Response
             Cookie anonymousCookie = Room.setAnonymousCookie();
 
-            Participant savedParticipant = roomService.joinParticipant(participateForm, targetRoom, UUID.fromString(anonymousCookie.getValue()).toString());
+            Participant savedParticipant = roomService.joinParticipant(participateForm, roomPin, UUID.fromString(anonymousCookie.getValue()).toString());
             ParticipantDto participantDto = new ParticipantDto(savedParticipant);
 
-            response.addCookie(anonymousCookie);
+            //response.addCookie(anonymousCookie);
 
             messageToSubscribers(roomPin, participantDto.getNickname());
             return ResponseEntity.status(HttpStatus.CREATED).body(participantDto);
@@ -154,41 +155,6 @@ public class RoomStompController {
             return message;
         });
     }
-
-    @ResponseBody
-    @MessageMapping("/good/{id}")
-    public String handle(MessageHeaders messageHeaders,
-                         MessageHeaderAccessor messageHeaderAccessor, SimpMessageHeaderAccessor simpMessageHeaderAccessor,
-                         StompHeaderAccessor stompHeaderAccessor, @Payload String payload,
-                         @Header("destination") String destination, @Headers Map<String, String> headers,
-                         @DestinationVariable String id) {
-        System.out.println("---- MessageHeaders ----");
-        System.out.println(messageHeaders);
-
-        System.out.println("---- MessageHeaderAccessor ----");
-        System.out.println(messageHeaderAccessor);
-
-        System.out.println("---- SimpMessageHeaderAccessor ----");
-        System.out.println(simpMessageHeaderAccessor);
-
-        System.out.println("---- StompHeaderAccessor ----");
-        System.out.println(stompHeaderAccessor);
-
-        System.out.println("---- @Payload ----");
-        System.out.println(payload);
-
-        System.out.println("---- @Header(\"destination\") ----");
-        System.out.println(destination);
-
-        System.out.println("----  @Headers ----");
-        System.out.println(headers);
-
-        System.out.println("----  @DestinationVariable ----");
-        System.out.println(id);
-
-        return payload;
-    }
-
 
     private void messageToSubscribers(String roomPin, Object sendMessage) {
         ActiveMQTopic roomTopic = new ActiveMQTopic(PREFIX_TOPIC_NAME + roomPin);
