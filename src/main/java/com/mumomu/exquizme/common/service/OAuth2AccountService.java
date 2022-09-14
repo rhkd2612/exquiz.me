@@ -70,7 +70,7 @@ public class OAuth2AccountService {
             // 이렇게 가입한 사람은 일반 출제자 ROLE_USER
 
             // Host 생성
-            Host host = Host.builder().oAuth2Account(oAuth2Account).build();
+            Host host = Host.builder().oAuth2Account(oAuth2Account).name(oAuth2Account.getUsername()).build();
             hostRepository.save(host);
 
             oAuth2Account = OAuth2Account.builder()

@@ -20,6 +20,8 @@ spring:
       matching-strategy: ant_path_matcher
 logging.level:
   org.hibernate.SQL: debug
+logging:
+  config: classpath:logback-spring.xml
 min:
   pin:
     value: 100000
