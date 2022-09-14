@@ -74,6 +74,10 @@ dependencies {
 
 	//image crawling
 	implementation 'org.jsoup:jsoup:1.14.2'
+
+	// aws cloud-watch-log
+	implementation 'ca.pjer:logback-awslogs-appender:1.6.0'
+	implementation 'org.codehaus.janino:janino:3.1.7'
 }
 
 tasks.named('test') {
