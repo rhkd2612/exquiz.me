@@ -8,15 +8,18 @@
     <property name="LOG_PATTERN"
               value="${LOG_PATTERN:-%clr(%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd HH:mm:ss.SSS}}){blue} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}"/>
 
+    <!-- aws key from yml, 이게 없으면 ~/.aws/credentials를 참고하게 된다, 이 Crendentials에 CloudWatch관련된 Role을 가지고 있어야한다. -->
     <springProperty name="AWS_ACCESS_KEY" source="cloud.aws.credentials.access-key"/>
     <springProperty name="AWS_SECRET_KEY" source="cloud.aws.credentials.secret-key"/>
 
+    <!-- 기존과 동일한 Console 출력을 위한 appender -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <layout class="ch.qos.logback.classic.PatternLayout">
             <Pattern>${LOG_PATTERN}</Pattern>
         </layout>
     </appender>
 
+    <!-- CloudWatch에 등록하기 모든 로그를 출력하기 위함 -->
     <appender name="aws_cloud_watch_log_info" class="ca.pjer.logback.AwsLogsAppender">
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>INFO</level>
@@ -35,6 +38,7 @@
         <secretAccessKey>${AWS_SECRET_KEY}</secretAccessKey>
     </appender>
 
+    <!-- CloudWatch에 등록하기 에러 로그를 출력하기 위함 -->
     <appender name="aws_cloud_watch_log_error" class="ca.pjer.logback.AwsLogsAppender">
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>ERROR</level>
