@@ -143,7 +143,6 @@ public class RoomStompController {
             log.info(e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
-
     }
 
 

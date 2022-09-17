@@ -8,11 +8,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.jms.Queue;
 
 @RestController
 @RequestMapping("/api/room/queue/producer")
+@ApiIgnore // 현재 미 사용중인 컨트롤러
 @RequiredArgsConstructor
 public class QueueProducer {
     private final JmsTemplate jmsTemplate;
