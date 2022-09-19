@@ -37,7 +37,11 @@ public class ProblemController {
                     problemsetSaveDto.getHostId(),
                     problemsetSaveDto.getTitle(),
                     problemsetSaveDto.getDescription(),
-                    problemsetSaveDto.getClosingMent());
+                    problemsetSaveDto.getClosingMent(),
+                    problemsetSaveDto.getScoreSetting(),
+                    problemsetSaveDto.getTimeSetting(),
+                    problemsetSaveDto.getBackgroundMusic()
+                    );
             return new ResponseEntity<>(new ProblemsetDto(problemset), HttpStatus.CREATED);
         } catch (HostNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -146,7 +150,9 @@ public class ProblemController {
         try {
             Problemset problemset = problemService.updateProblemset(
                     problemsetModifyDto.getProblemsetId(), problemsetModifyDto.getTitle(),
-                    problemsetModifyDto.getDescription(), problemsetModifyDto.getClosingMent());
+                    problemsetModifyDto.getDescription(), problemsetModifyDto.getClosingMent(),
+                    problemsetModifyDto.getScoreSetting(), problemsetModifyDto.getTimeSetting(),
+                    problemsetModifyDto.getBackgroundMusic());
 
             return new ResponseEntity<>(new ProblemsetDto(problemset), HttpStatus.OK);
         } catch (ProblemsetNotFoundException e) {

@@ -65,7 +65,7 @@ public class ProblemCRUDTest {
                 .nickname("Mumomu")
                 .build();
 */
-        problemset = problemService.makeProblemset(1L, "2022년 7월 25일 쪽지시험", "쪽지시험입니다.", "수고하셨습니다");
+        problemset = problemService.makeProblemset(1L, "2022년 7월 25일 쪽지시험", "쪽지시험입니다.", "수고하셨습니다", 1, 1, 1);
         multipleChoiceProblem = (MultipleChoiceProblem) problemService.makeProblem(problemset.getId(), "MultipleChoiceProblem",
                 1, "가장 높은 산", "한국에서 가장 높은 산은?", 20, 100, null, "0");
 
@@ -106,22 +106,22 @@ public class ProblemCRUDTest {
     @Transactional
     void postProblemsetTest() throws Exception {
         problemService.makeProblemset(1L, "Problemset Post 테스트 퀴즈", "테스트용 퀴즈입니다.",
-                "클로징 멘트");
+                "클로징 멘트", 1, 1, 1);
         getProblemsetTest();
 
         assertThrows(Exception.class, () -> { //존재하지 않는 Host에 Problemset 생성 시도
             problemService.makeProblemset(99999L, "hostid가 잘못된 퀴즈",
-                "exception 반환해야 함", "클로징");
+                "exception 반환해야 함", "클로징", 1, 1, 1);
         });
     }
 
     @Test
     @Transactional
     void putProblemsetTest() throws Exception {
-        problemService.updateProblemset(problemset.getId(), "타이틀 변경", "디스크립션 변경", "클로징멘트 변경");
+        problemService.updateProblemset(problemset.getId(), "타이틀 변경", "디스크립션 변경", "클로징멘트 변경", 2, 2, 2);
 
         assertThrows(Exception.class, () -> { //존재하지 않는 Problemset 업데이트 시도
-           problemService.updateProblemset(99999L, "타이틀 변경", "디스크립션 변경", "클로징멘트 변경");
+           problemService.updateProblemset(99999L, "타이틀 변경", "디스크립션 변경", "클로징멘트 변경", 2, 2, 2);
         });
 
         getProblemsetTest();

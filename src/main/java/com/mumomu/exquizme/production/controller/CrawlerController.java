@@ -1,8 +1,8 @@
-package com.mumomu.exquizme.production.crawling.controller;
+package com.mumomu.exquizme.production.controller;
 
 
-import com.mumomu.exquizme.production.crawling.exception.ResultNotFoundException;
-import com.mumomu.exquizme.production.crawling.service.CrawlerService;
+import com.mumomu.exquizme.production.exception.ResultNotFoundException;
+import com.mumomu.exquizme.production.service.CrawlerService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.v3.oas.annotations.Operation;

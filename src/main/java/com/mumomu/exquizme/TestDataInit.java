@@ -74,14 +74,31 @@ public class TestDataInit {
         Room room1 = roomRepository.save(Room.ByBasicBuilder().pin("100000").maxParticipantCount(5).build());
         Room room2 = roomRepository.save(Room.ByBasicBuilder().pin("200000").maxParticipantCount(5).build());
 
-        Participant p1 = participantRepository.save(Participant.ByBasicBuilder().name("홍길동").nickname("홍길동무새").sessionId("0aed126c-9b08-4581-b3d3-9630b45c3989").room(room1).build());
-        Participant p2 = participantRepository.save(Participant.ByBasicBuilder().name("곽두팔").nickname("곽두팔무새").sessionId("1aed126c-9b08-4581-b3d3-9630b45c3989").room(room2).build());
+        Participant p1 = participantRepository.save(Participant.ByBasicBuilder().name("공길동").nickname("공길동무새").sessionId("0aed126c-9b08-4581-b3d3-9630b45c3989").room(room1).build());
+        Participant p2 = participantRepository.save(Participant.ByBasicBuilder().name("농길동").nickname("농길동무새").sessionId("1aed126c-9b08-4581-b3d3-9630b45c3989").room(room1).build());
+        Participant p3 = participantRepository.save(Participant.ByBasicBuilder().name("동길동").nickname("동길동무새").sessionId("2aed126c-9b08-4581-b3d3-9630b45c3989").room(room1).build());
+        Participant p4 = participantRepository.save(Participant.ByBasicBuilder().name("롱길동").nickname("롱길동무새").sessionId("3aed126c-9b08-4581-b3d3-9630b45c3989").room(room1).build());
+        Participant p5 = participantRepository.save(Participant.ByBasicBuilder().name("몽길동").nickname("몽길동무새").sessionId("4aed126c-9b08-4581-b3d3-9630b45c3989").room(room1).build());
+        Participant p6 = participantRepository.save(Participant.ByBasicBuilder().name("봉길동").nickname("봉길동무새").sessionId("5aed126c-9b08-4581-b3d3-9630b45c3989").room(room1).build());
+        Participant p7 = participantRepository.save(Participant.ByBasicBuilder().name("송길동").nickname("송길동무새").sessionId("6aed126c-9b08-4581-b3d3-9630b45c3989").room(room1).build());
+        Participant p8 = participantRepository.save(Participant.ByBasicBuilder().name("옹길동").nickname("옹길동무새").sessionId("7aed126c-9b08-4581-b3d3-9630b45c3989").room(room1).build());
+        Participant p9 = participantRepository.save(Participant.ByBasicBuilder().name("곽두팔").nickname("곽두팔무새").sessionId("9aed126c-9b08-4581-b3d3-9630b45c3989").room(room2).build());
 
         room1.addParticipant(p1);
-        room2.addParticipant(p2);
+        room1.addParticipant(p2);
+        room1.addParticipant(p3);
+        room1.addParticipant(p4);
+        room1.addParticipant(p5);
+        room1.addParticipant(p6);
+        room1.addParticipant(p7);
+        room1.addParticipant(p8);
+
+
+
+        room2.addParticipant(p9);
 
         Host host = hostRepository.save(Host.builder().name("호스트").nickname("Mumomu").build());
-        Problemset problemset = problemService.makeProblemset(host.getId(),"tempTitle","tempDescription","Goodbye Command");
+        Problemset problemset = problemService.makeProblemset(host.getId(),"tempTitle","tempDescription","Goodbye Command", 1, 1, 1);
         Problem problem = problemService.makeProblem(problemset.getId(), "MultipleChoiceProblem",1,"tempTitle","tempDescription",30,100,null,"1");
 
         ProblemOption problemOption = problemService.makeProblemOption(problem.getId(),1,"im first",null);
