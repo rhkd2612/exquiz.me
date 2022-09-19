@@ -1,6 +1,6 @@
-package com.mumomu.exquizme.production.crawling.controller;
+package com.mumomu.exquizme.production.controller;
 
-import com.mumomu.exquizme.production.crawling.service.S3Uploader;
+import com.mumomu.exquizme.production.service.S3Uploader;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

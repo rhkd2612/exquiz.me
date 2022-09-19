@@ -1,4 +1,4 @@
-package com.mumomu.exquizme.production.crawling.service;
+package com.mumomu.exquizme.production.service;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
