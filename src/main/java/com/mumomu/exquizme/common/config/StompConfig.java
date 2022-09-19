@@ -45,8 +45,6 @@ public class StompConfig implements WebSocketMessageBrokerConfigurer {
                 .setAllowedOriginPatterns("*") // TODO setAllowedOrigins는 나중에 바꿔주어야한다(보안이슈)
                 .withSockJS()
                 .setInterceptors(new HttpHandshakeInterceptor());
-                //.setInterceptors(httpSessionHandshakeInterceptor());
-        //.setHeartbeatTime(60);
         //.setClientLibraryUrl("https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.2/sockjs.js");
     }
 

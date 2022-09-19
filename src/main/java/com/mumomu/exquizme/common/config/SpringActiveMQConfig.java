@@ -36,7 +36,6 @@ public class SpringActiveMQConfig {
 
     @Bean
     public ActiveMQTopic answerTopic(){
-        System.out.println("topicName = " + TOPIC_NAME);
         return new ActiveMQTopic(TOPIC_NAME);
     }
 
