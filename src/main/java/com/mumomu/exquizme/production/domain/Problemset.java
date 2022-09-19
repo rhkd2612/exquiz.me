@@ -42,6 +42,15 @@ public class Problemset {
     @Setter
     private String closingMent;
 
+    @Setter
+    private Integer scoreSetting;
+
+    @Setter
+    private Integer timeSetting;
+
+    @Setter
+    private Integer backgroundMusic;
+
     private Date createdAt;
     @Setter
     private Date updatedAt;

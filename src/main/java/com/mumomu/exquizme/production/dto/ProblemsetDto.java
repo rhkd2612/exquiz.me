@@ -19,6 +19,10 @@ public class ProblemsetDto {
     private String description;
     private String closingMent;
 
+    private Integer scoreSetting;
+    private Integer timeSetting;
+    private Integer backgroundMusic;
+
     public ProblemsetDto(Problemset problemset) {
         // TODO 추후에 변경하여야 한다
         if(problemset != null) {
@@ -26,6 +30,9 @@ public class ProblemsetDto {
             this.title = problemset.getTitle();
             this.description = problemset.getDescription();
             this.closingMent = problemset.getClosingMent();
+            this.scoreSetting = problemset.getScoreSetting();
+            this.timeSetting = problemset.getTimeSetting();
+            this.backgroundMusic = problemset.getBackgroundMusic();
         }
     }
 }

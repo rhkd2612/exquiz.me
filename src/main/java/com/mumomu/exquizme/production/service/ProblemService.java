@@ -37,7 +37,9 @@ public class ProblemService {
     @Transactional
     public Problemset makeProblemset(
             Long hostId, String title,
-            String description, String closingMent) throws HostNotFoundException {
+            String description, String closingMent,
+            Integer scoreSetting, Integer timeSetting,
+            Integer backgroundMusic) throws HostNotFoundException {
 
         Optional<Host> hostOptional = hostRepository.findOneById(hostId);
         if (hostOptional.isEmpty()) {
@@ -54,6 +56,9 @@ public class ProblemService {
                 .updatedAt(new Date())
                 .deleted(false)
                 .totalParticipant(0)
+                .scoreSetting(scoreSetting)
+                .timeSetting(timeSetting)
+                .backgroundMusic(backgroundMusic)
                 .build();
 
         problemsetRepository.save(problemset);
@@ -246,7 +251,9 @@ public class ProblemService {
     @Transactional
     public Problemset updateProblemset(
             Long problemsetId, String title,
-            String description, String closingMent) {
+            String description, String closingMent,
+            Integer scoreSetting, Integer timeSetting,
+            Integer backgroundMusic) {
         Optional<Problemset> problemsetOptional = problemsetRepository.findOneById(problemsetId);
         if (problemsetOptional.isEmpty()) {
             throw new ProblemsetNotFoundException("Problemset not found");
@@ -257,6 +264,9 @@ public class ProblemService {
         problemset.setDescription(description);
         problemset.setClosingMent(closingMent);
         problemset.setUpdatedAt(new Date());
+        problemset.setScoreSetting(scoreSetting);
+        problemset.setTimeSetting(timeSetting);
+        problemset.setBackgroundMusic(backgroundMusic);
 
         problemsetRepository.save(problemset);
 

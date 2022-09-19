@@ -11,4 +11,7 @@ public class ProblemsetModifyDto {
     private String title;
     private String description;
     private String closingMent;
+    private Integer scoreSetting;
+    private Integer timeSetting;
+    private Integer backgroundMusic;
 }
