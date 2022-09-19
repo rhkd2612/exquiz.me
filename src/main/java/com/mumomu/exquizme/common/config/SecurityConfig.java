@@ -6,8 +6,6 @@ import com.mumomu.exquizme.common.jwt.JwtSecurityConfig;
 import com.mumomu.exquizme.common.jwt.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.filter.CorsFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -30,15 +28,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
             "/configuration/security",
             "/swagger-ui.html",
             "/webjars/**",
+
             // -- Swagger UI v3 (OpenAPI)
             "/v3/api-docs/**",
             "/swagger-ui/**",
+
             // other public endpoints of your API may be appended to this array
             // basic whitelist
             "/",
             "/api/**",
             "/h2-console/**",
-//            "/ws/**",
             "/stomp/**",
             "/sub/**",
             "/pub/**",

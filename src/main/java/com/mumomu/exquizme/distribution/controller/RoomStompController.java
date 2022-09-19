@@ -31,6 +31,7 @@ import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 @RestController
 @Slf4j
 @RequiredArgsConstructor
+// 웹소켓 API 명세는 노션에 정리(스웨거 사용불가)
 public class RoomStompController {
     private final RoomService roomService;
     private final RoomProgressService roomProgressService;
@@ -53,7 +54,7 @@ public class RoomStompController {
             int currentScore = roomProgressService.updateParticipantInfo(roomPin, answerSubmitForm);
             messageToSubscribers(roomPin, answerSubmitForm);
             // 3. Make Response
-            return ResponseEntity.ok("성공");
+            return ResponseEntity.ok(currentScore);
         } catch (NullPointerException e) {
             log.info(e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -65,7 +66,6 @@ public class RoomStompController {
 
     // 퀴즈 시작
     @MessageMapping({"/room/{roomPin}/start"})
-//    @ApiImplicitParam(name = "roomPin", value = "방의 핀번호(Path)", required = true, dataType = "String", paramType = "path")
     public ResponseEntity<?> startRoom(@DestinationVariable String roomPin) {
         // 1. Validation
         try {
@@ -82,11 +82,6 @@ public class RoomStompController {
 
     // 다음 퀴즈
     @MessageMapping("/room/{roomPin}/next")
-//    @Operation(summary = "다음 문제 조회", description = "현재 방의 다음 문제를 반환합니다")
-//    @ApiImplicitParam(name = "roomPin", value = "방의 핀번호(Path)", required = true, dataType = "String", paramType = "path")
-//    @ApiResponse(responseCode = "301", description = "퀴즈 종료")
-//    @ApiResponse(responseCode = "302", description = "다음 문제")
-//    @ApiResponse(responseCode = "400", description = "존재하지 않는 방 번호 입력")
     public ResponseEntity<?> nextProblem(@DestinationVariable String roomPin) {
         // 1. Validation
         try {
@@ -110,12 +105,6 @@ public class RoomStompController {
     // TODO BusinessLogic 서비스로 이동해야함
     // TODO 멘토님께 여쭤봐야함 구조에 대해.. 어떤건 참여자 어떤건 방 Dto 반환함..
     @MessageMapping("/room/{roomPin}")
-//    @ApiImplicitParam(name = "roomPin", value = "방의 핀번호(Path)", required = true, dataType = "String", paramType = "path")
-//    @Operation(summary = "퀴즈방 조회", description = "기존 입장 정보가 있는지 확인 후 존재 시 방 입장(참여자 Dto 반환), 미 존재 시 등록 화면으로 이동합니다.(방 Dto 반환)")
-//    @ApiResponse(responseCode = "200", description = "방 입장 성공(기존 쿠키 정보를 토대로 입장 - 참여자 Dto 반환)")
-//    @ApiResponse(responseCode = "302", description = "기존 입장 정보 없음(사용자 정보 입력 필요 -> 사용자 이름/닉네임 등록 씬으로 입장)")
-//    @ApiResponse(responseCode = "404", description = "존재하지 않은 방 코드 입력")
-//    @ApiResponse(responseCode = "406", description = "방 최대 인원 초과")
     public ResponseEntity<?> joinRoom(@DestinationVariable String roomPin,
                                       SimpMessageHeaderAccessor headerAccessor) {
         // 1. Validation
@@ -137,7 +126,7 @@ public class RoomStompController {
             return ResponseEntity.ok(participantDto);
         } catch (SessionNotExistException e) {
             log.info(e.getMessage());
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.MOVED_PERMANENTLY);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.FOUND);
         } catch (NullPointerException e) {
             log.info(e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -149,21 +138,12 @@ public class RoomStompController {
     // TODO 비적절 이름 필터 넣은 후 관련 예외 추가하여야함 + 테스트도
     @MessageMapping("/room/{roomPin}/signup")
     @MessageExceptionHandler(MessageConversionException.class)
-//    @ApiImplicitParams({
-//            @ApiImplicitParam(name = "roomPin", value = "방의 핀번호(Path)", required = true, dataType = "String", paramType = "path"),
-//    })
-//    @Operation(summary = "익명사용자 정보 등록 후 방 입장", description = "닉네임(nickname)과 이름(name) 입력 후 방에 입장합니다.")
-//    @ApiResponse(responseCode = "201", description = "유저 생성 성공 혹은 기존 유저 정보 변경 -> 방 입장, 사용자 정보 포함")
-//    @ApiResponse(responseCode = "400", description = "이름 혹은 닉네임 불충분 혹은 부적절")
-//    @ApiResponse(responseCode = "406", description = "이미 존재하는 참가자 정보 혹은 더 이상 참가할 수 없는 방")
     public ResponseEntity<?> signUpParticipant(@DestinationVariable String roomPin,
                                                @RequestBody ParticipantCreateForm participateForm,
                                                SimpMessageHeaderAccessor headerAccessor) {
-        // 1. Validation
-        try {
-            // 2. Business Logic
-            // 3. Make Response
+        // 1. Validation 예정
 
+        try {
             // 쿠키 -> 세션 ID로 변경(stomp는 쿠키 사용 불가..? 더 찾아봐야할듯)
             String sessionId = headerAccessor.getSessionAttributes().get("sessionId").toString();
             headerAccessor.setSessionId(sessionId);
