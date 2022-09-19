@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-@Api(tags = {"퀴즈방 진행에 이용되는 컨트롤러"})
+@Api(tags = {"퀴즈방 진행에 이용되는 Rest 컨트롤러"})
 @RequestMapping("/api/room/{roomPin}")
 public class RoomProgressController {
     private final RoomService roomService;

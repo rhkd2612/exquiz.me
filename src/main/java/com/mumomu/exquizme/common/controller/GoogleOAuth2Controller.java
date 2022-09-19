@@ -10,6 +10,9 @@ import com.mumomu.exquizme.common.dto.GoogleLoginResponse;
 import com.mumomu.exquizme.common.dto.OAuth2AccountDto;
 import com.mumomu.exquizme.common.service.OAuth2AccountService;
 import com.mumomu.exquizme.common.util.ConfigUtils;
+import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
@@ -27,11 +30,15 @@ import java.net.URISyntaxException;
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/api/google")
+@Api(tags = {"구글 소셜 로그인에 필요한 컨트롤러"})
 public class GoogleOAuth2Controller {
     private final ConfigUtils configUtils;
     private final OAuth2AccountService oAuth2AccountService;
 
     @GetMapping(value = "/login")
+    @Operation(summary = "구글 로그인 페이지", description = "구글에 사용자 아이디로 로그인을 요청할 수 있는 페이지")
+    @ApiResponse(responseCode = "303", description = "로그인 성공 -> 홈씬으로 이동")
+    @ApiResponse(responseCode = "400", description = "잘못된 로그인 요청")
     public ResponseEntity<Object> moveGoogleInitUrl() {
         String authUrl = configUtils.googleInitUrl();
 
@@ -43,13 +50,14 @@ public class GoogleOAuth2Controller {
 
             return new ResponseEntity<>(httpHeaders, HttpStatus.SEE_OTHER);
         } catch (URISyntaxException e) {
-            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
         }
-
-        return ResponseEntity.badRequest().build();
     }
 
     @GetMapping(value = "/login/redirect")
+    @Operation(summary = "구글 로그인 리다이렉션 페이지", description = "구글 로그인 시 정보 반환")
+    @ApiResponse(responseCode = "200", description = "로그인 성공 -> 사용자 정보 반환 with jwt")
+    @ApiResponse(responseCode = "400", description = "잘못된 로그인 요청")
     public ResponseEntity<?> redirectGoogleLogin(
             @RequestParam(value = "code") String authCode
     ) {
@@ -91,13 +99,11 @@ public class GoogleOAuth2Controller {
                 return ResponseEntity.ok().body(oAuth2AccountDto);
             }
             else {
-                throw new Exception("Google OAuth failed!");
+                return ResponseEntity.badRequest().body("Google OAuth Failed!");
             }
         }
         catch (Exception e) {
-            e.printStackTrace();
+            return ResponseEntity.badRequest().body("Google OAuth Failed!");
         }
-
-        return ResponseEntity.badRequest().body(null);
     }
 }

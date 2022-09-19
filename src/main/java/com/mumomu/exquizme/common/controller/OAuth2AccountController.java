@@ -2,11 +2,13 @@ package com.mumomu.exquizme.common.controller;
 
 import com.mumomu.exquizme.common.dto.OAuth2AccountDto;
 import com.mumomu.exquizme.common.service.OAuth2AccountService;
+import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
@@ -14,6 +16,7 @@ import java.util.Map;
 
 @RestController
 @Slf4j
+@ApiIgnore
 @RequestMapping("/api")
 public class OAuth2AccountController {
     private final OAuth2AccountService oAuth2AccountService;
