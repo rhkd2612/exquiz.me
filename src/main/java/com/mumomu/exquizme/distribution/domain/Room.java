@@ -81,10 +81,6 @@ public class Room {
     public Problem nextProblem() throws NoMoreProblemException {
         List<Problem> problems = this.problemset.getProblems();
 
-        System.out.println("nextProblem");
-        System.out.println(problems.size());
-        System.out.println(currentProblemNum);
-
         if(this.currentProblemNum + 1 >= problems.size())
             throw new NoMoreProblemException("문제셋에 남은 문제가 없습니다.");
 

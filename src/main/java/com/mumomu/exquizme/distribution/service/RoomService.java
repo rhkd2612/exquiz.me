@@ -81,8 +81,6 @@ public class RoomService {
     }
 
     private String getRandomPin() {
-        System.out.println(MIN_PIN_VALUE + ' ' + MAX_PIN_VALUE);
-
         int max = Integer.valueOf(MAX_PIN_VALUE);
         int min = Integer.valueOf(MIN_PIN_VALUE);
 
