@@ -31,17 +31,18 @@ class S3ControllerTest {
     @Autowired
     ObjectMapper objectMapper;
 
-    @Test @DisplayName("파일 시스템 이미지 업로드")
-    void uploadByFileSystem() throws Exception {
-        //TODO : 파일 경로 상대경로로 수정
-        MockMultipartFile image = new MockMultipartFile("file",
-                "KakaoTalk_Photo_2022-08-18-23-27-46.png", "image/png",
-                new FileInputStream("/Users/minkyumkim/Downloads/KakaoTalk_Photo_2022-08-18-23-27-46.png"));
-
-        mockMvc.perform(multipart("/api/image/upload/file")
-                .file(image))
-                .andExpect(status().is2xxSuccessful());
-    }
+    // TODO 왜 로컬파일로..?
+//    @Test @DisplayName("파일 시스템 이미지 업로드")
+//    void uploadByFileSystem() throws Exception {
+//        //TODO : 파일 경로 상대경로로 수정
+//        MockMultipartFile image = new MockMultipartFile("file",
+//                "KakaoTalk_Photo_2022-08-18-23-27-46.png", "image/png",
+//                new FileInputStream("/Users/minkyumkim/Downloads/KakaoTalk_Photo_2022-08-18-23-27-46.png"));
+//
+//        mockMvc.perform(multipart("/api/image/upload/file")
+//                .file(image))
+//                .andExpect(status().is2xxSuccessful());
+//    }
 
     @Test @DisplayName("url 이미지 업로드")
     void uploadByUrl() throws Exception {

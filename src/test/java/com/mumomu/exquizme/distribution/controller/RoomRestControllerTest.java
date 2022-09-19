@@ -89,7 +89,7 @@ class RoomRestControllerTest {
         String myRoomPin = roomService.newRoom(problemset,5).getPin();
 
         mvc.perform(post("/api/room/{roomPin}/close", myRoomPin))
-                .andExpect(status().isMovedPermanently())
+                .andExpect(status().isFound())
                 .andDo(MockMvcResultHandlers.print());
     }
 
