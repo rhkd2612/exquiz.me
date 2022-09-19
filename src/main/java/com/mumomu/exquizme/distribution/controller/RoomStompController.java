@@ -122,7 +122,6 @@ public class RoomStompController {
         try {
             // 2. Business Logic
             Room targetRoom = roomService.findRoomByPin(roomPin);
-            RoomDto targetRoomDto = new RoomDto(targetRoom);
 
             if(!roomService.checkRoomState(roomPin))
                 return new ResponseEntity<>("방 입장 최대 인원을 초과했습니다.", HttpStatus.NOT_ACCEPTABLE);

@@ -15,7 +15,6 @@ public class ParticipantDto {
     private String sessionId;
     private String name; // 사용자 구분 이름
     private String nickname;
-    private RoomDto roomDto;
     private Date entryDate; // 생성일(입장시간)
     private int currentScore; // 점수
 
@@ -24,7 +23,6 @@ public class ParticipantDto {
         this.sessionId = participant.getSessionId();
         this.name = participant.getName();
         this.nickname = participant.getNickname();
-        this.roomDto = new RoomDto(participant.getRoom());
         this.entryDate = participant.getEntryDate();
         this.currentScore = participant.getCurrentScore();
     }
