@@ -1,20 +1,11 @@
 package com.mumomu.exquizme.common.config;
 
 import com.mumomu.exquizme.common.interceptor.HttpHandshakeInterceptor;
-import io.netty.channel.ChannelFuture;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.jms.activemq.ActiveMQProperties;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.server.ServerHttpRequest;
-import org.springframework.http.server.ServerHttpResponse;
-import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
-import org.springframework.messaging.simp.config.StompBrokerRelayRegistration;
 import org.springframework.messaging.simp.stomp.StompReactorNettyCodec;
 import org.springframework.messaging.tcp.reactor.ReactorNettyTcpClient;
-import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
@@ -51,9 +42,7 @@ public class StompConfig implements WebSocketMessageBrokerConfigurer {
     // TODO 계속 ALB로 topic이 연결 되어있으면 요금이 계속 나올텐데, 연결 처리 방법은?
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        //registry.setPathMatcher(new AntPathMatcher("."));
         registry.setApplicationDestinationPrefixes("/pub");
-        //registry.enableSimpleBroker("/sub");
 
         ReactorNettyTcpClient<byte[]> client = new ReactorNettyTcpClient<>(tcpClient -> tcpClient
                 .remoteAddress(socketAddressSupplier())

@@ -13,8 +13,6 @@ import com.mumomu.exquizme.production.service.ProblemService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
@@ -35,7 +33,6 @@ public class RoomService {
     @Value("${max.pin.value}")
     private String MAX_PIN_VALUE;
 
-    // DTO 변환은 서비스? 컨트롤러?
     @Transactional
     public Participant joinParticipant(ParticipantCreateForm participateForm, String roomPin, String sessionId) throws IllegalAccessException {
         Room targetRoom = findRoomByPin(roomPin);

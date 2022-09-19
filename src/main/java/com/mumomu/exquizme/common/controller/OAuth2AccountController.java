@@ -26,12 +26,6 @@ public class OAuth2AccountController {
         this.oAuth2AccountService = oAuth2AccountService;
     }
 
-    // 이후 로그인별 분기
-//    @PostConstruct
-//    void initLoginMap(){
-//        loginMap.put("google", userService.getGoogleUserByUsername(T))
-//    }
-
     @GetMapping("/user")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     public ResponseEntity<OAuth2AccountDto> getMyUserInfo(HttpServletRequest request) {

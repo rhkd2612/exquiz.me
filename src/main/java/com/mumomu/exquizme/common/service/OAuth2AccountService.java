@@ -18,10 +18,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.ObjectInputFilter;
-import java.util.HashMap;
-import java.util.Map;
-
 @Service
 public class OAuth2AccountService {
     private final OAuth2AccountRepository userRepository;

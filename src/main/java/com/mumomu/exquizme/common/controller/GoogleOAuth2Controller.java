@@ -59,8 +59,7 @@ public class GoogleOAuth2Controller {
     @ApiResponse(responseCode = "200", description = "로그인 성공 -> 사용자 정보 반환 with jwt")
     @ApiResponse(responseCode = "400", description = "잘못된 로그인 요청")
     public ResponseEntity<?> redirectGoogleLogin(
-            @RequestParam(value = "code") String authCode
-    ) {
+            @RequestParam(value = "code") String authCode) {
         // HTTP 통신을 위해 RestTemplate 활용
         RestTemplate restTemplate = new RestTemplate();
         GoogleLoginRequest requestParams = GoogleLoginRequest.builder()
