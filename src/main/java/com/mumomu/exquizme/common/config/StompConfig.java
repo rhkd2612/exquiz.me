@@ -1,8 +1,10 @@
 package com.mumomu.exquizme.common.config;
 
 import com.mumomu.exquizme.common.interceptor.HttpHandshakeInterceptor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.broker.BrokerAvailabilityEvent;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.messaging.simp.stomp.StompReactorNettyCodec;
 import org.springframework.messaging.tcp.reactor.ReactorNettyTcpClient;
@@ -15,6 +17,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.function.Supplier;
 
+@Slf4j
 @Configuration
 @EnableWebSocketMessageBroker
 public class StompConfig implements WebSocketMessageBrokerConfigurer {
@@ -27,7 +30,8 @@ public class StompConfig implements WebSocketMessageBrokerConfigurer {
     @Value("${spring.activemq.password}")
     private String activeMqPassword;
 
-    private int index = 0;
+    private int index = 1;
+    private int successIndex = -1;
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
@@ -44,9 +48,18 @@ public class StompConfig implements WebSocketMessageBrokerConfigurer {
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry.setApplicationDestinationPrefixes("/pub");
 
-        ReactorNettyTcpClient<byte[]> client = new ReactorNettyTcpClient<>(tcpClient -> tcpClient
-                .remoteAddress(socketAddressSupplier())
-                .secure(SslProvider.defaultClientProvider()),
+        ReactorNettyTcpClient<byte[]> client = new ReactorNettyTcpClient<>(tcpClient -> {
+            return tcpClient
+                    .remoteAddress(socketAddressSupplier())
+                    .doOnConnected(connection -> {
+                        log.info("new stomp connected");
+                        successIndex = index;
+                    })
+                    .doOnDisconnected(connection -> {
+                        log.info("stomp disconnected");
+                    })
+                    .secure(SslProvider.defaultClientProvider());
+        },
                 new StompReactorNettyCodec());
 
         registry.enableStompBrokerRelay("/queue", "/topic")
@@ -59,11 +72,15 @@ public class StompConfig implements WebSocketMessageBrokerConfigurer {
 
     private Supplier<? extends SocketAddress> socketAddressSupplier() {
         Supplier<? extends SocketAddress> socketAddressSupplier = () -> {
-            index = 1 - index;
+            index = (successIndex == -1) ? flipIndex() : successIndex;
             return new InetSocketAddress(brokerRelayHost[index], brokerPort);
         };
 
         return socketAddressSupplier;
+    }
+
+    private int flipIndex(){
+        return 1 - index;
     }
 }
 
