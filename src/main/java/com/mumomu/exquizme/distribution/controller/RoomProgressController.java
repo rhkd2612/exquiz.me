@@ -1,5 +1,6 @@
 package com.mumomu.exquizme.distribution.controller;
 
+import com.mumomu.exquizme.distribution.domain.Participant;
 import com.mumomu.exquizme.distribution.exception.InvalidRoomAccessException;
 import com.mumomu.exquizme.distribution.service.AnswerService;
 import com.mumomu.exquizme.distribution.service.RoomProgressService;
@@ -53,12 +54,63 @@ public class RoomProgressController {
     @ApiResponse(responseCode = "404", description = "퀴즈 없음")
     public ResponseEntity<?> leaderboard(@PathVariable String roomPin){
         try {
-            List<ParticipantDto> resultLeaderboard = roomService.findParticipantsByRoomPin(roomPin).stream().map(p -> new ParticipantDto(p)).collect(Collectors.toList());
+            //List<ParticipantDto> resultLeaderboard = roomService.findParticipantsByRoomPin(roomPin).stream().map(p -> new ParticipantDto(p)).collect(Collectors.toList());
 
-            Collections.sort(resultLeaderboard,
-                    (p1, p2) -> p2.getCurrentScore() - p1.getCurrentScore());
+            List<Participant> participants = roomService.findParticipantsByRoomPin(roomPin);
+            List<ParticipantDto> result = new ArrayList<>();
 
-            return ResponseEntity.ok(resultLeaderboard);
+
+            // 1. 급상승 점수
+            Collections.sort(participants,
+                    (p1, p2) -> p2.getCurrentScore() - p2.getBeforeScore() - p1.getCurrentScore() + p1.getBeforeScore());
+            if (participants.get(0).getCurrentScore() - participants.get(0).getBeforeScore() >= 500) {
+                for (Participant participant : participants) {
+                    if (participant.getCurrentScore() - participant.getBeforeScore()
+                            >= (participants.get(0).getCurrentScore() - participants.get(0).getBeforeScore()) * 0.6) {
+                        result.add(new ParticipantDto(participant));
+                    }
+                }
+                if (result.size() > 0 && result.size() >= participants.size() / 5) return ResponseEntity.ok(result);
+            }
+            result = new ArrayList<>();
+
+            // 2. 정답률이 낮은 문제를 맞춘 사람들
+            Collections.sort(participants,
+                    (p1, p2) -> p2.getCurrentScore() - p2.getBeforeScore() - p1.getCurrentScore() + p1.getBeforeScore());
+            for (Participant participant : participants) {
+                if (participant.getCurrentScore() - participant.getBeforeScore() != 0) {
+                    result.add(new ParticipantDto(participant));
+                }
+            }
+            if (result.size() > 0 && result.size() >= participants.size() / 5) return ResponseEntity.ok(result);
+            result = new ArrayList<>();
+
+            // 3. 문제를 연속해서 많이 맞춘 사람들
+            participants.sort(Comparator.comparing(Participant::getContinuousCorrect).reversed());
+            for (Participant participant : participants) {
+                if (participant.getContinuousCorrect() >= 5) {
+                    result.add(new ParticipantDto(participant));
+                }
+            }
+            if (result.size() > 0 && result.size() >= participants.size() / 5)return ResponseEntity.ok(result);
+            result = new ArrayList<>();
+
+            // 4. 문제를 빠르게 푼 사람들 (최근 문제 소요시간 도메인에 추가)
+            /*
+            Collections.sort(participants,
+                    (p1, p2) -> p1.getLastUsedTime() - p2.getLastUsedTime());
+            for (Participant participant : participants) {
+                if (participant.getCurrentScore() - participant.getBeforeScore() != 0) {
+                    result.add(new ParticipantDto(participant));
+                }
+            }
+             */
+
+            // 5. 점수 순 정렬
+            participants.sort(Comparator.comparing(Participant::getCurrentScore).reversed());
+            result = participants.stream().map(p -> new ParticipantDto(p)).collect(Collectors.toList());
+
+            return ResponseEntity.ok(result);
         }catch(InvalidRoomAccessException e){
             log.error(e.getMessage());
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
