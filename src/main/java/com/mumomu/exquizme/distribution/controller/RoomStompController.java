@@ -20,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.messaging.converter.MessageConversionException;
 import org.springframework.messaging.handler.annotation.*;
+import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.web.bind.annotation.*;
 
 import javax.jms.DeliveryMode;
@@ -35,7 +36,6 @@ import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 public class RoomStompController {
     private final RoomService roomService;
     private final RoomProgressService roomProgressService;
-    private final AnswerService answerService;
     private final JmsTemplate jmsTemplate;
 
     private static final String PREFIX_TOPIC_NAME = "room";
@@ -100,8 +100,6 @@ public class RoomStompController {
     }
 
     // 퀴즈방 입장
-    // TODO Cookie에 관한 수정이 필요함 + WebSocket 사용 시 쿠키가 필요없어질수도..? -> 세션으로 변경
-    // TODO Swagger변경 + API 테스트 필요
     // TODO BusinessLogic 서비스로 이동해야함
     // TODO 멘토님께 여쭤봐야함 구조에 대해.. 어떤건 참여자 어떤건 방 Dto 반환함..
     @MessageMapping("/room/{roomPin}")
@@ -111,9 +109,7 @@ public class RoomStompController {
         try {
             // 2. Business Logic
             Room targetRoom = roomService.findRoomByPin(roomPin);
-
-            if(!roomService.checkRoomState(roomPin))
-                return new ResponseEntity<>("방 입장 최대 인원을 초과했습니다.", HttpStatus.NOT_ACCEPTABLE);
+            roomService.checkRoomState(roomPin);
 
             String sessionId = headerAccessor.getSessionAttributes().get("sessionId").toString();
 
@@ -130,6 +126,9 @@ public class RoomStompController {
         } catch (NullPointerException e) {
             log.info(e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (IllegalAccessException e) {
+            log.info(e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
         }
     }
 
@@ -183,5 +182,7 @@ public class RoomStompController {
             message.setJMSPriority(10);
             return message;
         });
+
+
     }
 }
