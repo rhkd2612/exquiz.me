@@ -4,6 +4,7 @@ import com.mumomu.exquizme.distribution.domain.Participant;
 import com.mumomu.exquizme.distribution.domain.Room;
 import com.mumomu.exquizme.distribution.exception.CreateRandomPinFailureException;
 import com.mumomu.exquizme.distribution.exception.InvalidRoomAccessException;
+import com.mumomu.exquizme.distribution.exception.SessionNotExistException;
 import com.mumomu.exquizme.distribution.service.RoomService;
 import com.mumomu.exquizme.distribution.web.dto.ParticipantDto;
 import com.mumomu.exquizme.distribution.web.dto.RoomDto;
@@ -18,6 +19,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -138,6 +142,25 @@ public class RoomRestController {
 
     //퀴즈방 폐쇄
     // TODO 도메인에 핀번호가 먼저와도 되나?
+
+    @GetMapping("/{roomPin}/open")
+    @Operation(summary = "퀴즈방 조회", description = "방이 존재하는지 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "방 조회 성공")
+    @ApiResponse(responseCode = "404", description = "존재하지 않는 방 접근 시도")
+    public ResponseEntity<?> findRoom(@PathVariable String roomPin) {
+        // 1. Validation
+        try {
+            // 2. Business Logic
+            Room targetRoom = roomService.findRoomByPin(roomPin);
+            if(!roomService.checkRoomState(roomPin))
+                return new ResponseEntity<>("방 입장 최대 인원을 초과했습니다.", HttpStatus.NOT_ACCEPTABLE);
+            return ResponseEntity.ok(new RoomDto(targetRoom));
+        } catch (NullPointerException e) {
+            log.info(e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
+
     @PostMapping("/{roomPin}/close")
     @Operation(summary = "퀴즈방 삭제", description = "기존 방을 삭제합니다(DB에선 삭제되지 않고 PIN 변경)")
     @ApiResponse(responseCode = "302", description = "방 삭제 성공")
