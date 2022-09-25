@@ -111,6 +111,7 @@ public class RoomStompController {
 
 
     // 참가양식 입력
+    // 이 곳에서는 세션 아이디 발급 전이므로 세션 아이디가 존재하지 않는다. 그래서 stomp-message를 사용하지 않음
     // TODO 비적절 이름 필터 넣은 후 관련 예외 추가하여야함 + 테스트도
     @MessageMapping("/room/{roomPin}/signup")
     @MessageExceptionHandler(MessageConversionException.class)
@@ -137,6 +138,7 @@ public class RoomStompController {
         }
     }
 
+    //@Header("simpSessionId") String sessionId
     @MessageMapping("/room/{roomPin}/submit")
     public ResponseEntity<?> submitAnswer(@DestinationVariable String roomPin, @RequestBody StompAnswerSubmitForm answerForm) {
         // 1. Validation

@@ -7,10 +7,10 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum Role {
-    ALL("ROLE_ALL"),
-    ADMIN("ROLE_ADMIN"),
-    USER("ROLE_USER"),
-    SOCIAL("ROLE_SOCIAL");
+    ADMIN("ROLE_ADMIN"), // 관리자
+    USER("ROLE_USER"), // 출제자
+    USER_SOCIAL("ROLE_USER_SOCIAL"), // 출제자 + 참여자 (for stomp messaging)
+    SOCIAL("ROLE_SOCIAL"); // 참여자
 
     private final String value;
 }
