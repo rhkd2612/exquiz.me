@@ -8,6 +8,7 @@ import com.mumomu.exquizme.distribution.service.RoomProgressService;
 import com.mumomu.exquizme.distribution.service.RoomService;
 import com.mumomu.exquizme.distribution.web.dto.ParticipantDto;
 import com.mumomu.exquizme.distribution.web.dto.RoomDto;
+import com.mumomu.exquizme.distribution.web.dto.stomp.StompAnswerSubmitForm;
 import com.mumomu.exquizme.distribution.web.model.AnswerSubmitForm;
 import com.mumomu.exquizme.distribution.web.model.ParticipantCreateForm;
 import com.mumomu.exquizme.production.domain.Problem;
@@ -39,30 +40,6 @@ public class RoomStompController {
     private final JmsTemplate jmsTemplate;
 
     private static final String PREFIX_TOPIC_NAME = "room";
-
-    // example : /pub/100000/submit
-    // 퀴즈 정답 제출
-    @MessageMapping("/room/{roomPin}/submit")
-    public ResponseEntity<?> submitAnswer(@DestinationVariable String roomPin, @RequestBody AnswerSubmitForm answerSubmitForm) {
-        // 1. Validation
-        int currentProblemNum = roomService.findRoomByPin(roomPin).getCurrentProblemNum();
-
-        if (currentProblemNum != answerSubmitForm.getProblemIdx())
-            return new ResponseEntity<>("잘못된 문제 번호입니다.", HttpStatus.NOT_ACCEPTABLE);
-        try {
-            // 2. Business Logic
-            int currentScore = roomProgressService.updateParticipantInfo(roomPin, answerSubmitForm);
-            messageToSubscribers(roomPin, answerSubmitForm);
-            // 3. Make Response
-            return ResponseEntity.ok(currentScore);
-        } catch (NullPointerException e) {
-            log.info(e.getMessage());
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        } catch (IllegalStateException e) {
-            log.info(e.getMessage());
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
-        }
-    }
 
     // 퀴즈 시작
     @MessageMapping({"/room/{roomPin}/start"})
@@ -141,16 +118,15 @@ public class RoomStompController {
                                                @RequestBody ParticipantCreateForm participateForm,
                                                SimpMessageHeaderAccessor headerAccessor) {
         // 1. Validation 예정
-
         try {
-            // 쿠키 -> 세션 ID로 변경(stomp는 쿠키 사용 불가..? 더 찾아봐야할듯)
+            // 쿠키 -> 세션 ID로 변경(인터셉터에서 처리)
             String sessionId = headerAccessor.getSessionAttributes().get("sessionId").toString();
             headerAccessor.setSessionId(sessionId);
 
             Participant savedParticipant = roomService.joinParticipant(participateForm, roomPin, sessionId);
             ParticipantDto participantDto = new ParticipantDto(savedParticipant);
 
-            messageToSubscribers(roomPin, participantDto.getNickname());
+            messageToSubscribers(roomPin, participantDto);
             return ResponseEntity.status(HttpStatus.CREATED).body(participantDto);
         } catch (NullPointerException e) {
             log.error(e.getMessage());
@@ -161,16 +137,26 @@ public class RoomStompController {
         }
     }
 
-    @MessageMapping("/test")
-    public void testMethod(@Payload AnswerSubmitForm answerSubmitForm) {
-        ActiveMQTopic roomTopic = new ActiveMQTopic("room");
+    @MessageMapping("/room/{roomPin}/submit")
+    public ResponseEntity<?> submitAnswer(@DestinationVariable String roomPin, @RequestBody StompAnswerSubmitForm answerForm) {
+        // 1. Validation
+        int currentProblemNum = roomService.findRoomByPin(roomPin).getCurrentProblemNum();
 
-        jmsTemplate.convertAndSend(roomTopic, answerSubmitForm, message -> {
-            message.setJMSDeliveryMode(DeliveryMode.NON_PERSISTENT);
-            message.setJMSCorrelationID(UUID.randomUUID().toString());
-            message.setJMSPriority(10);
-            return message;
-        });
+        if (currentProblemNum != answerForm.getProblemIdx())
+            return new ResponseEntity<>("잘못된 문제 번호입니다.", HttpStatus.NOT_ACCEPTABLE);
+        try {
+            // 2. Business Logic
+            int currentScore = roomProgressService.updateParticipantInfo(roomPin, answerForm);
+            messageToSubscribers(roomPin, answerForm);
+            // 3. Make Response
+            return ResponseEntity.ok(currentScore);
+        } catch (NullPointerException e) {
+            log.info(e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (IllegalStateException e) {
+            log.info(e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
+        }
     }
 
     private void messageToSubscribers(String roomPin, Object sendMessage) {
@@ -182,7 +168,5 @@ public class RoomStompController {
             message.setJMSPriority(10);
             return message;
         });
-
-
     }
 }

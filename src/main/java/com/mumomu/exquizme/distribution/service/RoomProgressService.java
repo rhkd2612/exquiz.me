@@ -8,6 +8,7 @@ import com.mumomu.exquizme.distribution.exception.NoMoreProblemException;
 import com.mumomu.exquizme.distribution.repository.AnswerRepository;
 import com.mumomu.exquizme.distribution.repository.ParticipantRepository;
 import com.mumomu.exquizme.distribution.repository.RoomRepository;
+import com.mumomu.exquizme.distribution.web.dto.stomp.StompAnswerSubmitForm;
 import com.mumomu.exquizme.distribution.web.model.AnswerSubmitForm;
 import com.mumomu.exquizme.production.domain.Problem;
 import com.mumomu.exquizme.production.service.ProblemService;
@@ -29,9 +30,9 @@ public class RoomProgressService {
     private final RoomService roomService;
 
     @Transactional
-    public int updateParticipantInfo(String roomPin, AnswerSubmitForm answerSubmitForm) throws IllegalStateException {
+    public int updateParticipantInfo(String roomPin, StompAnswerSubmitForm answerSubmitForm) throws IllegalStateException {
         Room targetRoom = roomService.findRoomByPin(roomPin);
-        Participant targetParticipant = roomService.findParticipantBySessionId(answerSubmitForm.getSessionId(), roomPin);
+        Participant targetParticipant = roomService.findParticipantBySessionId(answerSubmitForm.getFromSession(), roomPin);
         Problem targetProblem = targetRoom.getProblemset().getProblems().get(answerSubmitForm.getProblemIdx());
 
         targetParticipant.getAnswers().forEach(a -> {
