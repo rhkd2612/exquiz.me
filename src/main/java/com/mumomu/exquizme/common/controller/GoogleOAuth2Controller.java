@@ -98,16 +98,17 @@ public class GoogleOAuth2Controller {
             if(resultJson != null) {
                 GoogleLoginDto googleLoginDto = objectMapper.readValue(resultJson, new TypeReference<GoogleLoginDto>() {});
                 OAuth2AccountDto oAuth2AccountDto = oAuth2AccountService.signupWithGoogleOAuth2(googleLoginDto);
+                // TODO 암호화 필요 -> 이태우 멘토님께 여쭤보기
                 response.sendRedirect(configUtils.getFrontendUrl() + "?access_token=" + oAuth2AccountDto.getAccessToken());
                 //httpHeaders.put("body", oAuth2AccountDto.toString());
             }
             else {
-                log.error("login failed");
+                log.error("login failed : no resultJson.");
                 response.sendRedirect(configUtils.getFrontendUrl());
             }
         }
         catch (Exception e) {
-            log.error("login failed2");
+            log.error("login failed : exception occurs.");
             response.sendRedirect(configUtils.getFrontendUrl());
         }
     }
