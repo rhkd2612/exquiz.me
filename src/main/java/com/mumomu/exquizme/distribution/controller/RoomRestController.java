@@ -121,7 +121,7 @@ public class RoomRestController {
     @ApiResponse(responseCode = "201", description = "방 생성 성공")
     @ApiResponse(responseCode = "404", description = "존재하지 않는 퀴즈 셋")
     @ApiResponse(responseCode = "408", description = "방 생성 실패, 시간 초과(다시 시도 권유)")
-    public ResponseEntity<?> newRoom(@RequestBody RoomCreateForm roomCreateForm){
+    public ResponseEntity<?> newRoom(@RequestBody RoomCreateForm roomCreateForm) {
         // 1. Validation
         try {
             // 2. Business Logic
@@ -131,33 +131,35 @@ public class RoomRestController {
             RoomDto createRoomDto = new RoomDto(room);
             // 3. Make Response
             return new ResponseEntity(createRoomDto, HttpStatus.CREATED);
-        }catch(CreateRandomPinFailureException e){
+        } catch (CreateRandomPinFailureException e) {
             log.info("error : " + e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.REQUEST_TIMEOUT);
-        }catch(NullPointerException e){
+        } catch (NullPointerException e) {
             log.info(e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 
-    //퀴즈방 폐쇄
+    //퀴즈방 열려있는지 확인
     // TODO 도메인에 핀번호가 먼저와도 되나?
-
     @GetMapping("/{roomPin}/open")
     @Operation(summary = "퀴즈방 조회", description = "방이 존재하는지 조회합니다.")
     @ApiResponse(responseCode = "200", description = "방 조회 성공")
+    @ApiResponse(responseCode = "400", description = "가득찬 방 접근 시도")
     @ApiResponse(responseCode = "404", description = "존재하지 않는 방 접근 시도")
     public ResponseEntity<?> findRoom(@PathVariable String roomPin) {
         // 1. Validation
         try {
             // 2. Business Logic
             Room targetRoom = roomService.findRoomByPin(roomPin);
-            if(!roomService.checkRoomState(roomPin))
-                return new ResponseEntity<>("방 입장 최대 인원을 초과했습니다.", HttpStatus.NOT_ACCEPTABLE);
+            roomService.checkRoomState(roomPin);
             return ResponseEntity.ok(new RoomDto(targetRoom));
         } catch (NullPointerException e) {
             log.info(e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (IllegalAccessException e) {
+            log.info(e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -165,16 +167,16 @@ public class RoomRestController {
     @Operation(summary = "퀴즈방 삭제", description = "기존 방을 삭제합니다(DB에선 삭제되지 않고 PIN 변경)")
     @ApiResponse(responseCode = "302", description = "방 삭제 성공")
     @ApiResponse(responseCode = "404", description = "존재하지 않는 방 삭제 시도")
-    public ResponseEntity<?> closeRoom(@PathVariable String roomPin){
+    public ResponseEntity<?> closeRoom(@PathVariable String roomPin) {
         // 1. Validation
-        try{
+        try {
             // 2. Business Logic
             Room room = roomService.closeRoomByPin(roomPin);
             RoomDto deleteRoomDto = new RoomDto(room);
 
             // 3. Make Response
             return new ResponseEntity<>(null, HttpStatus.FOUND);
-        } catch(NullPointerException e){
+        } catch (NullPointerException e) {
             log.info(e.getMessage());
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
@@ -187,11 +189,11 @@ public class RoomRestController {
     @Operation(summary = "방 참여자 목록 조회", description = "해당 방에 참여한 참여자 목록을 조회합니다.")
     @ApiResponse(responseCode = "200", description = "참여자 목록 조회 성공")
     @ApiResponse(responseCode = "404", description = "존재하지 않는 방 코드 입력")
-    public ResponseEntity<List<ParticipantDto>> printParticipants(@PathVariable String roomPin){
+    public ResponseEntity<List<ParticipantDto>> printParticipants(@PathVariable String roomPin) {
         try {
             List<Participant> targetParticipants = roomService.findParticipantsByRoomPin(roomPin);
             return ResponseEntity.ok(targetParticipants.stream().map(ParticipantDto::new).collect(Collectors.toList()));
-        } catch(InvalidRoomAccessException e){
+        } catch (InvalidRoomAccessException e) {
             log.error(e.getMessage());
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
