@@ -30,13 +30,13 @@ public class CrawlerService {
 
             Document doc = con.get();
 
-            System.out.println(doc);
+            //System.out.println(doc);
 
-            Elements source = doc.select("script");
+            Elements source = doc.select("img");
             //System.out.println("Size : " + source.size());
 
             for (int i = 0; i < source.size(); i++) {
-                String res = source.get(i).attr("src");
+                String res = source.get(i).attr("data-src");
                 if (res.isEmpty())continue;
                 //System.out.println(res);
                 result.add(res);
