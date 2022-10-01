@@ -13,7 +13,7 @@ import springfox.documentation.annotations.ApiIgnore;
 import javax.jms.Queue;
 
 @RestController
-@RequestMapping("/api/room/queue/producer")
+@RequestMapping("/room/queue/producer")
 @ApiIgnore // 현재 미 사용중인 컨트롤러
 @RequiredArgsConstructor
 public class QueueProducer {

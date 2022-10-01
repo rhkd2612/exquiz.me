@@ -64,4 +64,9 @@ public class OAuth2Account extends TimeEntity{
     public boolean isActivated(){
         return activated;
     }
+
+    public void setHost(Host host) {
+        this.host = host;
+    }
+
 }

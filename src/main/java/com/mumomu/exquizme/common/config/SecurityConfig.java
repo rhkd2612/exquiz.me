@@ -45,7 +45,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
             "/queue/**",
             "/quiz/**",
             "/index.html",
-            "/google/**"
+            "/google/**",
+            "/user/**"
     };
 
     private final TokenProvider tokenProvider;

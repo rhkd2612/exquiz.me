@@ -23,6 +23,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -45,6 +47,7 @@ public class GoogleOAuth2Controller {
         URI redirectUri = null;
         try {
             redirectUri = new URI(authUrl);
+            //redirectUri = new URI("https://www.exquiz.me");
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.setLocation(redirectUri);
 
@@ -58,8 +61,8 @@ public class GoogleOAuth2Controller {
     @Operation(summary = "구글 로그인 리다이렉션 페이지", description = "구글 로그인 시 정보 반환")
     @ApiResponse(responseCode = "200", description = "로그인 성공 -> 사용자 정보 반환 with jwt")
     @ApiResponse(responseCode = "400", description = "잘못된 로그인 요청")
-    public ResponseEntity<?> redirectGoogleLogin(
-            @RequestParam(value = "code") String authCode) {
+    public void redirectGoogleLogin(
+            @RequestParam(value = "code") String authCode, HttpServletResponse response) throws IOException {
         // HTTP 통신을 위해 RestTemplate 활용
         RestTemplate restTemplate = new RestTemplate();
         GoogleLoginRequest requestParams = GoogleLoginRequest.builder()
@@ -95,14 +98,18 @@ public class GoogleOAuth2Controller {
             if(resultJson != null) {
                 GoogleLoginDto googleLoginDto = objectMapper.readValue(resultJson, new TypeReference<GoogleLoginDto>() {});
                 OAuth2AccountDto oAuth2AccountDto = oAuth2AccountService.signupWithGoogleOAuth2(googleLoginDto);
-                return ResponseEntity.ok().body(oAuth2AccountDto);
+                // TODO 암호화 필요 -> 이태우 멘토님께 여쭤보기
+                response.sendRedirect(configUtils.getFrontendUrl() + "?access_token=" + oAuth2AccountDto.getAccessToken());
+                //httpHeaders.put("body", oAuth2AccountDto.toString());
             }
             else {
-                return ResponseEntity.badRequest().body("Google OAuth Failed!");
+                log.error("login failed : no resultJson.");
+                response.sendRedirect(configUtils.getFrontendUrl());
             }
         }
         catch (Exception e) {
-            return ResponseEntity.badRequest().body("Google OAuth Failed!");
+            log.error("login failed : exception occurs.");
+            response.sendRedirect(configUtils.getFrontendUrl());
         }
     }
 }

@@ -62,7 +62,10 @@ public class StompConfig implements WebSocketMessageBrokerConfigurer {
         },
                 new StompReactorNettyCodec());
 
+        registry.setUserDestinationPrefix("/user");
+
         registry.enableStompBrokerRelay("/queue", "/topic")
+                //.setUserDestinationBroadcast("/user/registry.broadcast")
                 .setClientLogin(activeMqUsername)
                 .setClientPasscode(activeMqPassword)
                 .setSystemLogin(activeMqUsername)

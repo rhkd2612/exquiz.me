@@ -24,7 +24,7 @@ logging:
   config: classpath:logback-spring.xml
 min:
   pin:
-    value: 100000
+    value: 100005
 max:
   pin:
-    value: 100500
+    value: 100005

@@ -21,6 +21,7 @@ public class ConfigUtils {
     private String googleClientId;
     @Value("${spring.security.oauth2.client.registration.google.client-secret}")
     private String googleSecret;
+    private String frontendUrl = "https://www.exquiz.me";
     @Value("${spring.security.oauth2.client.registration.google.scope}")
     private String scopes;
 

@@ -64,22 +64,21 @@ public class OAuth2AccountService {
 
         if (oAuth2Account == null) {
             // 이렇게 가입한 사람은 일반 출제자 ROLE_USER
-
-            // Host 생성
-            Host host = Host.builder().oAuth2Account(oAuth2Account).name(oAuth2Account.getUsername()).build();
-            hostRepository.save(host);
-
             oAuth2Account = OAuth2Account.builder()
                     .username(username)
                     .nickname(googleLoginDto.getName())
                     .email(googleLoginDto.getEmail())
                     .password(passwordEncoder.encode(NO_PASSWORD))
                     .picture(googleLoginDto.getPicture())
-                    .host(host)
                     .role(Role.USER)
                     .activated(true)
                     .build();
 
+            // Host 생성
+            Host host = Host.builder().oAuth2Account(oAuth2Account).name(oAuth2Account.getUsername()).build();
+            hostRepository.save(host);
+
+            oAuth2Account.setHost(host);
             userRepository.save(oAuth2Account);
         }
 
