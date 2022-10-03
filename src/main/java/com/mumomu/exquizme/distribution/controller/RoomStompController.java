@@ -8,9 +8,7 @@ import com.mumomu.exquizme.distribution.service.RoomProgressService;
 import com.mumomu.exquizme.distribution.service.RoomService;
 import com.mumomu.exquizme.distribution.web.dto.ParticipantDto;
 import com.mumomu.exquizme.distribution.web.dto.RoomDto;
-import com.mumomu.exquizme.distribution.web.dto.stomp.StompAnswerSubmitForm;
-import com.mumomu.exquizme.distribution.web.dto.stomp.StompMessage;
-import com.mumomu.exquizme.distribution.web.dto.stomp.StompPlayerMoveForm;
+import com.mumomu.exquizme.distribution.web.dto.stomp.*;
 import com.mumomu.exquizme.distribution.web.model.AnswerSubmitForm;
 import com.mumomu.exquizme.distribution.web.model.ParticipantCreateForm;
 import com.mumomu.exquizme.production.domain.Problem;
@@ -54,10 +52,34 @@ public class RoomStompController {
 
             String sessionId = headerAccessor.getSessionAttributes().get("sessionId").toString();
             Participant participant = roomService.findParticipantBySessionId(sessionId, roomPin);
-            ParticipantDto participantDto = new ParticipantDto(participant);
+            StompParticipantSignup stompParticipantSignup = new StompParticipantSignup(MessageFlag.PARTICIPANT, sessionId, participant);
 
-            messageToHostSubscriber(roomPin, participantDto.getNickname());
+            messageToHostSubscriber(roomPin, stompParticipantSignup);
         } catch (IllegalAccessException | NullPointerException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    // 참가양식 입력
+    // 이 곳에서는 세션 아이디 발급 전이므로 세션 아이디가 존재하지 않는다. 그래서 stomp-message를 사용하지 않음
+    // TODO 비적절 이름 필터 넣은 후 관련 예외 추가하여야함 + 테스트도
+    @MessageMapping("/room/{roomPin}/signup")
+    //@MessageExceptionHandler(MessageConversionException.class)
+    public void signUpParticipant(@DestinationVariable String roomPin,
+                                               @RequestBody ParticipantCreateForm participateForm,
+                                               SimpMessageHeaderAccessor headerAccessor) {
+        // 1. Validation
+        try {
+            // 쿠키 -> 세션 ID로 변경(인터셉터에서 처리)
+            String sessionId = headerAccessor.getSessionAttributes().get("sessionId").toString();
+            headerAccessor.setSessionId(sessionId);
+
+            Participant savedParticipant = roomService.joinParticipant(participateForm, roomPin, sessionId);
+            StompParticipantSignup stompParticipantSignup = new StompParticipantSignup(MessageFlag.PARTICIPANT, sessionId, savedParticipant);
+
+            messageToSubscribers(roomPin, stompParticipantSignup); // 본인에게 세션 아이디를 줘야함.. 근데 이 방법은 안됨.. 일단 닉네임으로 구분해서 받자
+            messageToHostSubscriber(roomPin, stompParticipantSignup);
+        } catch (NullPointerException | IllegalAccessException e) {
             log.error(e.getMessage());
         }
     }
@@ -67,7 +89,7 @@ public class RoomStompController {
     public void startRoom(@DestinationVariable String roomPin) {
         try {
             Problem problem = roomProgressService.startRoom(roomPin);
-            messageToSubscribers(roomPin, new ProblemDto(problem));
+            messageToSubscribers(roomPin, new StompNewProblemForm(MessageFlag.NEW_PROBLEM, null, problem));
         } catch (InvalidRoomAccessException e) {
             log.error(e.getMessage());
         }
@@ -78,30 +100,8 @@ public class RoomStompController {
     public void nextProblem(@DestinationVariable String roomPin) {
         try {
             Problem problem = roomProgressService.nextProblem(roomPin);
-            messageToSubscribers(roomPin, new ProblemDto(problem));
+            messageToSubscribers(roomPin, new StompNewProblemForm(MessageFlag.NEW_PROBLEM, null, problem));
         } catch (InvalidRoomAccessException | NoMoreProblemException e) {
-            log.error(e.getMessage());
-        }
-    }
-
-    // 참가양식 입력
-    // 이 곳에서는 세션 아이디 발급 전이므로 세션 아이디가 존재하지 않는다. 그래서 stomp-message를 사용하지 않음
-    // TODO 비적절 이름 필터 넣은 후 관련 예외 추가하여야함 + 테스트도
-    @MessageMapping("/room/{roomPin}/signup")
-    @MessageExceptionHandler(MessageConversionException.class)
-    public void signUpParticipant(@DestinationVariable String roomPin,
-                                               @RequestBody ParticipantCreateForm participateForm,
-                                               SimpMessageHeaderAccessor headerAccessor) {
-        // 1. Validation 예정
-        try {
-            // 쿠키 -> 세션 ID로 변경(인터셉터에서 처리)
-            String sessionId = headerAccessor.getSessionAttributes().get("sessionId").toString();
-            headerAccessor.setSessionId(sessionId);
-
-            Participant savedParticipant = roomService.joinParticipant(participateForm, roomPin, sessionId);
-            ParticipantDto participantDto = new ParticipantDto(savedParticipant);
-            messageToHostSubscriber(roomPin, participantDto);
-        } catch (NullPointerException | IllegalAccessException e) {
             log.error(e.getMessage());
         }
     }
@@ -109,7 +109,8 @@ public class RoomStompController {
     // 정답 제출
     // OX 퀴즈의 경우 방 시간이 끝났을 때 마지막 위치를 통해 정답 제출
     @MessageMapping("/room/{roomPin}/submit")
-    public void submitAnswer(@DestinationVariable String roomPin, @RequestBody StompAnswerSubmitForm answerForm) {
+    public void submitAnswer(@DestinationVariable String roomPin,
+                             @RequestBody StompAnswerSubmitForm answerForm) {
         // 1. Validation
         if (checkSubmitIsCurrentProblem(roomPin, answerForm.getProblemIdx())) {
             roomProgressService.updateParticipantInfo(roomPin, answerForm);
@@ -117,10 +118,10 @@ public class RoomStompController {
         }
     }
 
-
-    // OX퀴즈 - 움직임
+    // OX 퀴즈 - 움직임
     @MessageMapping("/room/{roomPin}/move")
-    public void movePlayer(@DestinationVariable String roomPin, @RequestBody StompPlayerMoveForm moveForm) {
+    public void movePlayer(@DestinationVariable String roomPin,
+                           @RequestBody StompPlayerMoveForm moveForm) {
         if (checkSubmitIsCurrentProblem(roomPin, moveForm.getProblemIdx())) {
             messageToSubscribers(roomPin, moveForm);
             messageToHostSubscriber(roomPin, moveForm);
