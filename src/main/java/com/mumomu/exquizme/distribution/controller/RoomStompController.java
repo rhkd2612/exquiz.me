@@ -43,6 +43,25 @@ public class RoomStompController {
 
     private static final String PREFIX_TOPIC_NAME = "room";
 
+    // 퀴즈방 입장
+    // TODO BusinessLogic 서비스로 이동해야함
+    @MessageMapping("/room/{roomPin}")
+    public void joinRoom(@DestinationVariable String roomPin,
+                         SimpMessageHeaderAccessor headerAccessor) {
+        // 1. Validation
+        try {
+            roomService.checkRoomState(roomPin);
+
+            String sessionId = headerAccessor.getSessionAttributes().get("sessionId").toString();
+            Participant participant = roomService.findParticipantBySessionId(sessionId, roomPin);
+            ParticipantDto participantDto = new ParticipantDto(participant);
+
+            messageToHostSubscriber(roomPin, participantDto.getNickname());
+        } catch (IllegalAccessException | NullPointerException e) {
+            log.error(e.getMessage());
+        }
+    }
+
     // 퀴즈 시작
     @MessageMapping({"/room/{roomPin}/start"})
     public void startRoom(@DestinationVariable String roomPin) {
@@ -54,7 +73,7 @@ public class RoomStompController {
         }
     }
 
-    // 다음 퀴즈
+    // 다음 문제
     @MessageMapping("/room/{roomPin}/next")
     public void nextProblem(@DestinationVariable String roomPin) {
         try {
@@ -64,26 +83,6 @@ public class RoomStompController {
             log.error(e.getMessage());
         }
     }
-
-    // 퀴즈방 입장
-    // TODO BusinessLogic 서비스로 이동해야함
-    @MessageMapping("/room/{roomPin}")
-    public void joinRoom(@DestinationVariable String roomPin,
-                                      SimpMessageHeaderAccessor headerAccessor) {
-        // 1. Validation
-        try {
-            roomService.checkRoomState(roomPin);
-
-            String sessionId = headerAccessor.getSessionAttributes().get("sessionId").toString();
-            Participant participant = roomService.findParticipantBySessionId(sessionId, roomPin);
-            ParticipantDto participantDto = new ParticipantDto(participant);
-
-            messageToSubscribers(roomPin, participantDto.getNickname());
-        } catch (IllegalAccessException | NullPointerException e) {
-            log.error(e.getMessage());
-        }
-    }
-
 
     // 참가양식 입력
     // 이 곳에서는 세션 아이디 발급 전이므로 세션 아이디가 존재하지 않는다. 그래서 stomp-message를 사용하지 않음
@@ -101,7 +100,7 @@ public class RoomStompController {
 
             Participant savedParticipant = roomService.joinParticipant(participateForm, roomPin, sessionId);
             ParticipantDto participantDto = new ParticipantDto(savedParticipant);
-            messageToSubscribers(roomPin, participantDto);
+            messageToHostSubscriber(roomPin, participantDto);
         } catch (NullPointerException | IllegalAccessException e) {
             log.error(e.getMessage());
         }
@@ -113,7 +112,8 @@ public class RoomStompController {
     public void submitAnswer(@DestinationVariable String roomPin, @RequestBody StompAnswerSubmitForm answerForm) {
         // 1. Validation
         if (checkSubmitIsCurrentProblem(roomPin, answerForm.getProblemIdx())) {
-            messageToSubscribers(roomPin, answerForm);
+            roomProgressService.updateParticipantInfo(roomPin, answerForm);
+            messageToHostSubscriber(roomPin, answerForm);
         }
     }
 
@@ -123,12 +123,21 @@ public class RoomStompController {
     public void movePlayer(@DestinationVariable String roomPin, @RequestBody StompPlayerMoveForm moveForm) {
         if (checkSubmitIsCurrentProblem(roomPin, moveForm.getProblemIdx())) {
             messageToSubscribers(roomPin, moveForm);
+            messageToHostSubscriber(roomPin, moveForm);
         }
     }
 
     private void messageToSubscribers(String roomPin, Object sendMessage) {
-        ActiveMQTopic roomTopic = new ActiveMQTopic(PREFIX_TOPIC_NAME + roomPin);
+        ActiveMQTopic roomTopic = new ActiveMQTopic(PREFIX_TOPIC_NAME + '/' + roomPin);
+        sendMessage(roomTopic, sendMessage);
+    }
 
+    private void messageToHostSubscriber(String roomPin, Object sendMessage) {
+        ActiveMQTopic roomTopic = new ActiveMQTopic(PREFIX_TOPIC_NAME + '/' + roomPin + "/host");
+        sendMessage(roomTopic, sendMessage);
+    }
+
+    private void sendMessage(ActiveMQTopic roomTopic, Object sendMessage) {
         jmsTemplate.convertAndSend(roomTopic, sendMessage, message -> {
             message.setJMSDeliveryMode(DeliveryMode.NON_PERSISTENT);
             message.setJMSCorrelationID(UUID.randomUUID().toString());
