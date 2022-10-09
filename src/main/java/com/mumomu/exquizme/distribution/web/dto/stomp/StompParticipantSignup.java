@@ -17,7 +17,6 @@ public class StompParticipantSignup extends StompMessage{
     private String nickname;
     private Date entryDate; // 생성일(입장시간)
     private int currentScore; // 점수
-
     private int imageNumber; // 사용자 이미지
     private int colorNumber; // 사용자 배경색
 
