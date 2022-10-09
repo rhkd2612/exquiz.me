@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -54,24 +55,28 @@ public class RoomService {
         participant.setImageNumber(participateForm.getImageNumber());
         participant.setColorNumber(participateForm.getColorNumber());
 
-        Optional<Participant> findParticipant = participantRepository.findBySessionId(participant.getSessionId());
+        Optional<Participant> findOptParticipant = participantRepository.findBySessionId(participant.getSessionId());
 
-        // TODO 닉네임 구분하여 입장하도록 설정
-        if (findParticipant.isEmpty()) {
-            for (Participant p : targetRoom.getParticipants()) {
+        for (Participant p : targetRoom.getParticipants()) {
+            if (!p.getSessionId().equals(participant.getSessionId())) {
                 if (p.getNickname().equals(participateForm.getNickname()))
                     throw new RoomNotReachableException("이미 존재하는 닉네임입니다. 재설정 해주세요.");
                 else if (p.getName().equals(participateForm.getName()))
                     throw new RoomNotReachableException("이미 존재하는 이름입니다. 재설정 해주세요.");
             }
+        }
+
+        // TODO 닉네임 구분하여 입장하도록 설정
+        if (findOptParticipant.isEmpty()) {
             participantRepository.save(participant);
             addParticipant(participant.getRoom(), participant);
         } else {
-            if (participant.getSessionId().equals(sessionId)) {
-                participant.setName(participateForm.getName());
-                participant.setNickname(participateForm.getNickname());
-                return participant;
-            }
+            Participant targetParticipant = findOptParticipant.get();
+            targetParticipant.setName(participateForm.getName());
+            targetParticipant.setNickname(participateForm.getNickname());
+            targetParticipant.setImageNumber(participateForm.getImageNumber());
+            targetParticipant.setColorNumber(participateForm.getColorNumber());
+            participantRepository.flush();
         }
 
         return participant;
@@ -158,7 +163,7 @@ public class RoomService {
     public List<Participant> findParticipantsByRoomPin(String roomPin) {
         Optional<Room> targetOptRoom = roomRepository.findRoomByPin(roomPin);
 
-        if(targetOptRoom.isEmpty())
+        if (targetOptRoom.isEmpty())
             throw new InvalidRoomAccessException("존재하지 않는 방입니다.");
 
         return targetOptRoom.get().getParticipants();
@@ -168,17 +173,17 @@ public class RoomService {
     public List<ParticipantDto> findParticipantDtosByRoomPin(String roomPin) {
         Optional<Room> targetOptRoom = roomRepository.findRoomByPin(roomPin);
 
-        if(targetOptRoom.isEmpty())
+        if (targetOptRoom.isEmpty())
             throw new InvalidRoomAccessException("존재하지 않는 방입니다.");
 
         return targetOptRoom.get().getParticipants().stream().map(ParticipantDto::new).collect(Collectors.toList());
     }
 
     @Transactional
-    public void deleteParticipantUserDataBySessionId(String sessionId){
+    public void deleteParticipantUserDataBySessionId(String sessionId) {
         Optional<Participant> targetParticipant = participantRepository.findBySessionId(sessionId);
 
-        if(targetParticipant.isEmpty())
+        if (targetParticipant.isEmpty())
             throw new InvalidParticipantAccessException("존재하지 않는 참여자입니다.");
 
         // 이건 굳이 데이터 남길 필요 없을듯..?
@@ -222,7 +227,7 @@ public class RoomService {
     }
 
     @Transactional
-    public void addParticipant(Room room, Participant participant){
+    public void addParticipant(Room room, Participant participant) {
         room.getParticipants().add(participant);
     }
 
