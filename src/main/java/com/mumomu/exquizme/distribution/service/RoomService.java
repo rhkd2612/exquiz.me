@@ -50,6 +50,9 @@ public class RoomService {
                         .sessionId(sessionId)
                         .build();
 
+        participant.setImageNumber(participateForm.getImageNumber());
+        participant.setColorNumber(participateForm.getColorNumber());
+
         Optional<Participant> findParticipant = participantRepository.findBySessionId(participant.getSessionId());
 
         // TODO 닉네임 구분하여 입장하도록 설정

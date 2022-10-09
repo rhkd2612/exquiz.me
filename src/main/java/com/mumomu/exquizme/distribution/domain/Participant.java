@@ -16,14 +16,15 @@ public class Participant {
     @Column(name="participant_id")
     private Long id;
     private String sessionId;
-
     private String name; // 사용자 구분 이름
     private String nickname;
+
+    private int imageNumber; // 사용자 이미지
+    private int colorNumber; // 사용자 배경색
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="room_id")
     private Room room; // 입장 방
-
 
     @OneToMany(mappedBy = "participant", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<Answer> answers;
@@ -62,6 +63,14 @@ public class Participant {
 
     public void setNickname(String nickname) {
         this.nickname = nickname;
+    }
+
+    public void setImageNumber(int imageNumber) {
+        this.imageNumber = imageNumber;
+    }
+
+    public void setColorNumber(int colorNumber) {
+        this.colorNumber = colorNumber;
     }
 
     @Transactional
