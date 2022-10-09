@@ -6,8 +6,10 @@ import com.mumomu.exquizme.distribution.domain.RoomState;
 import com.mumomu.exquizme.distribution.exception.*;
 import com.mumomu.exquizme.distribution.repository.ParticipantRepository;
 import com.mumomu.exquizme.distribution.repository.RoomRepository;
+import com.mumomu.exquizme.distribution.web.dto.ParticipantDto;
 import com.mumomu.exquizme.distribution.web.model.ParticipantCreateForm;
 import com.mumomu.exquizme.common.formatter.SimpleDateFormatter;
+import com.mumomu.exquizme.production.domain.Problem;
 import com.mumomu.exquizme.production.domain.Problemset;
 import com.mumomu.exquizme.production.service.ProblemService;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -48,6 +51,9 @@ public class RoomService {
                         .sessionId(sessionId)
                         .build();
 
+        participant.setImageNumber(participateForm.getImageNumber());
+        participant.setColorNumber(participateForm.getColorNumber());
+
         Optional<Participant> findParticipant = participantRepository.findBySessionId(participant.getSessionId());
 
         // TODO 닉네임 구분하여 입장하도록 설정
@@ -59,7 +65,7 @@ public class RoomService {
                     throw new RoomNotReachableException("이미 존재하는 이름입니다. 재설정 해주세요.");
             }
             participantRepository.save(participant);
-            participant.getRoom().addParticipant(participant);
+            addParticipant(participant.getRoom(), participant);
         } else {
             if (participant.getSessionId().equals(sessionId)) {
                 participant.setName(participateForm.getName());
@@ -156,7 +162,16 @@ public class RoomService {
             throw new InvalidRoomAccessException("존재하지 않는 방입니다.");
 
         return targetOptRoom.get().getParticipants();
-        //return participantRepository.findAllByRoom(room).stream().map(p -> new ParticipantDto(p)).collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ParticipantDto> findParticipantDtosByRoomPin(String roomPin) {
+        Optional<Room> targetOptRoom = roomRepository.findRoomByPin(roomPin);
+
+        if(targetOptRoom.isEmpty())
+            throw new InvalidRoomAccessException("존재하지 않는 방입니다.");
+
+        return targetOptRoom.get().getParticipants().stream().map(ParticipantDto::new).collect(Collectors.toList());
     }
 
     @Transactional
@@ -205,4 +220,10 @@ public class RoomService {
             return false;
         return true;
     }
+
+    @Transactional
+    public void addParticipant(Room room, Participant participant){
+        room.getParticipants().add(participant);
+    }
+
 }

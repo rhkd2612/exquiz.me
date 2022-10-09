@@ -2,7 +2,6 @@ package com.mumomu.exquizme.distribution.web.dto.stomp;
 
 import com.mumomu.exquizme.production.domain.Problem;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Data
@@ -18,8 +17,8 @@ public class StompNewProblemForm extends StompMessage{
     private String answer;
     private Integer idx;
 
-    public StompNewProblemForm(MessageFlag flag, String fromSession, Long id, String title, String description, String dtype, Integer timelimit, Integer score, String picture, String answer, Integer idx) {
-        super(flag, fromSession);
+    public StompNewProblemForm(MessageType messageType, String fromSession, Long id, String title, String description, String dtype, Integer timelimit, Integer score, String picture, String answer, Integer idx) {
+        super(messageType, fromSession);
         this.id = id;
         this.title = title;
         this.description = description;
@@ -31,8 +30,8 @@ public class StompNewProblemForm extends StompMessage{
         this.idx = idx;
     }
 
-    public StompNewProblemForm(MessageFlag flag, String fromSession, Problem problem) {
-        super(flag, fromSession);
+    public StompNewProblemForm(MessageType messageType, String fromSession, Problem problem) {
+        super(messageType, fromSession);
         this.id = problem.getId();
         this.title = problem.getTitle();
         this.description = problem.getDescription();

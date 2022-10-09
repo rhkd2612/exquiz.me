@@ -191,8 +191,7 @@ public class RoomRestController {
     @ApiResponse(responseCode = "404", description = "존재하지 않는 방 코드 입력")
     public ResponseEntity<List<ParticipantDto>> printParticipants(@PathVariable String roomPin) {
         try {
-            List<Participant> targetParticipants = roomService.findParticipantsByRoomPin(roomPin);
-            return ResponseEntity.ok(targetParticipants.stream().map(ParticipantDto::new).collect(Collectors.toList()));
+            return ResponseEntity.ok(roomService.findParticipantDtosByRoomPin(roomPin));
         } catch (InvalidRoomAccessException e) {
             log.error(e.getMessage());
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);

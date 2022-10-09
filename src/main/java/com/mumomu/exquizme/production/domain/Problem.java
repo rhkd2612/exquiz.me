@@ -54,14 +54,12 @@ public class Problem {
     @Setter
     protected Boolean deleted;
 
-    @Transactional
     public int solve(){
         this.totalTry++;
         this.totalCorrect++;
         return this.score;
     }
 
-    @Transactional
     public void wrong(){
         this.totalTry++;
     }

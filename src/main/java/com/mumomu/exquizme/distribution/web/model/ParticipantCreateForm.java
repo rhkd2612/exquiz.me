@@ -23,8 +23,13 @@ public class ParticipantCreateForm {
     @NotEmpty
     private String nickname;
 
+    private int imageNumber;
+    private int colorNumber;
+
     public ParticipantCreateForm(Participant participant) {
         this.name = participant.getName();
         this.nickname = participant.getNickname();
+        this.imageNumber = participant.getImageNumber();
+        this.colorNumber = participant.getColorNumber();
     }
 }

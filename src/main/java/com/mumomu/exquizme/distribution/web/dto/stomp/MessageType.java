@@ -1,8 +1,9 @@
 package com.mumomu.exquizme.distribution.web.dto.stomp;
 
-public enum MessageFlag {
+public enum MessageType {
     ANSWER,
     PARTICIPANT,
     NEW_PROBLEM,
-    MOVE_DATA
+    MOVE_DATA,
+    ERROR
 }
