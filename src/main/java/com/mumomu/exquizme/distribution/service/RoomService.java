@@ -9,6 +9,7 @@ import com.mumomu.exquizme.distribution.repository.RoomRepository;
 import com.mumomu.exquizme.distribution.web.dto.ParticipantDto;
 import com.mumomu.exquizme.distribution.web.model.ParticipantCreateForm;
 import com.mumomu.exquizme.common.formatter.SimpleDateFormatter;
+import com.mumomu.exquizme.production.domain.Problem;
 import com.mumomu.exquizme.production.domain.Problemset;
 import com.mumomu.exquizme.production.service.ProblemService;
 import lombok.RequiredArgsConstructor;
@@ -64,7 +65,7 @@ public class RoomService {
                     throw new RoomNotReachableException("이미 존재하는 이름입니다. 재설정 해주세요.");
             }
             participantRepository.save(participant);
-            participant.getRoom().addParticipant(participant);
+            addParticipant(participant.getRoom(), participant);
         } else {
             if (participant.getSessionId().equals(sessionId)) {
                 participant.setName(participateForm.getName());
@@ -219,4 +220,10 @@ public class RoomService {
             return false;
         return true;
     }
+
+    @Transactional
+    public void addParticipant(Room room, Participant participant){
+        room.getParticipants().add(participant);
+    }
+
 }

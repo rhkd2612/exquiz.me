@@ -46,11 +46,6 @@ public class Room {
         this.participants = new ArrayList<>();
     }
 
-    @Transactional
-    public void addParticipant(Participant participant){
-        this.participants.add(participant);
-    }
-
     public void setPin(String pin) {
         this.pin = pin;
     }
@@ -59,32 +54,11 @@ public class Room {
         this.endDate = endDate;
     }
 
-    @Transactional
-    public void setProblemset(Problemset problemset) {
-        this.problemset = problemset;
-    }
-
     public void setCurrentState(RoomState currentState) {
         this.currentState = currentState;
     }
 
-    @Transactional
-    public Problem startRoom() throws InvalidRoomAccessException {
-        if(this.currentState != RoomState.READY)
-            throw new InvalidRoomAccessException("해당하는 시작 대기 중인 방이 없습니다.");
-        this.currentState = RoomState.PLAY;
-        this.currentProblemNum = 0;
-        return this.problemset.getProblems().get(this.currentProblemNum);
-    }
-
-    @Transactional
-    public Problem nextProblem() throws NoMoreProblemException {
-        List<Problem> problems = this.problemset.getProblems();
-
-        if(this.currentProblemNum + 1 >= problems.size())
-            throw new NoMoreProblemException("문제셋에 남은 문제가 없습니다.");
-
-        this.currentProblemNum++;
-        return problems.get(this.currentProblemNum);
+    public void setCurrentProblemNum(int currentProblemNum) {
+        this.currentProblemNum = currentProblemNum;
     }
 }

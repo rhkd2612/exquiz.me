@@ -72,20 +72,4 @@ public class Participant {
     public void setColorNumber(int colorNumber) {
         this.colorNumber = colorNumber;
     }
-
-    @Transactional
-    public int updateParticipantInfo(int score){
-        beforeScore = currentScore;
-        currentScore = currentScore + score;
-
-        if(score > 0){
-            continuousCorrect++;
-            continuousFailure = 0;
-        }else{
-            continuousCorrect = 0;
-            continuousFailure++;
-        }
-
-        return currentScore;
-    }
 }

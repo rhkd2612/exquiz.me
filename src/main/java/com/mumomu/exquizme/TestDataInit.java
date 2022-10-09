@@ -9,6 +9,7 @@ import com.mumomu.exquizme.distribution.domain.Participant;
 import com.mumomu.exquizme.distribution.domain.Room;
 import com.mumomu.exquizme.distribution.repository.ParticipantRepository;
 import com.mumomu.exquizme.distribution.repository.RoomRepository;
+import com.mumomu.exquizme.distribution.service.RoomService;
 import com.mumomu.exquizme.production.domain.Host;
 import com.mumomu.exquizme.production.domain.Problem;
 import com.mumomu.exquizme.production.domain.ProblemOption;
@@ -30,6 +31,7 @@ import javax.transaction.Transactional;
 @RequiredArgsConstructor
 public class TestDataInit {
     private final RoomRepository roomRepository;
+    private final RoomService roomService;
     private final ParticipantRepository participantRepository;
     private final HostRepository hostRepository;
     private final ProblemService problemService;
@@ -84,18 +86,15 @@ public class TestDataInit {
         Participant p8 = participantRepository.save(Participant.ByBasicBuilder().name("옹길동").nickname("옹길동무새").sessionId("7aed126c-9b08-4581-b3d3-9630b45c3989").room(room1).build());
         Participant p9 = participantRepository.save(Participant.ByBasicBuilder().name("곽두팔").nickname("곽두팔무새").sessionId("9aed126c-9b08-4581-b3d3-9630b45c3989").room(room2).build());
 
-        room1.addParticipant(p1);
-        room1.addParticipant(p2);
-        room1.addParticipant(p3);
-        room1.addParticipant(p4);
-        room1.addParticipant(p5);
-        room1.addParticipant(p6);
-        room1.addParticipant(p7);
-        room1.addParticipant(p8);
-
-
-
-        room2.addParticipant(p9);
+        roomService.addParticipant(room1, p1);
+        roomService.addParticipant(room1, p2);
+        roomService.addParticipant(room1, p3);
+        roomService.addParticipant(room1, p4);
+        roomService.addParticipant(room1, p5);
+        roomService.addParticipant(room1, p6);
+        roomService.addParticipant(room1, p7);
+        roomService.addParticipant(room1, p8);
+        roomService.addParticipant(room2, p9);
 
         Host host = hostRepository.save(Host.builder().name("호스트").nickname("Mumomu").build());
         Problemset problemset = problemService.makeProblemset(host.getId(),"tempTitle","tempDescription","Goodbye Command", 1, 1, 1);
