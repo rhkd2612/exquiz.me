@@ -1,32 +1,26 @@
 package com.mumomu.exquizme.distribution.controller;
 
 import com.mumomu.exquizme.distribution.domain.Participant;
-import com.mumomu.exquizme.distribution.domain.Room;
 import com.mumomu.exquizme.distribution.exception.*;
-import com.mumomu.exquizme.distribution.service.AnswerService;
 import com.mumomu.exquizme.distribution.service.RoomProgressService;
 import com.mumomu.exquizme.distribution.service.RoomService;
 import com.mumomu.exquizme.distribution.web.dto.ParticipantDto;
-import com.mumomu.exquizme.distribution.web.dto.RoomDto;
 import com.mumomu.exquizme.distribution.web.dto.stomp.*;
-import com.mumomu.exquizme.distribution.web.model.AnswerSubmitForm;
 import com.mumomu.exquizme.distribution.web.model.ParticipantCreateForm;
 import com.mumomu.exquizme.production.domain.Problem;
-import com.mumomu.exquizme.production.dto.ProblemDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.activemq.command.ActiveMQTopic;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.jms.core.JmsTemplate;
-import org.springframework.messaging.converter.MessageConversionException;
+import org.springframework.jms.support.converter.MessageConversionException;
 import org.springframework.messaging.handler.annotation.*;
-import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Nullable;
 import javax.jms.DeliveryMode;
-import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 
@@ -44,19 +38,20 @@ public class RoomStompController {
     // 퀴즈방 입장
     // TODO BusinessLogic 서비스로 이동해야함
     @MessageMapping("/room/{roomPin}")
-    public void joinRoom(@DestinationVariable String roomPin,
-                         SimpMessageHeaderAccessor headerAccessor) {
+    public void joinRoom(@DestinationVariable String roomPin, @Nullable String sessionId) {
+        //String sessionId = headerAccessor.getSessionAttributes().get("sessionId").toString();
+
         // 1. Validation
         try {
             roomService.checkRoomState(roomPin);
-
-            String sessionId = headerAccessor.getSessionAttributes().get("sessionId").toString();
             Participant participant = roomService.findParticipantBySessionId(sessionId, roomPin);
-            StompParticipantSignup stompParticipantSignup = new StompParticipantSignup(MessageFlag.PARTICIPANT, sessionId, participant);
+            List<ParticipantDto> participantList = roomService.findParticipantsByRoomPin(roomPin).stream().map(ParticipantDto::new).collect(Collectors.toList());
+            StompParticipantSignup stompParticipantSignup = new StompParticipantSignup(MessageType.PARTICIPANT, sessionId, participant, participantList);
 
             messageToHostSubscriber(roomPin, stompParticipantSignup);
         } catch (IllegalAccessException | NullPointerException e) {
             log.error(e.getMessage());
+            messageToHostSubscriber(roomPin, new StompErrorMessage(MessageType.ERROR, sessionId, e.getMessage()));
         }
     }
 
@@ -66,21 +61,21 @@ public class RoomStompController {
     @MessageMapping("/room/{roomPin}/signup")
     //@MessageExceptionHandler(MessageConversionException.class)
     public void signUpParticipant(@DestinationVariable String roomPin,
-                                               @RequestBody ParticipantCreateForm participateForm,
-                                               SimpMessageHeaderAccessor headerAccessor) {
+                                  @RequestBody ParticipantCreateForm participateForm,
+                                  SimpMessageHeaderAccessor headerAccessor) {
+        String sessionId = headerAccessor.getSessionAttributes().get("sessionId").toString();
         // 1. Validation
         try {
             // 쿠키 -> 세션 ID로 변경(인터셉터에서 처리)
-            String sessionId = headerAccessor.getSessionAttributes().get("sessionId").toString();
             headerAccessor.setSessionId(sessionId);
 
             Participant savedParticipant = roomService.joinParticipant(participateForm, roomPin, sessionId);
-            StompParticipantSignup stompParticipantSignup = new StompParticipantSignup(MessageFlag.PARTICIPANT, sessionId, savedParticipant);
+            StompParticipantSignup stompParticipantSignup = new StompParticipantSignup(MessageType.PARTICIPANT, sessionId, savedParticipant, roomService.findParticipantDtosByRoomPin(roomPin));
 
-            messageToSubscribers(roomPin, stompParticipantSignup); // 본인에게 세션 아이디를 줘야함.. 근데 이 방법은 안됨.. 일단 닉네임으로 구분해서 받자
-            messageToHostSubscriber(roomPin, stompParticipantSignup);
+            messageToAllSubscriber(roomPin, stompParticipantSignup); // 본인에게 세션 아이디를 줘야함.. 근데 이 방법은 안됨.. 일단 닉네임으로 구분해서 받자
         } catch (NullPointerException | IllegalAccessException e) {
             log.error(e.getMessage());
+            messageToAllSubscriber(roomPin, new StompErrorMessage(MessageType.ERROR, sessionId, e.getMessage()));
         }
     }
 
@@ -89,9 +84,10 @@ public class RoomStompController {
     public void startRoom(@DestinationVariable String roomPin) {
         try {
             Problem problem = roomProgressService.startRoom(roomPin);
-            messageToSubscribers(roomPin, new StompNewProblemForm(MessageFlag.NEW_PROBLEM, null, problem));
+            messageToClientSubscriber(roomPin, new StompNewProblemForm(MessageType.NEW_PROBLEM, null, problem));
         } catch (InvalidRoomAccessException e) {
             log.error(e.getMessage());
+            messageToClientSubscriber(roomPin, new StompErrorMessage(MessageType.ERROR, null, e.getMessage()));
         }
     }
 
@@ -100,9 +96,10 @@ public class RoomStompController {
     public void nextProblem(@DestinationVariable String roomPin) {
         try {
             Problem problem = roomProgressService.nextProblem(roomPin);
-            messageToSubscribers(roomPin, new StompNewProblemForm(MessageFlag.NEW_PROBLEM, null, problem));
+            messageToClientSubscriber(roomPin, new StompNewProblemForm(MessageType.NEW_PROBLEM, null, problem));
         } catch (InvalidRoomAccessException | NoMoreProblemException e) {
             log.error(e.getMessage());
+            messageToClientSubscriber(roomPin, new StompErrorMessage(MessageType.ERROR, null, e.getMessage()));
         }
     }
 
@@ -112,9 +109,14 @@ public class RoomStompController {
     public void submitAnswer(@DestinationVariable String roomPin,
                              @RequestBody StompAnswerSubmitForm answerForm) {
         // 1. Validation
-        if (checkSubmitIsCurrentProblem(roomPin, answerForm.getProblemIdx())) {
+
+        try {
+            checkSubmitIsCurrentProblem(roomPin, answerForm.getProblemIdx());
             roomProgressService.updateParticipantInfo(roomPin, answerForm);
             messageToHostSubscriber(roomPin, answerForm);
+        } catch (RuntimeException e) {
+            log.error(e.getMessage());
+            messageToHostSubscriber(roomPin, new StompErrorMessage(MessageType.ERROR, null, e.getMessage()));
         }
     }
 
@@ -122,13 +124,16 @@ public class RoomStompController {
     @MessageMapping("/room/{roomPin}/move")
     public void movePlayer(@DestinationVariable String roomPin,
                            @RequestBody StompPlayerMoveForm moveForm) {
-        if (checkSubmitIsCurrentProblem(roomPin, moveForm.getProblemIdx())) {
-            messageToSubscribers(roomPin, moveForm);
-            messageToHostSubscriber(roomPin, moveForm);
+        try {
+            checkSubmitIsCurrentProblem(roomPin, moveForm.getProblemIdx());
+            messageToAllSubscriber(roomPin, moveForm);
+        } catch (RuntimeException e) {
+            log.error(e.getMessage());
+            messageToAllSubscriber(roomPin, new StompErrorMessage(MessageType.ERROR, null, e.getMessage()));
         }
     }
 
-    private void messageToSubscribers(String roomPin, Object sendMessage) {
+    private void messageToClientSubscriber(String roomPin, Object sendMessage) {
         ActiveMQTopic roomTopic = new ActiveMQTopic(PREFIX_TOPIC_NAME + '/' + roomPin);
         sendMessage(roomTopic, sendMessage);
     }
@@ -136,6 +141,11 @@ public class RoomStompController {
     private void messageToHostSubscriber(String roomPin, Object sendMessage) {
         ActiveMQTopic roomTopic = new ActiveMQTopic(PREFIX_TOPIC_NAME + '/' + roomPin + "/host");
         sendMessage(roomTopic, sendMessage);
+    }
+
+    private void messageToAllSubscriber(String roomPin, Object sendMessage) {
+        messageToClientSubscriber(roomPin, sendMessage);
+        messageToHostSubscriber(roomPin, sendMessage);
     }
 
     private void sendMessage(ActiveMQTopic roomTopic, Object sendMessage) {
@@ -147,14 +157,11 @@ public class RoomStompController {
         });
     }
 
-    private boolean checkSubmitIsCurrentProblem(String roomPin, int problemIdx) {
+    private void checkSubmitIsCurrentProblem(String roomPin, int problemIdx) {
         int currentProblemNum = roomService.findRoomByPin(roomPin).getCurrentProblemNum();
 
         if (currentProblemNum != problemIdx) {
-            log.error("잘못된 문제 번호입니다.");
-            return false;
+            throw new RuntimeException("잘못된 문제 번호입니다.");
         }
-
-        return true;
     }
 }

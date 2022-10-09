@@ -6,6 +6,7 @@ import com.mumomu.exquizme.distribution.domain.RoomState;
 import com.mumomu.exquizme.distribution.exception.*;
 import com.mumomu.exquizme.distribution.repository.ParticipantRepository;
 import com.mumomu.exquizme.distribution.repository.RoomRepository;
+import com.mumomu.exquizme.distribution.web.dto.ParticipantDto;
 import com.mumomu.exquizme.distribution.web.model.ParticipantCreateForm;
 import com.mumomu.exquizme.common.formatter.SimpleDateFormatter;
 import com.mumomu.exquizme.production.domain.Problemset;
@@ -18,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -156,7 +158,16 @@ public class RoomService {
             throw new InvalidRoomAccessException("존재하지 않는 방입니다.");
 
         return targetOptRoom.get().getParticipants();
-        //return participantRepository.findAllByRoom(room).stream().map(p -> new ParticipantDto(p)).collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ParticipantDto> findParticipantDtosByRoomPin(String roomPin) {
+        Optional<Room> targetOptRoom = roomRepository.findRoomByPin(roomPin);
+
+        if(targetOptRoom.isEmpty())
+            throw new InvalidRoomAccessException("존재하지 않는 방입니다.");
+
+        return targetOptRoom.get().getParticipants().stream().map(ParticipantDto::new).collect(Collectors.toList());
     }
 
     @Transactional

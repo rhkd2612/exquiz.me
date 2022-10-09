@@ -59,7 +59,6 @@ public class RoomProgressController {
             List<Participant> participants = roomService.findParticipantsByRoomPin(roomPin);
             List<ParticipantDto> result = new ArrayList<>();
 
-
             // 1. 급상승 점수
             Collections.sort(participants,
                     (p1, p2) -> p2.getCurrentScore() - p2.getBeforeScore() - p1.getCurrentScore() + p1.getBeforeScore());

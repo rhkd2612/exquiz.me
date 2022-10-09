@@ -10,8 +10,8 @@ public class StompPlayerMoveForm extends StompMessage{
     private int y;
     private int x;
 
-    public StompPlayerMoveForm(MessageFlag flag, String fromSession, int problemIdx, int y, int x) {
-        super(flag, fromSession);
+    public StompPlayerMoveForm(MessageType messageType, String fromSession, int problemIdx, int y, int x) {
+        super(messageType, fromSession);
         this.problemIdx = problemIdx;
         this.y = y;
         this.x = x;

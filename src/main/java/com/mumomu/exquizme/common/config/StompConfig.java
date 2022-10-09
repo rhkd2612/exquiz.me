@@ -56,6 +56,7 @@ public class StompConfig implements WebSocketMessageBrokerConfigurer {
                         successIndex = index;
                     })
                     .doOnDisconnected(connection -> {
+                        // TODO 사용자 종료 시 관련 메세지 보내도록 설정
                         log.info("stomp disconnected");
                     })
                     .secure(SslProvider.defaultClientProvider());
