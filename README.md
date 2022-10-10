@@ -93,7 +93,7 @@ exquiz.me는 웹에서 진행할 수 있는 퀴즈 출제 및 참여 플랫폼�
 
 
 ## AWS Architecture 
-![img.png](img.png)
+![img.png](images/img.png)
 
 ## CI/CD
     GitAction + AWS CodeDeploy
@@ -101,7 +101,7 @@ exquiz.me는 웹에서 진행할 수 있는 퀴즈 출제 및 참여 플랫폼�
   - set on github repository secret
       - need keys about CodeDeployFullAccess Role
       - encode secret file on base 64 and upload
-      ![img_3.png](img_3.png)
+      ![img_3.png](images/img_3.png)
 - ### script/deploy.sh
   - change directory name and profiles for launching on aws ec2
 
@@ -111,7 +111,7 @@ exquiz.me는 웹에서 진행할 수 있는 퀴즈 출제 및 참여 플랫폼�
           Active profiles : dev  
           Shorten command line : Jar manifest
   - #### /test/resoucres에도 applcation-dev-secret.yml 추가
-    <br>![img_4.png](img_4.png)
+    <br>![img_4.png](images/img_4.png)
 <br>
 
 ## Function
@@ -134,7 +134,7 @@ exquiz.me는 웹에서 진행할 수 있는 퀴즈 출제 및 참여 플랫폼�
 
 ### RESTFUL API 목록 
     localhost:8080/swagger-ui/#
-![img_1.png](img_1.png)
+![img_1.png](images/img_1.png)
 
 ### STOMP API 목록
 - Emit : 클라이언트에서 서버로 보내는 것
