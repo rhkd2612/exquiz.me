@@ -137,26 +137,28 @@ exquiz.me는 웹에서 진행할 수 있는 퀴즈 출제 및 참여 플랫폼�
 ![img_1.png](images/img_1.png)
 
 ### STOMP API 목록
-- Emit : 클라이언트에서 서버로 보내는 것
-- On : 서버에서 클라이언트로 보내는 것
-
-- host subscribe 주소 : /topic/room/{roomPin}/host
-- participant subscribe 주소 : /topic/room/{roomPin}
-- host publish주소 : /pub/room/{roomPin}/@@
-- participant publish 주소 : /pub/room/{roomPin}/@@
-
+#### ToWhom
+    - ToAllSubscriber : 모든 구독자에게 보내는 것
+    - ToHostSubscriber : 호스트에게 보내는 것
+    - ToClientSubscriber : 참여자들에게 보내는 것
+#### EndPoint
+    - host subscribe 주소 : /topic/room/{roomPin}/host
+    - participant subscribe 주소 : /topic/room/{roomPin}
+    - host publish주소 : /pub/room/{roomPin}/@@
+    - participant publish 주소 : /pub/room/{roomPin}/@@
+#### APIs
 ```java
-[Emit]
-        Event Name:
+[ToHostSubscriber]
+Event Name:
         /room/{roomPin}
 
-        Path Variable:
+Path Variable:
         "roomPin" : String // 방 번호
 
-        Args:
+Args:
 
-        Callback:
-        {
+Callback:
+{
         "messageType" : MessageType // "PARTICIPANT"
         "fromSession" : String, // 사용자 session id - google login시 발급
         "id" : Long  // 사용자 id 
@@ -166,33 +168,33 @@ exquiz.me는 웹에서 진행할 수 있는 퀴즈 출제 및 참여 플랫폼�
         "currentScore" : int // 점수 
         "imageNumber" : int // 사용자 이미지 
         "colorNumber" : int // 사용자 배경색
-        }
+}
 
-        Description:
+Description:
         "기존 세션 정보가 있는지 확인 후 재 입장 혹은 가입씬으로 이동 시키는 API"
-// enter.tsx 입장하기 누르면 이걸 호출
-// if session exists: 로비로 이동
-// if session not exists: 사용자 정보 입력(회원가입 느낌)
+        // enter.tsx 입장하기 누르면 이걸 호출
+        // if session exists: 로비로 이동
+        // if session not exists: 사용자 정보 입력(회원가입 느낌)
 ```
 
 ```java
-[Emit][On]
-        Event Name:
+[ToAllSubscriber]
+Event Name:
         /room/{roomPin}/signup
 
-        Path Variable:
+Path Variable:
         "roomPin" : String // 방 번호
 
-        Args:
-        {
+Args:
+{
         "name" : String
         "nickname" : String
         "imageNumber" : int
         "colorNumber" : int
-        }
+}
 
-        Callback:
-        {
+Callback:
+{
         "messageType" : MessageType // "PARTICIPANT"
         "fromSession" : String, // 사용자 session id - google login시 발급
         "id" : Long  // 사용자 id 
@@ -202,26 +204,26 @@ exquiz.me는 웹에서 진행할 수 있는 퀴즈 출제 및 참여 플랫폼�
         "currentScore" : int // 점수 
         "imageNumber" : int // 사용자 이미지 
         "colorNumber" : int // 사용자 배경색
-        }
+}
 
-        Description:
+Description:
         "방 입장을 위해서 닉네임과 이름을 입력하는 API"
-// 준비 완료 버튼을 누르면 signup이 호출
-// cloudwatch -> log group -> exquiz.me error folder
+        // 준비 완료 버튼을 누르면 signup이 호출
+        // cloudwatch -> log group -> exquiz.me error folder
 ```
 
 ```java
-[On]
-        Event Name:
+[ToClientSubscriber]
+Event Name:
         /room/{roomPin}/start
 
-        Path Variable:
+Path Variable:
         "roomPin" : String // 방 번호
 
-        Args:
+Args:
 
-        Callback:
-        {
+Callback:
+{
         "messageType" : MessageType // "NEWPROBLEM"
         "fromSession" : String, // 사용자 session id - google login시 발급
         "id" : Long;
@@ -233,23 +235,53 @@ exquiz.me는 웹에서 진행할 수 있는 퀴즈 출제 및 참여 플랫폼�
         "picture" : String;
         "answer" : String;
         "idx" : Integer;
-        }
+}
 
-        Description:
+Description:
         "방을 시작하고 사용자에게 전파하는 API"
-// 선생님 화면에서 시작하기 버튼 누르면
-// subscriber들인 학생+교사들 화면에 변화가 생김
+        // 선생님 화면에서 시작하기 버튼 누르면
+        // subscriber들인 학생+교사들 화면에 변화가 생김
 ```
 
 ```java
-[Emit][On]
+[ToClientSubscriber]
 Event Name:
-/room/{roomPin}/move
+        /room/{roomPin}/next
 
 Path Variable:
-"roomPin" : String // 방 번호
+        "roomPin" : String // 방 번호
 
-Args: 
+Args:
+
+Callback:
+{
+        "messageType" : MessageType // "NEWPROBLEM"
+        "fromSession" : String, // 사용자 session id - google login시 발급
+        "id" : Long;
+        "title" : String;
+        "description" : String;
+        "dtype" : String;
+        "timelimit" : Integer;
+        "score" : Integer;
+        "picture" : String;
+        "answer" : String;
+        "idx" : Integer;
+}
+
+Description:
+        "방의 다음 문제를 사용자에게 전파하는 API"
+        // 교사가 next 누르면 학생/교사 화면 전환
+```
+
+```java
+[ToAllSubscriber]
+Event Name:
+        /room/{roomPin}/move
+
+Path Variable:
+        "roomPin" : String // 방 번호
+
+Args:
 {
         "messageType" : MessageType // 반드시 "ANSWER"
         "fromSession": String, // 사용자 session id - google login시 발급
@@ -268,67 +300,36 @@ Callback:
 }
 
 Description:
-"OX 퀴즈에서 실시간 참여자의 움직임을 보내주는 API"
-// 교사가 next 누르면 학생/교사 화면 전환
-```
-
-```java
-[Emit][On]
-        Event Name:
-        /room/{roomPin}/move
-
-        Path Variable:
-        "roomPin" : String // 방 번호
-
-        Args:
-        {
-        "messageType" : MessageType // 반드시 "ANSWER"
-        "fromSession": String, // 사용자 session id - google login시 발급
-        "problemIdx" : int; // 문제 번호
-        "x" : int;
-        "y" : int;
-        }
-
-        Callback:
-        {
-        "messageType" : MessageType // 반드시 "ANSWER"
-        "fromSession" : String, // 사용자 session id - google login시 발급
-        "problemIdx" : int; // 문제 번호
-        "x" : int;
-        "y" : int;
-        }
-
-        Description:
         "OX 퀴즈에서 실시간 참여자의 움직임을 보내주는 API"
-// 교사가 next 누르면 학생/교사 화면 전환
+        // 교사가 next 누르면 학생/교사 화면 전환
 ```
 
 ```java
-[Emit]
-        Event Name:
+[ToHostSubscriber]
+Event Name:
         /room/{roomPin}/submit
 
-        Path Variable:
+Path Variable:
         "roomPin" : String // 방 번호
 
-        Args:
-        {
+Args:
+{
         "messageType" : MessageType // 반드시 "ANSWER"
         "fromSession" : String, // 사용자 session id - google login시 발급
         "problemIdx" : int, // 제출한 문제의 번호
         "answerText" : String // 문제 정답
-        }
+}
 
-        Callback:
-        {
+Callback:
+{
         "messageType" : MessageType // "ANSWER"
         "fromSession" : String, // 사용자 session id - google login시 발급
         "problemIdx" : int, // 제출한 문제의 번호
         "answerText" : String // 문제 정답
-        }
+}
 
-        Description:
+Description:
         "각 방에 대한 문제를 제출할 때 사용자가 사용하는 API"
-// 정답 제출
-// 각 사용자의 정답을 모든 subscriber에게 전달
+        // 정답 제출
+        // 각 사용자의 정답을 모든 subscriber에게 전달
 ```
