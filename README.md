@@ -17,8 +17,8 @@ exquiz.me는 웹에서 진행할 수 있는 퀴즈 출제 및 참여 플랫폼�
     - Need Roles:
         - S3FullAccess
         - CloudWatchFullAccess
-- #### AmazonMQ - ActiveMQ(also local ActiveMQ is possible, but you must change script StompConfig.java)
-- #### Google Cloud Platform register for Googlt Oauth2 Login
+- #### AmazonMQ - ActiveMQ(also local ActiveMQ is possible, but you must fix StompConfig.java)
+- #### Google Cloud Platform register for Google Oauth2 Login
 - #### set project active profiles "dev"
 - #### create "application-dev-secret.yml"
   - #### set yml file
@@ -251,20 +251,20 @@ Path Variable:
 
 Args: 
 {
-		"messageType" : MessageType // 반드시 "ANSWER"
-		"fromSession": String, // 사용자 session id - google login시 발급
-		"problemIdx" : int; // 문제 번호
-		"x" : int;
-		"y" : int;
+        "messageType" : MessageType // 반드시 "ANSWER"
+        "fromSession": String, // 사용자 session id - google login시 발급
+        "problemIdx" : int; // 문제 번호
+        "x" : int;
+        "y" : int;
 }
 
 Callback:
 {
-		"messageType" : MessageType // 반드시 "ANSWER"
-		"fromSession" : String, // 사용자 session id - google login시 발급
-		"problemIdx" : int; // 문제 번호
-		"x" : int;
-		"y" : int;
+        "messageType" : MessageType // 반드시 "ANSWER"
+        "fromSession" : String, // 사용자 session id - google login시 발급
+        "problemIdx" : int; // 문제 번호
+        "x" : int;
+        "y" : int;
 }
 
 Description:
