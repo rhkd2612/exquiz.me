@@ -32,6 +32,7 @@ public class OAuth2AccountDto {
     private String picture;
 
     private String accessToken;
+    private Long hostId;
 
     @NotNull
     @Size(min=3, max=50)
@@ -59,6 +60,7 @@ public class OAuth2AccountDto {
                 .email(oAuth2Account.getEmail())
                 .picture(oAuth2Account.getPicture())
                 .role(oAuth2Account.getRole())
+                .hostId(oAuth2Account.getHost().getId())
                 .build();
     }
 }
