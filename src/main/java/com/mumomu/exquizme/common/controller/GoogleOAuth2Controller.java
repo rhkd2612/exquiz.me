@@ -59,9 +59,9 @@ public class GoogleOAuth2Controller {
 
     @GetMapping(value = "/login/redirect")
     @Operation(summary = "구글 로그인 리다이렉션 페이지", description = "구글 로그인 시 정보 반환")
-    @ApiResponse(responseCode = "200", description = "로그인 성공 -> 사용자 정보 반환 with jwt")
+    @ApiResponse(responseCode = "303", description = "로그인 성공 -> 사용자 정보 body에 반환")
     @ApiResponse(responseCode = "400", description = "잘못된 로그인 요청")
-    public void redirectGoogleLogin(
+    public ResponseEntity<?> redirectGoogleLogin(
             @RequestParam(value = "code") String authCode, HttpServletResponse response) throws IOException {
         // HTTP 통신을 위해 RestTemplate 활용
         RestTemplate restTemplate = new RestTemplate();
@@ -99,7 +99,11 @@ public class GoogleOAuth2Controller {
                 GoogleLoginDto googleLoginDto = objectMapper.readValue(resultJson, new TypeReference<GoogleLoginDto>() {});
                 OAuth2AccountDto oAuth2AccountDto = oAuth2AccountService.signupWithGoogleOAuth2(googleLoginDto);
                 // TODO 암호화 필요 -> 이태우 멘토님께 여쭤보기
-                response.sendRedirect(configUtils.getFrontendUrl() + "?access_token=" + oAuth2AccountDto.getAccessToken());
+
+                log.info(oAuth2AccountDto.toString());
+
+                response.sendRedirect(configUtils.getFrontendUrl());
+                return ResponseEntity.status(HttpStatus.SEE_OTHER).body(oAuth2AccountDto);
                 //httpHeaders.put("body", oAuth2AccountDto.toString());
             }
             else {
@@ -111,5 +115,7 @@ public class GoogleOAuth2Controller {
             log.error("login failed : exception occurs.");
             response.sendRedirect(configUtils.getFrontendUrl());
         }
+
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 }

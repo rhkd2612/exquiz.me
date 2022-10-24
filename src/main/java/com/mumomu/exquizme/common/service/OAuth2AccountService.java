@@ -10,6 +10,7 @@ import com.mumomu.exquizme.common.util.ConfigUtils;
 import com.mumomu.exquizme.common.util.SecurityUtil;
 import com.mumomu.exquizme.production.domain.Host;
 import com.mumomu.exquizme.production.repository.HostRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Slf4j
 public class OAuth2AccountService {
     private final OAuth2AccountRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -79,6 +81,7 @@ public class OAuth2AccountService {
             hostRepository.save(host);
 
             oAuth2Account.setHost(host);
+            log.info("new host id = " + oAuth2Account.getHost().getId());
             userRepository.save(oAuth2Account);
         }
 
