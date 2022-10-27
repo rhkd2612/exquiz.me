@@ -17,6 +17,8 @@ public class ParticipantDto {
     private String nickname;
     private Date entryDate; // 생성일(입장시간)
     private int currentScore; // 점수
+    private int imageNumber;
+    private int colorNumber;
 
     public ParticipantDto(Participant participant) {
         this.id = participant.getId();
@@ -25,5 +27,7 @@ public class ParticipantDto {
         this.nickname = participant.getNickname();
         this.entryDate = participant.getEntryDate();
         this.currentScore = participant.getCurrentScore();
+        this.imageNumber = participant.getImageNumber();
+        this.colorNumber = participant.getColorNumber();
     }
 }
