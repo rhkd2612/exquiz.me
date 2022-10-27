@@ -40,7 +40,7 @@ public class TestDataInit {
     private final PasswordEncoder passwordEncoder;
 
     // 테스트용 데이터 추가
-    @PostConstruct
+    //@PostConstruct
     @Transactional
     public void init() throws Exception{
         oAuth2AccountRepository.save(OAuth2Account.builder()

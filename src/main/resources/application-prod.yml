@@ -6,7 +6,7 @@ spring:
       fail-on-empty-beans: false
   jpa:
     hibernate:
-      ddl-auto: create-drop # 어플리케이션을 시작할 때마다 데이터베이스가 초기화되지 않음
+      ddl-auto: update # 어플리케이션을 시작할 때 데이터베이스를 초기화하고 다시 테이블 생성
     properties:
       hibernate:
         format_sql: false # 실행되는 query를 보여줌
