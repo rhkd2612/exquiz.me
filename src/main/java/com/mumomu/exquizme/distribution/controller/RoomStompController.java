@@ -37,6 +37,7 @@ public class RoomStompController {
 
     // 퀴즈방 입장
     // TODO BusinessLogic 서비스로 이동해야함
+    // TODO HOST말고 Client에도 추가 정보를 제공해야함(다시 접속하라는)
     @MessageMapping("/room/{roomPin}")
     public void joinRoom(@DestinationVariable String roomPin, @Nullable String sessionId) {
         //String sessionId = headerAccessor.getSessionAttributes().get("sessionId").toString();
@@ -48,10 +49,10 @@ public class RoomStompController {
             List<ParticipantDto> participantList = roomService.findParticipantsByRoomPin(roomPin).stream().map(ParticipantDto::new).collect(Collectors.toList());
             StompParticipantSignup stompParticipantSignup = new StompParticipantSignup(MessageType.PARTICIPANT, sessionId, participant, participantList, participant.getImageNumber(), participant.getColorNumber());
 
-            messageToHostSubscriber(roomPin, stompParticipantSignup);
+            messageToAllSubscriber(roomPin, stompParticipantSignup);
         } catch (IllegalAccessException | NullPointerException e) {
             log.error(e.getMessage());
-            messageToHostSubscriber(roomPin, new StompErrorMessage(MessageType.ERROR, sessionId, e.getMessage()));
+            messageToAllSubscriber(roomPin, new StompErrorMessage(MessageType.ERROR, sessionId, e.getMessage()));
         }
     }
 
