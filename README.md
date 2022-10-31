@@ -57,7 +57,8 @@ exquiz.me는 웹에서 진행할 수 있는 퀴즈 출제 및 참여 플랫폼�
         google: # google oauth2 login 
           auth-url: https://oauth2.googleapis.com
           login-url: https://accounts.google.com
-          redirect-uri: http://localhost:8080/{your-own-redirect-url}
+          redirect-uri-local: http://localhost:8080/api/google/login/redirect/local
+          redirect-uri-prod: http://localhost:8080/api/google/login/redirect/prod
           client-id: {your-own-client-id}.apps.googleusercontent.com
           client-secret: {your-own-client-secret}
           scope: profile,email
@@ -131,6 +132,9 @@ exquiz.me는 웹에서 진행할 수 있는 퀴즈 출제 및 참여 플랫폼�
       - 정답 제출
       - OX 퀴즈 현재 위치 전송
     - 리더보드
+
+### ScreenShots
+
 
 ### RESTFUL API 목록 
     localhost:8080/swagger-ui/#

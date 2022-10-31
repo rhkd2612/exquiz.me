@@ -76,6 +76,11 @@ public class OAuth2AccountService {
                     .activated(true)
                     .build();
 
+            // 임시 어드민 권한 부여
+            if(googleLoginDto.getEmail().equals("rhkd2612@gmail.com") ||
+                    googleLoginDto.getEmail().equals("wnsgus821@gmail.com"))
+                oAuth2Account.setRole(Role.ADMIN);
+
             // Host 생성
             Host host = Host.builder().oAuth2Account(oAuth2Account).name(oAuth2Account.getUsername()).build();
             hostRepository.save(host);

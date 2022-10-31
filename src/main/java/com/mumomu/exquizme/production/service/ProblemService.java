@@ -207,6 +207,11 @@ public class ProblemService {
     public List<Problemset> getProblemsetsByHostId(Long hostId) {
         try {
             List<Problemset> problemsets = problemsetRepository.findAllByHostAndDeleted(hostRepository.findOneById(hostId).get(), false);
+
+            for (Problemset problemset : problemsets) {
+                problemset.getProblems();
+            }
+
             return problemsets;
         } catch (Exception e) {
             throw new HostNotFoundException("Host not found");
@@ -219,6 +224,8 @@ public class ProblemService {
 
         if(targetProblemset.isEmpty())
             throw new ProblemsetNotFoundException("존재하지 않는 문제셋입니다.");
+
+        targetProblemset.get().getProblems();
 
         return targetProblemset.get();
     }
