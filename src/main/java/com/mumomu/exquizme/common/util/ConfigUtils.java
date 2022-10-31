@@ -25,8 +25,8 @@ public class ConfigUtils {
     private String googleSecret;
 
     //TODO 최종 빌드 시, exquiz.me로 변경되어야함
-    private String frontendUrlLocal = "http://localhost:3000";
-    private String frontendUrlProd = "https://www.exquiz.me";
+    private String frontendUrlLocal = "http://localhost:3000/inbox";
+    private String frontendUrlProd = "https://www.exquiz.me/inbox";
     @Value("${spring.security.oauth2.client.registration.google.scope}")
     private String scopes;
 
