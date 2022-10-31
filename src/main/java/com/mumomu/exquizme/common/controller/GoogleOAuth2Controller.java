@@ -65,7 +65,7 @@ public class GoogleOAuth2Controller {
         }
     }
 
-    @GetMapping(value = "/login/redirect")
+    @GetMapping(value = "/login/redirect/local")
     @Operation(summary = "구글 로그인 리다이렉션 페이지(로컬용)", description = "구글 로그인 시 코드 반환")
     public void redirectGoogleLoginLocal(
             @RequestParam(value = "code") String authCode, HttpServletResponse response) throws IOException {

@@ -43,35 +43,35 @@ public class TestDataInit {
     @PostConstruct
     @Transactional
     public void init() throws Exception{
-        oAuth2AccountRepository.save(OAuth2Account.builder()
-                .email("rhkd2612@gmail.com")
-                .nickname("이상빈")
-                .username("rhkd2612@gmail.com=google")
-                .activated(true)
-                .password(passwordEncoder.encode("NO_PASSWORD"))
-                .role(Role.ADMIN)
-                .build()
-        );
-
-        oAuth2AccountRepository.save(OAuth2Account.builder()
-                .email("netcopjr@gmail.com")
-                .nickname("김민겸")
-                .username("netcopjr@gmail.com=google")
-                .activated(true)
-                .password(passwordEncoder.encode("NO_PASSWORD"))
-                .role(Role.ADMIN)
-                .build()
-        );
-
-        oAuth2AccountRepository.save(OAuth2Account.builder()
-                .email("wnsgus821@gmail.com")
-                .nickname("임준현")
-                .username("wnsgus821@gmail.com=google")
-                .activated(true)
-                .password(passwordEncoder.encode("NO_PASSWORD"))
-                .role(Role.ADMIN)
-                .build()
-        );
+//        oAuth2AccountRepository.save(OAuth2Account.builder()
+//                .email("rhkd2612@gmail.com")
+//                .nickname("이상빈")
+//                .username("rhkd2612@gmail.com=google")
+//                .activated(true)
+//                .password(passwordEncoder.encode("NO_PASSWORD"))
+//                .role(Role.ADMIN)
+//                .build()
+//        );
+//
+//        oAuth2AccountRepository.save(OAuth2Account.builder()
+//                .email("netcopjr@gmail.com")
+//                .nickname("김민겸")
+//                .username("netcopjr@gmail.com=google")
+//                .activated(true)
+//                .password(passwordEncoder.encode("NO_PASSWORD"))
+//                .role(Role.ADMIN)
+//                .build()
+//        );
+//
+//        oAuth2AccountRepository.save(OAuth2Account.builder()
+//                .email("wnsgus821@gmail.com")
+//                .nickname("임준현")
+//                .username("wnsgus821@gmail.com=google")
+//                .activated(true)
+//                .password(passwordEncoder.encode("NO_PASSWORD"))
+//                .role(Role.ADMIN)
+//                .build()
+//        );
 
         Room room1 = roomRepository.save(Room.ByBasicBuilder().pin("100000").maxParticipantCount(5).build());
         Room room2 = roomRepository.save(Room.ByBasicBuilder().pin("200000").maxParticipantCount(5).build());

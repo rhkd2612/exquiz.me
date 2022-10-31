@@ -69,4 +69,5 @@ public class OAuth2Account extends TimeEntity{
         this.host = host;
     }
 
+    public void setRole(Role role) { this.role = role; }
 }
