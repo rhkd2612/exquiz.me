@@ -54,8 +54,6 @@ public class RoomProgressController {
     @ApiResponse(responseCode = "404", description = "퀴즈 없음")
     public ResponseEntity<?> leaderboard(@PathVariable String roomPin){
         try {
-            //List<ParticipantDto> resultLeaderboard = roomService.findParticipantsByRoomPin(roomPin).stream().map(p -> new ParticipantDto(p)).collect(Collectors.toList());
-
             List<Participant> participants = roomService.findParticipantsByRoomPin(roomPin);
             List<ParticipantDto> result = new ArrayList<>();
 
@@ -81,7 +79,9 @@ public class RoomProgressController {
                     result.add(new ParticipantDto(participant));
                 }
             }
-            if (result.size() > 0 && result.size() >= participants.size() / 5) return ResponseEntity.ok(result);
+
+            if (result.size() > 0 && result.size() >= participants.size() / 5)
+                return ResponseEntity.ok(result);
             result = new ArrayList<>();
 
             // 3. 문제를 연속해서 많이 맞춘 사람들
@@ -91,7 +91,9 @@ public class RoomProgressController {
                     result.add(new ParticipantDto(participant));
                 }
             }
-            if (result.size() > 0 && result.size() >= participants.size() / 5)return ResponseEntity.ok(result);
+
+            if (result.size() > 0 && result.size() >= participants.size() / 5)
+                return ResponseEntity.ok(result);
             result = new ArrayList<>();
 
             // 4. 문제를 빠르게 푼 사람들 (최근 문제 소요시간 도메인에 추가)
