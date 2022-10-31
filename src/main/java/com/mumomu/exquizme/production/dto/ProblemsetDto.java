@@ -19,6 +19,7 @@ public class ProblemsetDto {
     private String description;
     private String closingMent;
 
+    private Integer problemCount;
     private Integer scoreSetting;
     private Integer timeSetting;
     private Integer backgroundMusic;
@@ -33,6 +34,7 @@ public class ProblemsetDto {
             this.scoreSetting = problemset.getScoreSetting();
             this.timeSetting = problemset.getTimeSetting();
             this.backgroundMusic = problemset.getBackgroundMusic();
+            this.problemCount = problemset.getProblems().size();
         }
     }
 }
