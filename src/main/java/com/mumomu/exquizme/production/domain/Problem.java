@@ -19,7 +19,7 @@ public class Problem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "problemset_id")
     @JsonIgnore
     protected Problemset problemset;
