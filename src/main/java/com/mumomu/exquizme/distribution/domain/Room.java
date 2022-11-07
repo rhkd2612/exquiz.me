@@ -23,6 +23,8 @@ public class Room {
     private Date startDate;
     private Date endDate;
 
+    private String roomName;
+
     @Enumerated(EnumType.STRING)
     private RoomState currentState; // READY, PLAY, FINISH
     private int currentProblemNum; // 최근 진행중인 문제번호
@@ -32,15 +34,16 @@ public class Room {
     private Problemset problemset;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "room", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<Participant> participants = new ArrayList<>();
 
     @Builder(builderClassName = "ByBasicBuilder", builderMethodName = "ByBasicBuilder")
-    public Room(String pin, int maxParticipantCount, Problemset problemset){
+    public Room(String pin, int maxParticipantCount, Problemset problemset, String roomName){
         this.pin = pin;
         this.maxParticipantCount = maxParticipantCount;
         this.problemset = problemset;
         this.startDate = new Date();
+        this.roomName = roomName;
         this.currentState = RoomState.READY;
         this.currentProblemNum = -1;
         this.participants = new ArrayList<>();

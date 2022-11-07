@@ -9,6 +9,7 @@ import com.mumomu.exquizme.distribution.repository.RoomRepository;
 import com.mumomu.exquizme.distribution.web.dto.ParticipantDto;
 import com.mumomu.exquizme.distribution.web.model.ParticipantCreateForm;
 import com.mumomu.exquizme.common.formatter.SimpleDateFormatter;
+import com.mumomu.exquizme.distribution.web.model.RoomCreateForm;
 import com.mumomu.exquizme.production.domain.Problem;
 import com.mumomu.exquizme.production.domain.Problemset;
 import com.mumomu.exquizme.production.service.ProblemService;
@@ -85,12 +86,12 @@ public class RoomService {
     @Transactional
     public Room newRoom(Long problemsetId, int maxParticipantCount) {
         Problemset roomProblemset = problemService.getProblemsetById(problemsetId);
-        return newRoomLogic(roomProblemset, maxParticipantCount);
+        return newRoomLogic(roomProblemset, maxParticipantCount, "임시 방 생성");
     }
 
     @Transactional
-    public Room newRoom(Problemset roomProblemset, int maxParticipantCount) {
-        return newRoomLogic(roomProblemset, maxParticipantCount);
+    public Room newRoom(Problemset roomProblemset, RoomCreateForm roomCreateForm) {
+        return newRoomLogic(roomProblemset, roomCreateForm.getMaxParticipantCount(), roomCreateForm.getRoomName());
     }
 
     private String getRandomPin() {
@@ -190,7 +191,7 @@ public class RoomService {
         participantRepository.delete(targetParticipant.get());
     }
 
-    private Room newRoomLogic(Problemset roomProblemset, int maxParticipantCount) {
+    private Room newRoomLogic(Problemset roomProblemset, int maxParticipantCount, String roomName) {
         String randomPin;
         Optional<Room> targetRoom;
         int retryCount = 10; // 최대 try 횟수, 무한 루프 방지
@@ -206,7 +207,7 @@ public class RoomService {
             throw new CreateRandomPinFailureException("다시 시도 해주세요.");
         }
 
-        Room room = Room.ByBasicBuilder().pin(randomPin).problemset(roomProblemset).maxParticipantCount(maxParticipantCount).build();
+        Room room = Room.ByBasicBuilder().pin(randomPin).problemset(roomProblemset).maxParticipantCount(maxParticipantCount).roomName(roomName).build();
         log.info("random Pin is {}", randomPin);
 
         return roomRepository.save(room);

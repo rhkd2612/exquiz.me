@@ -47,7 +47,7 @@ public class RoomRestController {
         try {
             // 2. Business Logic
             Problemset problemset = problemService.getProblemsetById(roomCreateForm.getProblemsetId());
-            Room room = roomService.newRoom(problemset, roomCreateForm.getMaxParticipantCount());
+            Room room = roomService.newRoom(problemset, roomCreateForm);
 
             RoomDto createRoomDto = new RoomDto(room);
             // 3. Make Response
