@@ -209,7 +209,7 @@ class ProblemControllerTest {
     void deleteProblemset() throws Exception {
         makeProblemset();
 
-        mockMvc.perform(delete("/api/problemset/{problemsetId}", problemsetId))
+        mockMvc.perform(post("/api/problemset/{problemsetId}", problemsetId))
                 .andExpect(status().is2xxSuccessful())
                 .andReturn();
     }
@@ -218,7 +218,7 @@ class ProblemControllerTest {
     void deleteProblem() throws Exception {
         makeProblem();
 
-        mockMvc.perform(delete("/api/problem/{problemId}", problemId))
+        mockMvc.perform(post("/api/problem/{problemId}", problemId))
                 .andExpect(status().is2xxSuccessful())
                 .andReturn();
     }
