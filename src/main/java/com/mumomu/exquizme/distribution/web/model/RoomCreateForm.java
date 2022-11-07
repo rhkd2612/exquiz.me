@@ -15,4 +15,6 @@ public class RoomCreateForm {
     private int maxParticipantCount;
     @ApiModelProperty(value = "문제셋 ID", example = "1")
     private Long problemsetId;
+    @ApiModelProperty(value = "퀴즈방 이름", example = "방입니다.")
+    private String roomName;
 }
