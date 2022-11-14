@@ -21,6 +21,7 @@ public class ProblemDto {
     private Integer timelimit;
     private Integer score;
     private String picture;
+    private String videoUrl;
     private String answer;
     private Integer idx;
 
@@ -32,6 +33,7 @@ public class ProblemDto {
         this.timelimit = problem.getTimelimit();
         this.score = problem.getScore();
         this.picture = problem.getPicture();
+        this.videoUrl = problem.getVideoUrl();
         this.answer = problem.getAnswer();
         this.idx = problem.getIdx();
     }
