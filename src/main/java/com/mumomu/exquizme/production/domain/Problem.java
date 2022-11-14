@@ -37,6 +37,10 @@ public class Problem {
     protected Integer score;
     @Setter
     protected String picture;
+
+    @Setter
+    protected String videoUrl;
+
     @Setter
     protected String answer;
 

@@ -103,7 +103,7 @@ class ProblemControllerTest {
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(jsonPath("$.idx", is(1)))
                 .andExpect(jsonPath("$.description", is("Test Problem Option Description")))
-                .andExpect(jsonPath("$.pickcount", is(0)))
+                .andExpect(jsonPath("$.pickCount", is(0)))
                 .andReturn();
 
         problemOptionId = Long.parseLong(objectMapper.readValue(
