@@ -250,6 +250,28 @@ Description:
 ```java
 [ToClientSubscriber]
 Event Name:
+        /room/{roomPin}/stop
+
+Path Variable:
+        "roomPin" : String // 방 번호
+
+Args:
+
+Callback:
+{
+        "messageType" : MessageType // "STOP"
+        "fromSession" : String, // null
+}
+
+Description:
+        "방을 시작하고 사용자에게 전파하는 API"
+        // 선생님 화면에서 시작하기 버튼 누르면
+        // subscriber들인 학생+교사들 화면에 변화가 생김
+```
+
+```java
+[ToClientSubscriber]
+Event Name:
         /room/{roomPin}/next
 
 Path Variable:

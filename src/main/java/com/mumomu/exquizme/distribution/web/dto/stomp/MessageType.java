@@ -5,5 +5,6 @@ public enum MessageType {
     PARTICIPANT,
     NEW_PROBLEM,
     MOVE_DATA,
+    STOP,
     ERROR
 }

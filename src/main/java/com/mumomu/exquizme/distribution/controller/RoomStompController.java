@@ -92,6 +92,17 @@ public class RoomStompController {
         }
     }
 
+    // 퀴즈 정지(리더보딩 및 해설)
+    @MessageMapping({"/room/{roomPin}/stop"})
+    public void stopRoom(@DestinationVariable String roomPin) {
+        try {
+            messageToClientSubscriber(roomPin, new StompStopMessage(MessageType.STOP));
+        } catch (InvalidRoomAccessException e) {
+            log.error(e.getMessage());
+            messageToClientSubscriber(roomPin, new StompErrorMessage(MessageType.ERROR, null, e.getMessage()));
+        }
+    }
+
     // 다음 문제
     @MessageMapping("/room/{roomPin}/next")
     public void nextProblem(@DestinationVariable String roomPin) {

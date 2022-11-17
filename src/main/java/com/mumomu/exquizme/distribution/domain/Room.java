@@ -18,6 +18,10 @@ public class Room {
     @Column(name = "room_id")
     private Long id;
 
+    public void setProblemset(Problemset problemset) {
+        this.problemset = problemset;
+    }
+
     private String pin;
     private int maxParticipantCount; // 최대 참여자 수
     private Date startDate;
