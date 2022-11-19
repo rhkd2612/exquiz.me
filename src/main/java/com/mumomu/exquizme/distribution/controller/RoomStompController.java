@@ -8,6 +8,9 @@ import com.mumomu.exquizme.distribution.web.dto.ParticipantDto;
 import com.mumomu.exquizme.distribution.web.dto.stomp.*;
 import com.mumomu.exquizme.distribution.web.model.ParticipantCreateForm;
 import com.mumomu.exquizme.production.domain.Problem;
+import com.mumomu.exquizme.production.domain.ProblemOption;
+import com.mumomu.exquizme.production.dto.ProblemOptionDto;
+import com.mumomu.exquizme.production.service.ProblemService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.activemq.command.ActiveMQTopic;
@@ -30,6 +33,7 @@ import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 // 웹소켓 API 명세는 노션에 정리(스웨거 사용불가)
 public class RoomStompController {
     private final RoomService roomService;
+    private final ProblemService problemService;
     private final RoomProgressService roomProgressService;
     private final JmsTemplate jmsTemplate;
 
@@ -50,7 +54,7 @@ public class RoomStompController {
             StompParticipantSignup stompParticipantSignup = new StompParticipantSignup(MessageType.PARTICIPANT, sessionId, participant, participantList, participant.getImageNumber(), participant.getColorNumber());
 
             messageToAllSubscriber(roomPin, stompParticipantSignup);
-        } catch (IllegalAccessException | NullPointerException e) {
+        } catch (Exception e) {
             log.error(e.getMessage());
             messageToAllSubscriber(roomPin, new StompErrorMessage(MessageType.ERROR, sessionId, e.getMessage()));
         }
@@ -73,8 +77,8 @@ public class RoomStompController {
             Participant savedParticipant = roomService.joinParticipant(participateForm, roomPin, sessionId);
             StompParticipantSignup stompParticipantSignup = new StompParticipantSignup(MessageType.PARTICIPANT, sessionId, savedParticipant, roomService.findParticipantDtosByRoomPin(roomPin), savedParticipant.getImageNumber(), savedParticipant.getColorNumber());
 
-            messageToAllSubscriber(roomPin, stompParticipantSignup); // 본인에게 세션 아이디를 줘야함.. 근데 이 방법은 안됨.. 일단 닉네임으로 구분해서 받자
-        } catch (NullPointerException | IllegalAccessException e) {
+            messageToHostSubscriber(roomPin, stompParticipantSignup); // 본인에게 세션 아이디를 줘야함.. 근데 이 방법은 안됨.. 일단 닉네임으로 구분해서 받자
+        } catch (Exception e) {
             log.error(e.getMessage());
             messageToAllSubscriber(roomPin, new StompErrorMessage(MessageType.ERROR, sessionId, e.getMessage()));
         }
@@ -85,8 +89,9 @@ public class RoomStompController {
     public void startRoom(@DestinationVariable String roomPin) {
         try {
             Problem problem = roomProgressService.startRoom(roomPin);
-            messageToClientSubscriber(roomPin, new StompNewProblemForm(MessageType.NEW_PROBLEM, null, problem));
-        } catch (InvalidRoomAccessException e) {
+            List<ProblemOptionDto> problemOptions = problemService.getProblemOptionById(problem.getId()).stream().map(ProblemOptionDto::new).collect(Collectors.toList());
+            messageToClientSubscriber(roomPin, new StompNewProblemForm(MessageType.NEW_PROBLEM, null, problem, problemOptions));
+        } catch (Exception e) {
             log.error(e.getMessage());
             messageToClientSubscriber(roomPin, new StompErrorMessage(MessageType.ERROR, null, e.getMessage()));
         }
@@ -96,8 +101,11 @@ public class RoomStompController {
     @MessageMapping({"/room/{roomPin}/stop"})
     public void stopRoom(@DestinationVariable String roomPin) {
         try {
+            Problem problem = roomProgressService.getCurrentProblemByPin(roomPin);
+            List<ProblemOptionDto> problemOptions = problemService.getProblemOptionById(problem.getId()).stream().map(ProblemOptionDto::new).collect(Collectors.toList());
             messageToClientSubscriber(roomPin, new StompStopMessage(MessageType.STOP));
-        } catch (InvalidRoomAccessException e) {
+            messageToHostSubscriber(roomPin, new StompNewProblemForm(MessageType.STOP, null, problem, problemOptions));
+        } catch (Exception e) {
             log.error(e.getMessage());
             messageToClientSubscriber(roomPin, new StompErrorMessage(MessageType.ERROR, null, e.getMessage()));
         }
@@ -108,8 +116,9 @@ public class RoomStompController {
     public void nextProblem(@DestinationVariable String roomPin) {
         try {
             Problem problem = roomProgressService.nextProblem(roomPin);
-            messageToClientSubscriber(roomPin, new StompNewProblemForm(MessageType.NEW_PROBLEM, null, problem));
-        } catch (InvalidRoomAccessException | NoMoreProblemException e) {
+            List<ProblemOptionDto> problemOptions = problemService.getProblemOptionById(problem.getId()).stream().map(ProblemOptionDto::new).collect(Collectors.toList());
+            messageToClientSubscriber(roomPin, new StompNewProblemForm(MessageType.NEW_PROBLEM, null, problem, problemOptions));
+        } catch (Exception e) {
             log.error(e.getMessage());
             messageToClientSubscriber(roomPin, new StompErrorMessage(MessageType.ERROR, null, e.getMessage()));
         }
@@ -126,7 +135,7 @@ public class RoomStompController {
             checkSubmitIsCurrentProblem(roomPin, answerForm.getProblemIdx());
             roomProgressService.updateParticipantInfo(roomPin, answerForm);
             messageToHostSubscriber(roomPin, answerForm);
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
             log.error(e.getMessage());
             messageToHostSubscriber(roomPin, new StompErrorMessage(MessageType.ERROR, null, e.getMessage()));
         }
@@ -139,7 +148,7 @@ public class RoomStompController {
         try {
             checkSubmitIsCurrentProblem(roomPin, moveForm.getProblemIdx());
             messageToAllSubscriber(roomPin, moveForm);
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
             log.error(e.getMessage());
             messageToAllSubscriber(roomPin, new StompErrorMessage(MessageType.ERROR, null, e.getMessage()));
         }

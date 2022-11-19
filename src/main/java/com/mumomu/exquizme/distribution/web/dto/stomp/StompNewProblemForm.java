@@ -1,8 +1,11 @@
 package com.mumomu.exquizme.distribution.web.dto.stomp;
 
 import com.mumomu.exquizme.production.domain.Problem;
+import com.mumomu.exquizme.production.dto.ProblemOptionDto;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -14,8 +17,10 @@ public class StompNewProblemForm extends StompMessage{
     private Integer timelimit;
     private Integer score;
     private String picture;
+    private String videoUrl;
     private String answer;
     private Integer idx;
+    private List<ProblemOptionDto> problemOptions;
 
     public StompNewProblemForm(MessageType messageType, String fromSession, Long id, String title, String description, String dtype, Integer timelimit, Integer score, String picture, String answer, Integer idx) {
         super(messageType, fromSession);
@@ -30,7 +35,7 @@ public class StompNewProblemForm extends StompMessage{
         this.idx = idx;
     }
 
-    public StompNewProblemForm(MessageType messageType, String fromSession, Problem problem) {
+    public StompNewProblemForm(MessageType messageType, String fromSession, Problem problem, List<ProblemOptionDto> problemOptions) {
         super(messageType, fromSession);
         this.id = problem.getId();
         this.title = problem.getTitle();
@@ -39,7 +44,9 @@ public class StompNewProblemForm extends StompMessage{
         this.timelimit = problem.getTimelimit();
         this.score = problem.getScore();
         this.picture = problem.getPicture();
+        this.videoUrl = problem.getVideoUrl();
         this.answer = problem.getAnswer();
         this.idx = problem.getIdx();
+        this.problemOptions = problemOptions;
     }
 }

@@ -13,6 +13,7 @@ import com.mumomu.exquizme.distribution.web.dto.stomp.StompAnswerSubmitForm;
 import com.mumomu.exquizme.distribution.web.model.AnswerSubmitForm;
 import com.mumomu.exquizme.production.domain.Problem;
 import com.mumomu.exquizme.production.domain.Problemset;
+import com.mumomu.exquizme.production.dto.ProblemOptionDto;
 import com.mumomu.exquizme.production.service.ProblemService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -62,11 +63,21 @@ public class RoomProgressService {
     }
 
     @Transactional
+    public Problem getCurrentProblemByPin(String roomPin) throws InvalidRoomAccessException, NoMoreProblemException {
+        Room targetRoom = roomService.findRoomByPin(roomPin);
+        List<Problem> problems = targetRoom.getProblemset().getProblems();
+
+        if(targetRoom.getCurrentProblemNum() + 1 >= problems.size())
+            throw new NoMoreProblemException("문제셋에 남은 문제가 없습니다.");
+
+        return problems.get(targetRoom.getCurrentProblemNum() + 1);
+    }
+
+    @Transactional
     public Problem nextProblem(String roomPin) throws NoMoreProblemException {
         Room targetRoom = roomService.findRoomByPin(roomPin);
         return nextProblem(targetRoom);
     }
-
 
     @Transactional
     public Problem startRoom(Room room) throws InvalidRoomAccessException {
