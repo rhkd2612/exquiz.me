@@ -8,7 +8,7 @@ exquiz.me는 웹에서 진행할 수 있는 퀴즈 출제 및 참여 플랫폼�
 ### 팀 소개
 | 이름   | 파트           | 주요역할                                                         |
 |---------|--------------|--------------------------------------------------------------|
-| 이상빈 | 팀장, 백엔드      | 퀴즈 참여파트(distribution, 웹소켓), 시큐리티, CI/CD, AWS 인프라 구축, 프론트엔드 보조 |
+| 이상빈 | 팀장, 백엔드      | 퀴즈 참여파트(distribution, 웹소켓), 시큐리티, <br/>CI/CD, AWS 인프라 구축, 프론트엔드 보조 |
 | 김민겸 | 팀원, 백엔드      | 퀴즈 제작파트(production), DB 설계, 리더보딩 시스템                         |
 | 임준현 | 팀원, 프론트엔드    | 프론트엔드 전반                                                     |
 <br>
@@ -218,7 +218,7 @@ Description:
 ```
 
 ```java
-[ToClientSubscriber]
+[ToClientSubscriber]/[ToHostSubscriber] -> Callback이 다르다
 Event Name:
         /room/{roomPin}/start
 
