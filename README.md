@@ -140,7 +140,6 @@ exquiz.me는 웹에서 진행할 수 있는 퀴즈 출제 및 참여 플랫폼�
 
 ### RESTFUL API 목록 
     localhost:8080/swagger-ui/#
-![img_1.png](images/img_1.png)
 
 ### STOMP API 목록
 #### ToWhom
@@ -184,7 +183,7 @@ Description:
 ```
 
 ```java
-[ToAllSubscriber]
+[ToHostSubscriber]
 Event Name:
         /room/{roomPin}/signup
 
@@ -241,6 +240,13 @@ Callback:
         "picture" : String;
         "answer" : String;
         "idx" : Integer;
+        "problemOptions" : List {
+            "id" : Long;
+            "idx" : Integer;
+            "description" : String;
+            "picture" : String;
+            "pickCount" : Integer;
+        }
 }
 
 Description:
@@ -260,15 +266,38 @@ Path Variable:
 Args:
 
 Callback:
+# Client
 {
         "messageType" : MessageType // "STOP"
         "fromSession" : String, // null
 }
 
+# Host
+{
+        "messageType" : MessageType // "STOP"
+        "fromSession" : String, // 사용자 session id - google login시 발급
+        "id" : Long;
+        "title" : String;
+        "description" : String;
+        "dtype" : String;
+        "timelimit" : Integer;
+        "score" : Integer;
+        "picture" : String;
+        "answer" : String;
+        "idx" : Integer;
+        "problemOptions" : List {
+            "id" : Long;
+            "idx" : Integer;
+            "description" : String;
+            "picture" : String;
+            "pickCount" : Integer;
+        }
+}
+
 Description:
         "방을 시작하고 사용자에게 전파하는 API"
         // 선생님 화면에서 시작하기 버튼 누르면
-        // subscriber들인 학생+교사들 화면에 변화가 생김
+        // 학생들에게는 화면 변경 신호, 선생님에게는 다음 문제 정보 제공
 ```
 
 ```java
@@ -294,6 +323,13 @@ Callback:
         "picture" : String;
         "answer" : String;
         "idx" : Integer;
+        "problemOptions" : List {
+            "id" : Long;
+            "idx" : Integer;
+            "description" : String;
+            "picture" : String;
+            "pickCount" : Integer;
+        }
 }
 
 Description:
