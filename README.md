@@ -5,10 +5,12 @@ exquiz.me는 웹에서 진행할 수 있는 퀴즈 출제 및 참여 플랫폼�
 ## Live Demo (프론트엔드 미완성, 22년 11월까지 개발 예정)
 ### <a href="https://www.exquiz.me">exquiz.me</a>
 
-[//]: # (## https://www.exquiz.me)
-
-[//]: # (&#40;10월 중으로 디자인 외주 반영 예정&#41;)
-
+### 팀 소개
+| 이름   | 파트           | 주요역할                                                         |
+|---------|--------------|--------------------------------------------------------------|
+| 이상빈 | 팀장, 백엔드      | 퀴즈 참여파트(distribution, 웹소켓), 시큐리티, CI/CD, AWS 인프라 구축, 프론트엔드 보조 |
+| 김민겸 | 팀원, 백엔드      | 퀴즈 제작파트(production), DB 설계, 리더보딩 시스템                         |
+| 임준현 | 팀원, 프론트엔드    | 프론트엔드 전반                                                     |
 <br>
 
 ## Getting Started
@@ -228,7 +230,7 @@ Args:
 
 Callback:
 {
-        "messageType" : MessageType // "NEWPROBLEM"
+        "messageType" : MessageType // "NEW_PROBLEM"
         "fromSession" : String, // 사용자 session id - google login시 발급
         "id" : Long;
         "title" : String;
@@ -281,7 +283,7 @@ Args:
 
 Callback:
 {
-        "messageType" : MessageType // "NEWPROBLEM"
+        "messageType" : MessageType // "NEW_PROBLEM"
         "fromSession" : String, // 사용자 session id - google login시 발급
         "id" : Long;
         "title" : String;
