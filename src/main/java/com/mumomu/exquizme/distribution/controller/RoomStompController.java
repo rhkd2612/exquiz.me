@@ -89,7 +89,7 @@ public class RoomStompController {
     public void startRoom(@DestinationVariable String roomPin) {
         try {
             Problem problem = roomProgressService.startRoom(roomPin);
-            List<ProblemOptionDto> problemOptions = problemService.getProblemOptionById(problem.getId()).stream().map(ProblemOptionDto::new).collect(Collectors.toList());
+            List<ProblemOptionDto> problemOptions = problemService.getProblemOptionById(problem.getId());
             messageToAllSubscriber(roomPin, new StompNewProblemForm(MessageType.NEW_PROBLEM, null, problem, problemOptions));
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -102,7 +102,7 @@ public class RoomStompController {
     public void stopRoom(@DestinationVariable String roomPin) {
         try {
             Problem problem = roomProgressService.getCurrentProblemByPin(roomPin);
-            List<ProblemOptionDto> problemOptions = problemService.getProblemOptionById(problem.getId()).stream().map(ProblemOptionDto::new).collect(Collectors.toList());
+            List<ProblemOptionDto> problemOptions = problemService.getProblemOptionById(problem.getId());
             messageToClientSubscriber(roomPin, new StompStopMessage(MessageType.STOP));
             messageToHostSubscriber(roomPin, new StompNewProblemForm(MessageType.STOP, null, problem, problemOptions));
         } catch (Exception e) {
@@ -116,7 +116,7 @@ public class RoomStompController {
     public void nextProblem(@DestinationVariable String roomPin) {
         try {
             Problem problem = roomProgressService.nextProblem(roomPin);
-            List<ProblemOptionDto> problemOptions = problemService.getProblemOptionById(problem.getId()).stream().map(ProblemOptionDto::new).collect(Collectors.toList());
+            List<ProblemOptionDto> problemOptions = problemService.getProblemOptionById(problem.getId());
             messageToClientSubscriber(roomPin, new StompNewProblemForm(MessageType.NEW_PROBLEM, null, problem, problemOptions));
         } catch (Exception e) {
             log.error(e.getMessage());

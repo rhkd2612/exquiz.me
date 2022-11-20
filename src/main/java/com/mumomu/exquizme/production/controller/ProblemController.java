@@ -133,7 +133,7 @@ public class ProblemController {
     @ApiResponse(responseCode = "404", description = "문제 없음")
     public ResponseEntity<?> findProblemOptions(@PathVariable Long problemId) throws Exception {
         try {
-            List<ProblemOptionDto> problemOptionDtos = problemService.getProblemOptionById(problemId).stream().map(po -> new ProblemOptionDto(po)).collect(Collectors.toList());
+            List<ProblemOptionDto> problemOptionDtos = problemService.getProblemOptionById(problemId);
             return new ResponseEntity<>(problemOptionDtos, HttpStatus.OK);
         } catch (ProblemNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
