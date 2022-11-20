@@ -59,7 +59,7 @@ public class RoomProgressService {
     @Transactional
     public Problem startRoom(String roomPin) throws InvalidRoomAccessException {
         Room targetRoom = roomService.findRoomByPin(roomPin);
-        return startRoom(targetRoom);
+        return getFirstProblem(targetRoom);
     }
 
     @Transactional
@@ -80,12 +80,15 @@ public class RoomProgressService {
     }
 
     @Transactional
-    public Problem startRoom(Room room) throws InvalidRoomAccessException {
+    public Problem getFirstProblem(Room room) throws InvalidRoomAccessException {
         if(room.getCurrentState() != RoomState.READY)
             throw new InvalidRoomAccessException("해당하는 시작 대기 중인 방이 없습니다.");
         room.setCurrentState(RoomState.PLAY);
         room.setCurrentProblemNum(0);
-        return room.getProblemset().getProblems().get(room.getCurrentProblemNum());
+
+        Problem problem = room.getProblemset().getProblems().get(room.getCurrentProblemNum());
+
+        return problem;
     }
 
     @Transactional
