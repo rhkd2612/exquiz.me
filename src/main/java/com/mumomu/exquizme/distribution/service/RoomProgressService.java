@@ -86,7 +86,8 @@ public class RoomProgressService {
         room.setCurrentState(RoomState.PLAY);
         room.setCurrentProblemNum(0);
 
-        Problem problem = room.getProblemset().getProblems().get(room.getCurrentProblemNum());
+        Problem problem = room.getProblemset().getProblems().stream().filter(
+                p -> p.getIdx().equals(room.getCurrentProblemNum())).findFirst().get();
 
         return problem;
     }
