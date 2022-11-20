@@ -90,10 +90,10 @@ public class RoomStompController {
         try {
             Problem problem = roomProgressService.startRoom(roomPin);
             List<ProblemOptionDto> problemOptions = problemService.getProblemOptionById(problem.getId()).stream().map(ProblemOptionDto::new).collect(Collectors.toList());
-            messageToClientSubscriber(roomPin, new StompNewProblemForm(MessageType.NEW_PROBLEM, null, problem, problemOptions));
+            messageToAllSubscriber(roomPin, new StompNewProblemForm(MessageType.NEW_PROBLEM, null, problem, problemOptions));
         } catch (Exception e) {
             log.error(e.getMessage());
-            messageToClientSubscriber(roomPin, new StompErrorMessage(MessageType.ERROR, null, e.getMessage()));
+            messageToAllSubscriber(roomPin, new StompErrorMessage(MessageType.ERROR, null, e.getMessage()));
         }
     }
 

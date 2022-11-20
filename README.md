@@ -218,7 +218,7 @@ Description:
 ```
 
 ```java
-[ToClientSubscriber]/[ToHostSubscriber] -> Callback이 다르다
+[ToAllSubscriber]
 Event Name:
         /room/{roomPin}/start
 
@@ -256,7 +256,7 @@ Description:
 ```
 
 ```java
-[ToClientSubscriber]
+[ToClientSubscriber]/[ToHostSubscriber] -> Callback이 다르다
 Event Name:
         /room/{roomPin}/stop
 
