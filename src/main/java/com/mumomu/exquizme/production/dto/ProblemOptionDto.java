@@ -21,6 +21,10 @@ public class ProblemOptionDto {
     private String picture;
     private Integer pickCount;
 
+    public ProblemOptionDto(String description) {
+        this.description = description;
+    }
+
     public ProblemOptionDto(ProblemOption problemOption) {
         this.id = problemOption.getId();
         this.idx = problemOption.getIdx();

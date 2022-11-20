@@ -7,6 +7,7 @@ import com.mumomu.exquizme.production.domain.Problemset;
 import com.mumomu.exquizme.production.domain.problemtype.MultipleChoiceProblem;
 import com.mumomu.exquizme.production.domain.problemtype.OXProblem;
 import com.mumomu.exquizme.production.domain.problemtype.SubjectiveProblem;
+import com.mumomu.exquizme.production.dto.ProblemOptionDto;
 import com.mumomu.exquizme.production.repository.HostRepository;
 import com.mumomu.exquizme.production.repository.ProblemOptionRepository;
 import com.mumomu.exquizme.production.repository.ProblemRepository;
@@ -208,78 +209,4 @@ public class ProblemCRUDTest {
 
         getProblemTest();
     }
-
-    @Test
-    @Transactional
-    void getProblemOptionTest() throws Exception {
-        List<ProblemOption> problemOptions;
-        List<Problem> problems = problemService.getProblemsByProblemsetId(problemset.getId());
-        for (int i = 0; i < problems.size(); i++) {
-            if (problems.get(i).getDtype().equals("SubjectiveProblem")) {
-                final int temp = i;
-                assertThrows(Exception.class, () -> { //주관식 문제는 ProblemOption이 없다
-                    problemService.getProblemOptionById(problems.get(temp).getId());
-                });
-                continue;
-            }
-            problemOptions = problemService.getProblemOptionById(problems.get(i).getId());
-            for (ProblemOption po : problemOptions) {
-                System.out.println("id : " + po.getId());
-                System.out.println("idx : " + po.getIdx());
-                System.out.println("description : " + po.getDescription() + "\n"); //idx 순으로 정렬되어 나옴
-            }
-        }
-
-        for (int i = 0; i < problems.size(); i++) {
-            if (problems.get(i).getDtype().equals("MultipleChoiceProblem")) {
-                problemOptions = ((MultipleChoiceProblem) problems.get(i)).getProblemOptions();
-                System.out.println("size = " + problemOptions.size());
-                for (ProblemOption po : problemOptions) {
-                    System.out.println("id : " + po.getId());
-                    System.out.println("idx : " + po.getIdx());
-                    System.out.println("description : " + po.getDescription() + "\n"); //idx 순으로 정렬되어 나옴
-                }
-            }
-        }
-    }
-
-    @Test
-    @Transactional
-    void postProblemOptionTest() throws Exception {
-        postProblemTest();
-
-        List<Problem> problems = problemService.getProblemsByProblemsetId(problemset.getId());
-        Problem curProblem = problems.get(problems.size() - 1);
-
-        problemService.makeProblemOption(curProblem.getId(), 3, "새로 만든 선택지 4", null);
-        problemService.makeProblemOption(curProblem.getId(), 1, "새로 만든 선택지 2", null);
-        problemService.makeProblemOption(curProblem.getId(), 0, "새로 만든 선택지 1", null);
-        problemService.makeProblemOption(curProblem.getId(), 2, "새로 만든 선택지 3", null);
-
-        assertThrows(Exception.class, () -> { //존재하지 않는 problem에 선택지 추가 시도
-            problemService.makeProblemOption(99999L, 0, "새로 만들려고 하는 선택지", null);
-        });
-
-        assertThrows(Exception.class, () -> { //주관식 문제에 선택지 추가 시도
-            problemService.makeProblemOption(subjectiveProblem.getId(), 0, "새로 만들려고 하는 선택지", null);
-        });
-
-        getProblemOptionTest();
-    }
-
-    @Test
-    @Transactional
-    void putProblemOptionTest() throws Exception {
-        List<ProblemOption> problemOptions = problemService.getProblemOptionById(multipleChoiceProblem.getId());
-        for (int i = 0; i < problemOptions.size(); i++) {
-            problemService.updateProblemOption(problemOptions.get(i).getId(), i, "업데이트하는 설명 #" + (i + 1), null);
-        }
-
-        assertThrows(Exception.class, () -> { //존재하지 않는 problem option에 수정 시도
-            problemService.updateProblemOption(99999L, 0, "업데이트하려는 설명", null);
-        });
-
-        getProblemOptionTest();
-    }
-
 }

@@ -11,6 +11,7 @@ import com.mumomu.exquizme.production.domain.Problemset;
 import com.mumomu.exquizme.production.domain.problemtype.MultipleChoiceProblem;
 import com.mumomu.exquizme.production.domain.problemtype.OXProblem;
 import com.mumomu.exquizme.production.domain.problemtype.SubjectiveProblem;
+import com.mumomu.exquizme.production.dto.ProblemOptionDto;
 import com.mumomu.exquizme.production.exception.*;
 import com.mumomu.exquizme.production.repository.HostRepository;
 import com.mumomu.exquizme.production.repository.ProblemOptionRepository;
@@ -26,6 +27,7 @@ import javax.transaction.Transactional;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -241,19 +243,18 @@ public class ProblemService {
     }
 
     @Transactional
-    public List<ProblemOption> getProblemOptionById(Long problemId) throws Exception {
+    public List<ProblemOptionDto> getProblemOptionById(Long problemId) throws Exception {
         Optional<Problem> problemOptional = problemRepository.findOneById(problemId);
         if (problemOptional.isEmpty()) {
             throw new ProblemNotFoundException("Problem not found");
         }
         Problem problem = problemOptional.get();
         if (problem.getDtype().equals("SubjectiveProblem")) {
-            throw new ProblemOptionAccessToSubjectiveProblemException("Subjective problem has no options");
+            return SubjectiveProblem.createRandomProblemOptions(problem.getAnswer(), 10);
         }
 
         try {
-            List<ProblemOption> problemOptions = problemOptionRepository.findAllByProblemOrderByIdxAsc(problemRepository.findOneById(problemId).get());
-            return problemOptions;
+            return problemOptionRepository.findAllByProblemOrderByIdxAsc(problemRepository.findOneById(problemId).get()).stream().map(p -> new ProblemOptionDto(p)).collect(Collectors.toList());
         } catch (Exception e) {
             throw new ProblemNotFoundException("Problem not found");
         }
@@ -340,6 +341,7 @@ public class ProblemService {
                 subjectiveProblem.setPicture(picture);
                 subjectiveProblem.setAnswer(answer);
                 subjectiveProblem.setUpdatedAt(new Date());
+
 
                 subjectiveProblemRepository.save(subjectiveProblem);
 
