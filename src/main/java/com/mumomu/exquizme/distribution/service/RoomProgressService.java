@@ -48,9 +48,9 @@ public class RoomProgressService {
         answerRepository.save(answer);
         targetParticipant.submitAnswer(answer);
 
-        int score = 0;
-        if(targetProblem.getAnswer().equals(answerSubmitForm.getAnswerText()))
-            score = targetProblem.solve();
+        if(targetProblem.getAnswer().equals(answerSubmitForm.getAnswerText())){
+            targetParticipant.updateScore(targetProblem.solve());
+        }
         else
             targetProblem.wrong();
     }

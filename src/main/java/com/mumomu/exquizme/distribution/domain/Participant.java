@@ -60,6 +60,11 @@ public class Participant {
         this.answers.add(answer);
     }
 
+    public void updateScore(int score){
+        this.beforeScore = this.currentScore;
+        this.currentScore += score;
+    }
+
     public void setName(String name) {
         this.name = name;
     }

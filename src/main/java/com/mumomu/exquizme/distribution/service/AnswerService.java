@@ -26,7 +26,6 @@ public class AnswerService {
         String answer = targetRoom.getProblemset().getProblems().get(targetRoom.getCurrentProblemNum()).getAnswer();
         List<Participant> pariticipants = roomService.findParticipantsByRoomPin(roomPin);
 
-        List<Answer> submits = new ArrayList<>();
         for (Participant p : pariticipants) {
             Answer curAnswer = p.getAnswers().stream().filter(
                     a -> a.getProblemIdx() == problemIdx

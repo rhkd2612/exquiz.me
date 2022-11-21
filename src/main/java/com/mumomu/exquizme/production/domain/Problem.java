@@ -65,7 +65,7 @@ public class Problem {
     public int solve(){
         this.totalTry++;
         this.totalCorrect++;
-        return this.score;
+        return (int)((double)this.score * Math.pow(0.95f, totalCorrect - 1));
     }
 
     public void wrong(){
