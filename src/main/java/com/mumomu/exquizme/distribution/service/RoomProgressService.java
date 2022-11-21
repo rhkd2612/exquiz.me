@@ -59,6 +59,10 @@ public class RoomProgressService {
     @Transactional
     public Problem startRoom(String roomPin) throws InvalidRoomAccessException {
         Room targetRoom = roomService.findRoomByPin(roomPin);
+
+        for (Problem problem : targetRoom.getProblemset().getProblems())
+            problem.reset();
+
         return getFirstProblem(targetRoom);
     }
 
@@ -70,7 +74,8 @@ public class RoomProgressService {
         if(targetRoom.getCurrentProblemNum() + 1 >= problems.size())
             throw new NoMoreProblemException("문제셋에 남은 문제가 없습니다.");
 
-        return problems.get(targetRoom.getCurrentProblemNum() + 1);
+        return problems.stream().filter(
+                p -> p.getIdx().equals(targetRoom.getCurrentProblemNum() + 1)).findFirst().get();
     }
 
     @Transactional
@@ -83,6 +88,7 @@ public class RoomProgressService {
     public Problem getFirstProblem(Room room) throws InvalidRoomAccessException {
         if(room.getCurrentState() != RoomState.READY)
             throw new InvalidRoomAccessException("해당하는 시작 대기 중인 방이 없습니다.");
+
         room.setCurrentState(RoomState.PLAY);
         room.setCurrentProblemNum(0);
 
@@ -96,10 +102,14 @@ public class RoomProgressService {
     public Problem nextProblem(Room room) throws NoMoreProblemException {
         List<Problem> problems = room.getProblemset().getProblems();
 
-        if(room.getCurrentProblemNum() + 1 >= problems.size())
+        if(room.getCurrentProblemNum() + 1 >= problems.size()){
+            room.setCurrentState(RoomState.FINISH);
             throw new NoMoreProblemException("문제셋에 남은 문제가 없습니다.");
+        }
 
         room.setCurrentProblemNum(room.getCurrentProblemNum() + 1);
-        return problems.get(room.getCurrentProblemNum());
+
+        return problems.stream().filter(
+                p -> p.getIdx().equals(room.getCurrentProblemNum())).findFirst().get();
     }
 }

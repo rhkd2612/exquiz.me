@@ -32,8 +32,8 @@ public class RoomProgressController {
     private final AnswerService answerService;
 
     // TODO DTO로 변경해야함
-    @GetMapping("/submitList")
-    @Operation(summary = "이번문제 정답제출 리스트", description = "방의 현재 문제의 제출 결과를 반환합니다.")
+    @GetMapping("/submit_list")
+    @Operation(summary = "이번문제 정답 리스트", description = "방의 현재 문제의 제출 결과를 반환합니다.")
     @ApiImplicitParam(name = "roomPin", value = "방의 핀번호(Path)", required = true, dataType = "String", paramType = "path")
     @ApiResponse(responseCode = "200", description = "조회 성공")
     @ApiResponse(responseCode = "404", description = "퀴즈 없음")

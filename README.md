@@ -301,7 +301,7 @@ Description:
 ```
 
 ```java
-[ToClientSubscriber]
+[ToAllSubscriber]
 Event Name:
         /room/{roomPin}/next
 

@@ -58,6 +58,10 @@ public class Problem {
     @Setter
     protected Boolean deleted;
 
+    public void reset(){
+        this.totalTry = 0;
+        this.totalCorrect = 0;
+    }
     public int solve(){
         this.totalTry++;
         this.totalCorrect++;
