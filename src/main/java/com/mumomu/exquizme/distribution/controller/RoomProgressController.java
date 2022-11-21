@@ -38,6 +38,8 @@ public class RoomProgressController {
     @ApiResponse(responseCode = "200", description = "조회 성공")
     @ApiResponse(responseCode = "404", description = "퀴즈 없음")
     public ResponseEntity<?> submitList(@PathVariable String roomPin){
+        log.info("submitList 요청");
+
         try {
             int currentProblemNum = roomService.findRoomByPin(roomPin).getCurrentProblemNum();
             return ResponseEntity.ok(answerService.findAnswerListByProblemIdx(roomPin, currentProblemNum));

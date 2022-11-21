@@ -21,6 +21,7 @@ public class AnswerService {
 
     @Transactional
     public AnswerListDto findAnswerListByProblemIdx(String roomPin, int problemIdx){
+        log.info("AnswerListDto 생성");
         AnswerListDto answerListDto = new AnswerListDto();
         Room targetRoom = roomService.findRoomByPin(roomPin);
         String answer = targetRoom.getProblemset().getProblems().get(targetRoom.getCurrentProblemNum()).getAnswer();
@@ -33,7 +34,7 @@ public class AnswerService {
 
             answerListDto.addParticipant(new ParticipantDto(p),curAnswer.getAnswerText().equals(answer));
         }
-
+        log.info("AnswerListDto 반환");
         return answerListDto;
     }
 }
