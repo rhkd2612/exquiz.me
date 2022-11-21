@@ -46,8 +46,7 @@ public class RoomProgressService {
 
         Answer answer = Answer.ByBasicBuilder().participant(targetParticipant).problemIdx(answerSubmitForm.getProblemIdx()).answerText(answerSubmitForm.getAnswerText()).build();
         answerRepository.save(answer);
-
-        targetParticipant.getAnswers().add(answer);
+        targetParticipant.submitAnswer(answer);
 
         int score = 0;
         if(targetProblem.getAnswer().equals(answerSubmitForm.getAnswerText()))

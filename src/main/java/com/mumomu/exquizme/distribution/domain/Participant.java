@@ -56,6 +56,9 @@ public class Participant {
         this.answers = new ArrayList<>();
     }
 
+    public void submitAnswer(Answer answer){
+        this.answers.add(answer);
+    }
 
     public void setName(String name) {
         this.name = name;
