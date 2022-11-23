@@ -25,9 +25,9 @@ public class AnswerService {
         AnswerListDto answerListDto = new AnswerListDto();
         Room targetRoom = roomService.findRoomByPin(roomPin);
         String answer = targetRoom.getProblemset().getProblems().stream().filter(p -> p.getIdx().equals(targetRoom.getCurrentProblemNum())).findFirst().get().getAnswer();
-        List<Participant> pariticipants = roomService.findParticipantsByRoomPin(roomPin);
+        List<Participant> participants = roomService.findParticipantsByRoomPin(roomPin);
 
-        for (Participant p : pariticipants) {
+        for (Participant p : participants) {
             if(p.getAnswers().isEmpty()){
                 answerListDto.addParticipant(new ParticipantDto(p), false);
                 continue;
@@ -39,6 +39,9 @@ public class AnswerService {
 
             answerListDto.addParticipant(new ParticipantDto(p),curAnswer.getAnswerText().equalsIgnoreCase(answer));
         }
+
+        answerListDto.sortParticipantByScore();
+
         log.info("AnswerListDto 반환");
         return answerListDto;
     }
