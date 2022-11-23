@@ -28,6 +28,11 @@ public class AnswerService {
         List<Participant> pariticipants = roomService.findParticipantsByRoomPin(roomPin);
 
         for (Participant p : pariticipants) {
+            if(p.getAnswers().isEmpty()){
+                answerListDto.addParticipant(new ParticipantDto(p), false);
+                continue;
+            }
+
             Answer curAnswer = p.getAnswers().stream().filter(
                     a -> a.getProblemIdx() == problemIdx
             ).findFirst().get();

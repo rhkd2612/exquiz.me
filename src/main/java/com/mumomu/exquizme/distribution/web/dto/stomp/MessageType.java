@@ -6,5 +6,6 @@ public enum MessageType {
     NEW_PROBLEM,
     MOVE_DATA,
     STOP,
+    FINISH,
     ERROR
 }

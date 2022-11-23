@@ -294,6 +294,12 @@ Callback:
         }
 }
 
+# 문제셋에 문제가 없을 시
+{
+        "messageType" : MessageType // "FINISH"
+        "fromSession" : String, // null
+}
+
 Description:
         "방을 시작하고 사용자에게 전파하는 API"
         // 선생님 화면에서 시작하기 버튼 누르면
@@ -332,6 +338,12 @@ Callback:
         }
 }
 
+# 문제셋에 문제가 없을 시
+{
+        "messageType" : MessageType // "FINISH"
+        "fromSession" : String, // null
+}
+
 Description:
         "방의 다음 문제를 사용자에게 전파하는 API"
         // 교사가 next 누르면 학생/교사 화면 전환
@@ -347,7 +359,6 @@ Path Variable:
 
 Args:
 {
-        "messageType" : MessageType // 반드시 "ANSWER"
         "fromSession": String, // 사용자 session id - google login시 발급
         "problemIdx" : int; // 문제 번호
         "x" : int;
@@ -378,7 +389,6 @@ Path Variable:
 
 Args:
 {
-        "messageType" : MessageType // 반드시 "ANSWER"
         "fromSession" : String, // 사용자 session id - google login시 발급
         "problemIdx" : int, // 제출한 문제의 번호
         "answerText" : String // 문제 정답

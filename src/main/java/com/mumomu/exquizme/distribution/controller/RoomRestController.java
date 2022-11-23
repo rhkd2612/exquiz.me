@@ -53,10 +53,10 @@ public class RoomRestController {
             // 3. Make Response
             return new ResponseEntity(createRoomDto, HttpStatus.CREATED);
         } catch (CreateRandomPinFailureException e) {
-            log.info("error : " + e.getMessage());
+            log.error("error : " + e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.REQUEST_TIMEOUT);
         } catch (NullPointerException e) {
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
@@ -76,10 +76,10 @@ public class RoomRestController {
             roomService.checkRoomState(roomPin);
             return ResponseEntity.ok(new RoomDto(targetRoom));
         } catch (NullPointerException e) {
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (IllegalAccessException e) {
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
@@ -98,7 +98,7 @@ public class RoomRestController {
             // 3. Make Response
             return new ResponseEntity<>(null, HttpStatus.FOUND);
         } catch (NullPointerException e) {
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
     }

@@ -48,7 +48,10 @@ public class RoomProgressService {
         answerRepository.save(answer);
         targetParticipant.submitAnswer(answer);
 
-        if(targetProblem.getAnswer().equals(answerSubmitForm.getAnswerText())){
+        log.info("사용자 제출 : " + answerSubmitForm.getAnswerText().toUpperCase());
+        log.info("실제 답 : " + targetProblem.getAnswer().toUpperCase());
+
+        if(targetProblem.getAnswer().toUpperCase().equals(answerSubmitForm.getAnswerText().toUpperCase())){
             targetParticipant.updateScore(targetProblem.solve());
         }
         else
