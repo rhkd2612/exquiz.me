@@ -41,8 +41,7 @@ public class RoomProgressController {
         log.info("submitList 요청");
 
         try {
-            int currentProblemNum = roomService.findRoomByPin(roomPin).getCurrentProblemNum();
-            return ResponseEntity.ok(answerService.findAnswerListByProblemIdx(roomPin, currentProblemNum));
+            return ResponseEntity.ok(answerService.findAnswerListByProblemIdx(roomPin));
         }catch(InvalidRoomAccessException e){
             log.error(e.getMessage());
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);

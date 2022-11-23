@@ -20,7 +20,7 @@ public class AnswerService {
     private final RoomService roomService;
 
     @Transactional
-    public AnswerListDto findAnswerListByProblemIdx(String roomPin, int problemIdx){
+    public AnswerListDto findAnswerListByProblemIdx(String roomPin){
         log.info("AnswerListDto 생성");
         AnswerListDto answerListDto = new AnswerListDto();
         Room targetRoom = roomService.findRoomByPin(roomPin);
@@ -34,10 +34,10 @@ public class AnswerService {
             }
 
             Answer curAnswer = p.getAnswers().stream().filter(
-                    a -> a.getProblemIdx() == problemIdx
+                    a -> a.getProblemIdx() == targetRoom.getCurrentProblemNum()
             ).findFirst().get();
 
-            answerListDto.addParticipant(new ParticipantDto(p),curAnswer.getAnswerText().equals(answer));
+            answerListDto.addParticipant(new ParticipantDto(p),curAnswer.getAnswerText().equalsIgnoreCase(answer));
         }
         log.info("AnswerListDto 반환");
         return answerListDto;

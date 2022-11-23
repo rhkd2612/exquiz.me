@@ -52,6 +52,7 @@ public class RoomProgressService {
         log.info("실제 답 : " + targetProblem.getAnswer().toUpperCase());
 
         if(targetProblem.getAnswer().equalsIgnoreCase(answerSubmitForm.getAnswerText())){
+            log.info("사용자" + answerSubmitForm.getFromSession() + "정답!");
             targetParticipant.updateScore(targetProblem.solve());
         }
         else
