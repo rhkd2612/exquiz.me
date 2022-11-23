@@ -37,7 +37,7 @@ public class RoomProgressService {
     public void updateParticipantInfo(String roomPin, StompAnswerSubmitForm answerSubmitForm) throws IllegalStateException {
         Room targetRoom = roomService.findRoomByPin(roomPin);
         Participant targetParticipant = roomService.findParticipantBySessionId(answerSubmitForm.getFromSession(), roomPin);
-        Problem targetProblem = targetRoom.getProblemset().getProblems().get(answerSubmitForm.getProblemIdx());
+        Problem targetProblem = targetRoom.getProblemset().getProblems().stream().filter(p -> p.getIdx().equals(answerSubmitForm.getProblemIdx())).findFirst().get();
 
         targetParticipant.getAnswers().forEach(a -> {
             if(a.getProblemIdx() == answerSubmitForm.getProblemIdx())
@@ -51,7 +51,7 @@ public class RoomProgressService {
         log.info("사용자 제출 : " + answerSubmitForm.getAnswerText().toUpperCase());
         log.info("실제 답 : " + targetProblem.getAnswer().toUpperCase());
 
-        if(targetProblem.getAnswer().toUpperCase().equals(answerSubmitForm.getAnswerText().toUpperCase())){
+        if(targetProblem.getAnswer().equalsIgnoreCase(answerSubmitForm.getAnswerText())){
             targetParticipant.updateScore(targetProblem.solve());
         }
         else

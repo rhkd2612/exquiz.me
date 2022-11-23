@@ -24,7 +24,7 @@ public class AnswerService {
         log.info("AnswerListDto 생성");
         AnswerListDto answerListDto = new AnswerListDto();
         Room targetRoom = roomService.findRoomByPin(roomPin);
-        String answer = targetRoom.getProblemset().getProblems().get(targetRoom.getCurrentProblemNum()).getAnswer();
+        String answer = targetRoom.getProblemset().getProblems().stream().filter(p -> p.getIdx().equals(targetRoom.getCurrentProblemNum())).findFirst().get().getAnswer();
         List<Participant> pariticipants = roomService.findParticipantsByRoomPin(roomPin);
 
         for (Participant p : pariticipants) {
