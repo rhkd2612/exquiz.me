@@ -10,6 +10,7 @@ import com.mumomu.exquizme.distribution.web.dto.stomp.StompAnswerSubmitForm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -22,7 +23,7 @@ public class AnswerService {
     private final RoomProgressService roomProgressService;
     private final RoomService roomService;
 
-    @Transactional
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
     public AnswerList findAnswerListByProblemIdx(String roomPin) {
         log.info("AnswerListDto 생성");
         AnswerList answerList = new AnswerList();
