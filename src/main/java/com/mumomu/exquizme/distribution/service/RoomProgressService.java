@@ -108,7 +108,7 @@ public class RoomProgressService {
         List<Problem> problems = room.getProblemset().getProblems();
 
         if(room.getCurrentProblemNum() + 1 >= problems.size()){
-            room.setCurrentState(RoomState.FINISH);
+            roomService.closeRoomByPin(room.getPin());
             throw new NoMoreProblemException("문제셋에 남은 문제가 없습니다.");
         }
 

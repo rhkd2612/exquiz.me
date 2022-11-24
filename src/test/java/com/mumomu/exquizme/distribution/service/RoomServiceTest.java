@@ -54,8 +54,12 @@ class RoomServiceTest {
 
     @AfterEach
     void setDown(){
-        roomService.closeRoomByPin(room.getPin());
-        roomService.closeRoomByPin(room2.getPin());
+        try {
+            roomService.closeRoomByPin(room.getPin());
+            roomService.closeRoomByPin(room2.getPin());
+        } catch (Exception ignored){
+
+        }
     }
 
     @Test
@@ -137,9 +141,7 @@ class RoomServiceTest {
     @Transactional
     @DisplayName("방삭제")
     void closeRoom(){
-        String pin = room.getPin();
-
-        Room roomByPin = roomService.closeRoomByPin(pin);
+        roomService.closeRoomByPin(roomPin);
     }
 
     @Test

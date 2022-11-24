@@ -93,7 +93,7 @@ public class RoomRestController {
         try {
             // 2. Business Logic
             Room room = roomService.closeRoomByPin(roomPin);
-            RoomDto deleteRoomDto = new RoomDto(room);
+            //RoomDto deleteRoomDto = new RoomDto(room);
 
             // 3. Make Response
             return new ResponseEntity<>(null, HttpStatus.FOUND);
