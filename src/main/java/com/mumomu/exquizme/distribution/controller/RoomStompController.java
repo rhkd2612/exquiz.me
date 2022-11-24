@@ -144,7 +144,7 @@ public class RoomStompController {
 
         try {
             checkSubmitIsCurrentProblem(roomPin, answerForm.getProblemIdx());
-            roomProgressService.updateParticipantInfo(roomPin, answerForm);
+            answerForm.setTotalSubmitAmount(roomProgressService.updateParticipantInfo(roomPin, answerForm));
             messageToHostSubscriber(roomPin, answerForm);
         } catch (Exception e) {
             log.error(e.getMessage());

@@ -34,7 +34,7 @@ public class RoomProgressService {
     private final RoomService roomService;
 
     @Transactional
-    public void updateParticipantInfo(String roomPin, StompAnswerSubmitForm answerSubmitForm) throws IllegalStateException {
+    public int updateParticipantInfo(String roomPin, StompAnswerSubmitForm answerSubmitForm) throws IllegalStateException {
         Room targetRoom = roomService.findRoomByPin(roomPin);
         Participant targetParticipant = roomService.findParticipantBySessionId(answerSubmitForm.getFromSession(), roomPin);
         Problem targetProblem = targetRoom.getProblemset().getProblems().stream().filter(p -> p.getIdx().equals(answerSubmitForm.getProblemIdx())).findFirst().get();
@@ -59,6 +59,8 @@ public class RoomProgressService {
             targetParticipant.wrongAnswer();
             targetProblem.wrong();
         }
+
+        return targetProblem.getTotalTry();
     }
 
     @Transactional
