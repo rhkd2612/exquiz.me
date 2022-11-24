@@ -75,7 +75,10 @@ public class RoomStompController {
             headerAccessor.setSessionId(sessionId);
 
             Participant savedParticipant = roomService.joinParticipant(participateForm, roomPin, sessionId);
-            StompParticipantSignup stompParticipantSignup = new StompParticipantSignup(MessageType.PARTICIPANT, sessionId, savedParticipant, roomService.findParticipantDtosByRoomPin(roomPin), savedParticipant.getImageNumber(), savedParticipant.getColorNumber());
+            List<ParticipantDto> participantDtos = roomService.findParticipantDtosByRoomPin(roomPin);
+            log.info("participantDtos size is " + participantDtos.size());
+
+            StompParticipantSignup stompParticipantSignup = new StompParticipantSignup(MessageType.PARTICIPANT, sessionId, savedParticipant, participantDtos, savedParticipant.getImageNumber(), savedParticipant.getColorNumber());
 
             messageToHostSubscriber(roomPin, stompParticipantSignup); // 본인에게 세션 아이디를 줘야함.. 근데 이 방법은 안됨.. 일단 닉네임으로 구분해서 받자
         } catch (Exception e) {

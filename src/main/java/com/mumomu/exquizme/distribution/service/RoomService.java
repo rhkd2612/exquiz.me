@@ -84,8 +84,9 @@ public class RoomService {
             targetParticipant.setNickname(participateForm.getNickname());
             targetParticipant.setImageNumber(participateForm.getImageNumber());
             targetParticipant.setColorNumber(participateForm.getColorNumber());
-            participantRepository.flush();
         }
+
+        participantRepository.flush();
 
         return participant;
     }
@@ -223,7 +224,10 @@ public class RoomService {
         Room room = Room.ByBasicBuilder().pin(randomPin).problemset(roomProblemset).maxParticipantCount(maxParticipantCount).roomName(roomName).build();
         log.info("random Pin is {}", randomPin);
 
-        return roomRepository.save(room);
+        Room savedRoom = roomRepository.save(room);
+        roomRepository.flush();
+
+        return savedRoom;
     }
 
     @Transactional(readOnly = true)
