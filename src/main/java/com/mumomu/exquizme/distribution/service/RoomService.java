@@ -42,7 +42,12 @@ public class RoomService {
 
     @Transactional
     public Participant joinParticipant(ParticipantCreateForm participateForm, String roomPin, String sessionId) throws IllegalAccessException {
-        Room targetRoom = findRoomByPin(roomPin);
+        Optional<Room> optRoom = roomRepository.findRoomByPin(roomPin);
+
+        if (optRoom.isEmpty() || optRoom.get().getCurrentState() == RoomState.FINISH)
+            throw new InvalidRoomAccessException("존재하지 않는 방입니다.");
+
+        Room targetRoom = optRoom.get();
         checkRoomState(targetRoom);
 
         Participant participant =
