@@ -3,14 +3,13 @@ package com.mumomu.exquizme.distribution.service;
 import com.mumomu.exquizme.distribution.domain.Answer;
 import com.mumomu.exquizme.distribution.domain.Participant;
 import com.mumomu.exquizme.distribution.domain.Room;
-import com.mumomu.exquizme.distribution.web.dto.AnswerListDto;
+import com.mumomu.exquizme.distribution.web.dto.AnswerList;
 import com.mumomu.exquizme.distribution.web.dto.ParticipantDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -20,16 +19,16 @@ public class AnswerService {
     private final RoomService roomService;
 
     @Transactional
-    public AnswerListDto findAnswerListByProblemIdx(String roomPin){
+    public AnswerList findAnswerListByProblemIdx(String roomPin){
         log.info("AnswerListDto 생성");
-        AnswerListDto answerListDto = new AnswerListDto();
+        AnswerList answerList = new AnswerList();
         Room targetRoom = roomService.findRoomByPin(roomPin);
         String answer = targetRoom.getProblemset().getProblems().stream().filter(p -> p.getIdx().equals(targetRoom.getCurrentProblemNum())).findFirst().get().getAnswer();
         List<Participant> participants = roomService.findParticipantsByRoomPin(roomPin);
 
         for (Participant p : participants) {
             if(p.getAnswers().isEmpty()){
-                answerListDto.addParticipant(new ParticipantDto(p), false);
+                answerList.addParticipant(new ParticipantDto(p, false));
                 continue;
             }
 
@@ -37,12 +36,12 @@ public class AnswerService {
                     a -> a.getProblemIdx() == targetRoom.getCurrentProblemNum()
             ).findFirst().get();
 
-            answerListDto.addParticipant(new ParticipantDto(p),curAnswer.getAnswerText().equalsIgnoreCase(answer));
+            answerList.addParticipant(new ParticipantDto(p, curAnswer.getAnswerText().equalsIgnoreCase(answer)));
         }
 
-        answerListDto.sortParticipantByScore();
+        answerList.sortParticipantByScore();
 
         log.info("AnswerListDto 반환");
-        return answerListDto;
+        return answerList;
     }
 }

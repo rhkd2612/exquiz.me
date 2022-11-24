@@ -11,18 +11,16 @@ import java.util.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AnswerListDto {
+public class AnswerList {
     private int totalCorrectCount;
     private List<ParticipantDto> beforeParticipantInfo = new ArrayList<>();
     private List<ParticipantDto> participantInfo = new ArrayList<>();
-    private List<Boolean> isCorrect = new ArrayList<>();
 
-    public void addParticipant(ParticipantDto participantDto, boolean isCorrect){
+    public void addParticipant(ParticipantDto participantDto){
         beforeParticipantInfo.add(participantDto);
         participantInfo.add(participantDto);
-        this.isCorrect.add(isCorrect);
 
-        if(isCorrect)
+        if(participantDto.isCorrect())
             this.totalCorrectCount++;
     }
 

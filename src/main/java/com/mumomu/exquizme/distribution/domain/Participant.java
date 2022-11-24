@@ -39,6 +39,7 @@ public class Participant {
     private Date entryDate; // 생성일(입장시간)
     private int currentScore; // 점수
     private int beforeScore; // 이전 점수
+    private int totalCorrect; // 총 맞춘 개수
     private int continuousCorrect; // 연속 정답
     private int continuousFailure; // 연속 실패
 
@@ -51,6 +52,7 @@ public class Participant {
         this.entryDate = new Date();
         this.currentScore = 0;
         this.beforeScore = 0;
+        this.totalCorrect = 0;
         this.continuousCorrect = 0;
         this.continuousFailure = 0;
         this.answers = new ArrayList<>();
@@ -61,8 +63,17 @@ public class Participant {
     }
 
     public void updateScore(int score){
+        this.totalCorrect++;
+        this.continuousCorrect++;
+        this.continuousFailure = 0;
+
         this.beforeScore = this.currentScore;
         this.currentScore += score;
+    }
+
+    public void wrongAnswer(){
+        this.continuousCorrect = 0;
+        this.continuousFailure++;
     }
 
     public void setName(String name) {

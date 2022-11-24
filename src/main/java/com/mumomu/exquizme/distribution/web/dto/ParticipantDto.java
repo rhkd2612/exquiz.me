@@ -20,8 +20,21 @@ public class ParticipantDto {
     private int beforeScore;
     private int imageNumber;
     private int colorNumber;
+    private int totalCorrect;
+    private int continuousCorrect; // 연속 정답
+    private int continuousFailure; // 연속 실패
+    private boolean isCorrect;
 
     public ParticipantDto(Participant participant) {
+        setDefaultInfo(participant);
+    }
+
+    public ParticipantDto(Participant participant, boolean isCorrect) {
+        setDefaultInfo(participant);
+        this.isCorrect = isCorrect;
+    }
+
+    private void setDefaultInfo(Participant participant) {
         this.id = participant.getId();
         this.sessionId = participant.getSessionId();
         this.name = participant.getName();
@@ -31,5 +44,9 @@ public class ParticipantDto {
         this.currentScore = participant.getCurrentScore();
         this.imageNumber = participant.getImageNumber();
         this.colorNumber = participant.getColorNumber();
+        this.totalCorrect = participant.getTotalCorrect();
+        this.continuousCorrect = participant.getContinuousCorrect();
+        this.continuousFailure = participant.getContinuousFailure();
     }
+
 }

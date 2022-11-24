@@ -84,11 +84,11 @@ public class StompConfig implements WebSocketMessageBrokerConfigurer {
         return socketAddressSupplier;
     }
 
-    @Scheduled(fixedDelay = 100000000)
-    private void clearSuccessIndex(){
-        System.out.println("clear successIdx");
-        successIndex = -1;
-    }
+//    @Scheduled(fixedDelay = 100000000)
+//    private void clearSuccessIndex(){
+//        System.out.println("clear successIdx");
+//        successIndex = -1;
+//    }
 
     private int flipIndex(){
         return 1 - index;

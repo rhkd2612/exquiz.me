@@ -55,8 +55,10 @@ public class RoomProgressService {
             log.info("사용자" + answerSubmitForm.getFromSession() + "정답!");
             targetParticipant.updateScore(targetProblem.solve());
         }
-        else
+        else{
+            targetParticipant.wrongAnswer();
             targetProblem.wrong();
+        }
     }
 
     @Transactional
