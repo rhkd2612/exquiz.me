@@ -44,8 +44,10 @@ public class RoomService {
     public Participant joinParticipant(ParticipantCreateForm participateForm, String roomPin, String sessionId) throws IllegalAccessException {
         Optional<Room> optRoom = roomRepository.findRoomByPin(roomPin);
 
-        if (optRoom.isEmpty() || optRoom.get().getCurrentState() == RoomState.FINISH)
-            throw new InvalidRoomAccessException("존재하지 않는 방입니다.");
+        if (optRoom.isEmpty())
+            throw new InvalidRoomAccessException("존재하지 않는 방입니다. Pin : " + roomPin);
+        if(optRoom.get().getCurrentState() == RoomState.FINISH)
+            throw new InvalidRoomAccessException("종료된 방입니다. Pin : " + roomPin);
 
         Room targetRoom = optRoom.get();
         checkRoomState(targetRoom);
@@ -138,8 +140,10 @@ public class RoomService {
     public Room findRoomByPin(String roomPin) {
         Optional<Room> optRoom = roomRepository.findRoomByPin(roomPin);
 
-        if (optRoom.isEmpty() || optRoom.get().getCurrentState() == RoomState.FINISH)
-            throw new InvalidRoomAccessException("존재하지 않는 방입니다.");
+        if (optRoom.isEmpty())
+            throw new InvalidRoomAccessException("존재하지 않는 방입니다. Pin : " + roomPin);
+        if(optRoom.get().getCurrentState() == RoomState.FINISH)
+            throw new InvalidRoomAccessException("종료된 방입니다. Pin : " + roomPin);
 
         return optRoom.get();
     }
@@ -149,7 +153,9 @@ public class RoomService {
         Optional<Room> optRoom = roomRepository.findRoomByPin(roomPin);
 
         if (optRoom.isEmpty())
-            throw new InvalidRoomAccessException("존재하지 않는 방입니다.");
+            throw new InvalidRoomAccessException("존재하지 않는 방입니다. Pin : " + roomPin);
+        if(optRoom.get().getCurrentState() == RoomState.FINISH)
+            throw new InvalidRoomAccessException("종료된 방입니다. Pin : " + roomPin);
 
         Room targetRoom = optRoom.get();
 
@@ -158,31 +164,33 @@ public class RoomService {
         targetRoom.setCurrentState(RoomState.FINISH);
 
         // 방이 닫힐 시 사용자 정보 DB에서 제거
-        targetRoom.getParticipants().forEach(p -> {
-            participantRepository.delete(p);
-        });
+        participantRepository.deleteAll(targetRoom.getParticipants());
 
         return targetRoom;
     }
 
     @Transactional(readOnly = true)
     public List<Participant> findParticipantsByRoomPin(String roomPin) {
-        Optional<Room> targetOptRoom = roomRepository.findRoomByPin(roomPin);
+        Optional<Room> optRoom = roomRepository.findRoomByPin(roomPin);
 
-        if (targetOptRoom.isEmpty())
-            throw new InvalidRoomAccessException("존재하지 않는 방입니다.");
+        if (optRoom.isEmpty())
+            throw new InvalidRoomAccessException("존재하지 않는 방입니다. Pin : " + roomPin);
+        if(optRoom.get().getCurrentState() == RoomState.FINISH)
+            throw new InvalidRoomAccessException("종료된 방입니다. Pin : " + roomPin);
 
-        return targetOptRoom.get().getParticipants();
+        return optRoom.get().getParticipants();
     }
 
     @Transactional(readOnly = true)
     public List<ParticipantDto> findParticipantDtosByRoomPin(String roomPin) {
-        Optional<Room> targetOptRoom = roomRepository.findRoomByPin(roomPin);
+        Optional<Room> optRoom = roomRepository.findRoomByPin(roomPin);
 
-        if (targetOptRoom.isEmpty())
-            throw new InvalidRoomAccessException("존재하지 않는 방입니다.");
+        if (optRoom.isEmpty())
+            throw new InvalidRoomAccessException("존재하지 않는 방입니다. Pin : " + roomPin);
+        if(optRoom.get().getCurrentState() == RoomState.FINISH)
+            throw new InvalidRoomAccessException("종료된 방입니다. Pin : " + roomPin);
 
-        return targetOptRoom.get().getParticipants().stream().map(ParticipantDto::new).collect(Collectors.toList());
+        return optRoom.get().getParticipants().stream().map(ParticipantDto::new).collect(Collectors.toList());
     }
 
     @Transactional
