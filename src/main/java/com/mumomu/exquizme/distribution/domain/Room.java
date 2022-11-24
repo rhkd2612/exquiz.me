@@ -68,4 +68,8 @@ public class Room {
     public void setCurrentProblemNum(int currentProblemNum) {
         this.currentProblemNum = currentProblemNum;
     }
+
+    public void addParticipant(Participant participant){
+        this.participants.add(participant);
+    }
 }

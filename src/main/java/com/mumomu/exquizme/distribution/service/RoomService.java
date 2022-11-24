@@ -75,7 +75,7 @@ public class RoomService {
         }
 
         // TODO 닉네임 구분하여 입장하도록 설정
-        if (findOptParticipant.isEmpty()) {
+        if (findOptParticipant.isEmpty() || !findOptParticipant.get().getRoom().getPin().equals(roomPin)) {
             participantRepository.save(participant);
             addParticipant(participant.getRoom(), participant);
         } else {
@@ -246,7 +246,9 @@ public class RoomService {
 
     @Transactional
     public void addParticipant(Room room, Participant participant) {
-        room.getParticipants().add(participant);
-    }
+        room.addParticipant(participant);
 
+        roomRepository.flush();
+        participantRepository.flush();
+    }
 }
