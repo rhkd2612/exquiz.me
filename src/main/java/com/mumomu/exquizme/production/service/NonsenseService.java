@@ -58,7 +58,7 @@ public class NonsenseService {
             Pair.of("앞을 가려야만 잘 보이는 것은?", "안경"),
             Pair.of("얼굴은 여섯이고 눈은 21인 것은?", "주사위"),
             Pair.of("아무리 만원버스를 타도 앉아서 가는 사람은?", "운전사"),
-            Pair.of("자꾸 맞아야 사는 것은?", "팽이"),
+            Pair.of("자꾸 맞아야 사는 것은?", "팽이")
     );
 
     public Pair<String, String> getNonsense() {
