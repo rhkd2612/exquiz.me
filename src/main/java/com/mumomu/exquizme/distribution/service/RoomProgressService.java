@@ -26,11 +26,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class RoomProgressService {
-    private final RoomRepository roomRepository;
-    private final ParticipantRepository participantRepository;
     private final AnswerRepository answerRepository;
-
-    private final ProblemService problemService;
     private final RoomService roomService;
 
     @Transactional
@@ -60,7 +56,7 @@ public class RoomProgressService {
             targetProblem.wrong();
         }
 
-        return targetProblem.getTotalTry();
+        return targetRoom.getParticipants().size();
     }
 
     @Transactional
