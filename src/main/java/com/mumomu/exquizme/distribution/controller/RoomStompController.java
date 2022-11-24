@@ -77,7 +77,7 @@ public class RoomStompController {
             Participant savedParticipant = roomService.joinParticipant(participateForm, roomPin, sessionId);
             List<ParticipantDto> participantDtos = roomService.findParticipantDtosByRoomPin(roomPin);
 
-            log.info("roomPins is " + roomPin);
+            log.info("participantForm is " + participateForm.toString());
             log.info("participantDtos size is " + participantDtos.size());
 
             StompParticipantSignup stompParticipantSignup = new StompParticipantSignup(MessageType.PARTICIPANT, sessionId, savedParticipant, participantDtos, savedParticipant.getImageNumber(), savedParticipant.getColorNumber());
