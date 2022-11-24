@@ -1,24 +1,47 @@
 package com.mumomu.exquizme.distribution.service;
 
 import com.mumomu.exquizme.distribution.domain.Answer;
-import com.mumomu.exquizme.distribution.repository.AnswerRepository;
+import com.mumomu.exquizme.distribution.domain.Participant;
+import com.mumomu.exquizme.distribution.domain.Room;
+import com.mumomu.exquizme.distribution.web.dto.AnswerList;
+import com.mumomu.exquizme.distribution.web.dto.ParticipantDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class AnswerService {
-    private final AnswerRepository answerRepository;
     private final RoomService roomService;
 
-    public List<Answer> findAnswerListByProblemIdx(String roomPin, int problemIdx){
-        List<Answer> answers = answerRepository.findAnswersByProblemIdx(problemIdx).stream().filter(a ->
-                a.getParticipant().getRoom().getPin().equals(roomPin)).collect(Collectors.toList());
-        return answers;
+    @Transactional
+    public AnswerList findAnswerListByProblemIdx(String roomPin){
+        log.info("AnswerListDto 생성");
+        AnswerList answerList = new AnswerList();
+        Room targetRoom = roomService.findRoomByPin(roomPin);
+        String answer = targetRoom.getProblemset().getProblems().stream().filter(p -> p.getIdx().equals(targetRoom.getCurrentProblemNum())).findFirst().get().getAnswer();
+        List<Participant> participants = roomService.findParticipantsByRoomPin(roomPin);
+
+        for (Participant p : participants) {
+            if(p.getAnswers().isEmpty()){
+                answerList.addParticipant(new ParticipantDto(p, false));
+                continue;
+            }
+
+            Answer curAnswer = p.getAnswers().stream().filter(
+                    a -> a.getProblemIdx() == targetRoom.getCurrentProblemNum()
+            ).findFirst().get();
+
+            answerList.addParticipant(new ParticipantDto(p, curAnswer.getAnswerText().equalsIgnoreCase(answer)));
+        }
+
+        answerList.sortParticipantByScore();
+
+        log.info("AnswerListDto 반환");
+        return answerList;
     }
 }

@@ -57,8 +57,11 @@ class RoomRestControllerTest {
     public void setUP() throws Exception{
         mvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).apply(springSecurity()).build();
 
-        roomPin = roomService.newRoom(problemset,5).getPin();
-        roomPin2 = roomService.newRoom(problemset,2).getPin();
+        RoomCreateForm roomCreateForm = RoomCreateForm.builder().problemsetId(null).roomName("임시방이름").maxParticipantCount(5).build();
+        RoomCreateForm roomCreateForm2 = RoomCreateForm.builder().problemsetId(null).roomName("임시방이름").maxParticipantCount(2).build();
+
+        roomPin = roomService.newRoom(problemset, roomCreateForm).getPin();
+        roomPin2 = roomService.newRoom(problemset,roomCreateForm2).getPin();
     }
 
     @AfterEach
@@ -72,7 +75,7 @@ class RoomRestControllerTest {
     @Transactional
     @DisplayName("새로운퀴즈방생성")
     void newRoomTest() throws Exception{
-        RoomCreateForm roomCreateForm = new RoomCreateForm(5, 1L);
+        RoomCreateForm roomCreateForm = new RoomCreateForm(5, 1L, "임시방이름");
         mvc.perform(post("/api/room/newRoom")
                         .content(toJson(roomCreateForm))
                         .contentType(MediaType.APPLICATION_JSON))
@@ -86,7 +89,8 @@ class RoomRestControllerTest {
     @Transactional
     @DisplayName("퀴즈방폐쇄")
     void closeRoomTest() throws Exception {
-        String myRoomPin = roomService.newRoom(problemset,5).getPin();
+        RoomCreateForm roomCreateForm = new RoomCreateForm(5, 1L, "임시방이름");
+        String myRoomPin = roomService.newRoom(problemset, roomCreateForm).getPin();
 
         mvc.perform(post("/api/room/{roomPin}/close", myRoomPin))
                 .andExpect(status().isFound())

@@ -16,18 +16,20 @@ import javax.persistence.ManyToOne;
 @AllArgsConstructor
 public class ProblemOptionDto {
     private Long id;
-    private Problem problem;
     private Integer idx; //몇 번째 선택지인지
     private String description;
     private String picture;
-    private Integer pickcount;
+    private Integer pickCount;
+
+    public ProblemOptionDto(String description) {
+        this.description = description;
+    }
 
     public ProblemOptionDto(ProblemOption problemOption) {
         this.id = problemOption.getId();
-        this.problem = problemOption.getProblem();
         this.idx = problemOption.getIdx();
         this.description = problemOption.getDescription();
         this.picture = problemOption.getPicture();
-        this.pickcount = problemOption.getPickcount();
+        this.pickCount = problemOption.getPickcount();
     }
 }

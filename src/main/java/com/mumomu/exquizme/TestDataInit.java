@@ -43,35 +43,35 @@ public class TestDataInit {
     @PostConstruct
     @Transactional
     public void init() throws Exception{
-        oAuth2AccountRepository.save(OAuth2Account.builder()
-                .email("rhkd2612@gmail.com")
-                .nickname("이상빈")
-                .username("rhkd2612@gmail.com=google")
-                .activated(true)
-                .password(passwordEncoder.encode("NO_PASSWORD"))
-                .role(Role.ADMIN)
-                .build()
-        );
-
-        oAuth2AccountRepository.save(OAuth2Account.builder()
-                .email("netcopjr@gmail.com")
-                .nickname("김민겸")
-                .username("netcopjr@gmail.com=google")
-                .activated(true)
-                .password(passwordEncoder.encode("NO_PASSWORD"))
-                .role(Role.ADMIN)
-                .build()
-        );
-
-        oAuth2AccountRepository.save(OAuth2Account.builder()
-                .email("wnsgus821@gmail.com")
-                .nickname("임준현")
-                .username("wnsgus821@gmail.com=google")
-                .activated(true)
-                .password(passwordEncoder.encode("NO_PASSWORD"))
-                .role(Role.ADMIN)
-                .build()
-        );
+//        oAuth2AccountRepository.save(OAuth2Account.builder()
+//                .email("rhkd2612@gmail.com")
+//                .nickname("이상빈")
+//                .username("rhkd2612@gmail.com=google")
+//                .activated(true)
+//                .password(passwordEncoder.encode("NO_PASSWORD"))
+//                .role(Role.ADMIN)
+//                .build()
+//        );
+//
+//        oAuth2AccountRepository.save(OAuth2Account.builder()
+//                .email("netcopjr@gmail.com")
+//                .nickname("김민겸")
+//                .username("netcopjr@gmail.com=google")
+//                .activated(true)
+//                .password(passwordEncoder.encode("NO_PASSWORD"))
+//                .role(Role.ADMIN)
+//                .build()
+//        );
+//
+//        oAuth2AccountRepository.save(OAuth2Account.builder()
+//                .email("wnsgus821@gmail.com")
+//                .nickname("임준현")
+//                .username("wnsgus821@gmail.com=google")
+//                .activated(true)
+//                .password(passwordEncoder.encode("NO_PASSWORD"))
+//                .role(Role.ADMIN)
+//                .build()
+//        );
 
         Room room1 = roomRepository.save(Room.ByBasicBuilder().pin("100000").maxParticipantCount(5).build());
         Room room2 = roomRepository.save(Room.ByBasicBuilder().pin("200000").maxParticipantCount(5).build());
@@ -98,24 +98,24 @@ public class TestDataInit {
 
         Host host = hostRepository.save(Host.builder().name("호스트").nickname("Mumomu").build());
         Problemset problemset = problemService.makeProblemset(host.getId(),"tempTitle","tempDescription","Goodbye Command", 1, 1, 1);
-        Problem problem = problemService.makeProblem(problemset.getId(), "MultipleChoiceProblem",1,"tempTitle","tempDescription",30,100,null,"1");
+        Problem problem = problemService.makeProblem(problemset.getId(), "MultipleChoiceProblem",0,"tempTitle","tempDescription",30,100,null,"1");
 
-        ProblemOption problemOption = problemService.makeProblemOption(problem.getId(),1,"im first",null);
-        ProblemOption problemOption2 = problemService.makeProblemOption(problem.getId(),2,"im second",null);
-        ProblemOption problemOption3 = problemService.makeProblemOption(problem.getId(),3,"im third",null);
-        ProblemOption problemOption4 = problemService.makeProblemOption(problem.getId(),4,"im fourth",null);
+        ProblemOption problemOption = problemService.makeProblemOption(problem.getId(),0,"im first",null);
+        ProblemOption problemOption2 = problemService.makeProblemOption(problem.getId(),1,"im second",null);
+        ProblemOption problemOption3 = problemService.makeProblemOption(problem.getId(),2,"im third",null);
+        ProblemOption problemOption4 = problemService.makeProblemOption(problem.getId(),3,"im fourth",null);
 
         Problem problem2 = problemService.makeProblem(problemset.getId(), "MultipleChoiceProblem",1,"tempTitle2","tempDescription2",30,100,null,"1");
 
-        ProblemOption problemOption11 = problemService.makeProblemOption(problem2.getId(),1,"im first2",null);
-        ProblemOption problemOption22 = problemService.makeProblemOption(problem2.getId(),2,"im second2",null);
-        ProblemOption problemOption33 = problemService.makeProblemOption(problem2.getId(),3,"im third2",null);
-        ProblemOption problemOption44 = problemService.makeProblemOption(problem2.getId(),4,"im fourth2",null);
+        ProblemOption problemOption11 = problemService.makeProblemOption(problem2.getId(),0,"im first2",null);
+        ProblemOption problemOption22 = problemService.makeProblemOption(problem2.getId(),1,"im second2",null);
+        ProblemOption problemOption33 = problemService.makeProblemOption(problem2.getId(),2,"im third2",null);
+        ProblemOption problemOption44 = problemService.makeProblemOption(problem2.getId(),3,"im fourth2",null);
 
-        Problem problem3 = problemService.makeProblem(problemset.getId(), "OXProblem",1,"tempTitle3","tempDescription3",30,200,null,"1");
+        Problem problem3 = problemService.makeProblem(problemset.getId(), "OXProblem",2,"tempTitle3","tempDescription3",30,200,null,"1");
 
-        ProblemOption problemOption111 = problemService.makeProblemOption(problem3.getId(),1,"im first2",null);
-        ProblemOption problemOption222 = problemService.makeProblemOption(problem3.getId(),2,"im second2",null);
+        ProblemOption problemOption111 = problemService.makeProblemOption(problem3.getId(),0,"im first2",null);
+        ProblemOption problemOption222 = problemService.makeProblemOption(problem3.getId(),1,"im second2",null);
 
         // 제출 파트 빌더 미수정으로 작동되지 않음
 //        problemset.getProblems().add(problem);

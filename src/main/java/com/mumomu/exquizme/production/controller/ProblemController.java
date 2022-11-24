@@ -133,7 +133,7 @@ public class ProblemController {
     @ApiResponse(responseCode = "404", description = "문제 없음")
     public ResponseEntity<?> findProblemOptions(@PathVariable Long problemId) throws Exception {
         try {
-            List<ProblemOptionDto> problemOptionDtos = problemService.getProblemOptionById(problemId).stream().map(po -> new ProblemOptionDto(po)).collect(Collectors.toList());
+            List<ProblemOptionDto> problemOptionDtos = problemService.getProblemOptionById(problemId);
             return new ResponseEntity<>(problemOptionDtos, HttpStatus.OK);
         } catch (ProblemNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -200,7 +200,7 @@ public class ProblemController {
         }
     }
 
-    @DeleteMapping("/problemset/{problemsetId}")
+    @PostMapping("/problemset/{problemsetId}")
     @Operation(summary = "문제 셋 삭제", description = "문제 셋을 삭제합니다.")
     @ApiResponse(responseCode = "204", description = "문제 셋 삭제 성공")
     @ApiResponse(responseCode = "404", description = "문제 셋 없음")
@@ -213,7 +213,7 @@ public class ProblemController {
         return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
     }
 
-    @DeleteMapping("/problem/{problemId}")
+    @PostMapping("/problem/{problemId}")
     @Operation(summary = "문제 삭제", description = "문제를 삭제합니다.")
     @ApiResponse(responseCode = "204", description = "문제 삭제 성공")
     @ApiResponse(responseCode = "404", description = "문제 없음")

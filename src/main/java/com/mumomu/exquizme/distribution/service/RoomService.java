@@ -9,6 +9,7 @@ import com.mumomu.exquizme.distribution.repository.RoomRepository;
 import com.mumomu.exquizme.distribution.web.dto.ParticipantDto;
 import com.mumomu.exquizme.distribution.web.model.ParticipantCreateForm;
 import com.mumomu.exquizme.common.formatter.SimpleDateFormatter;
+import com.mumomu.exquizme.distribution.web.model.RoomCreateForm;
 import com.mumomu.exquizme.production.domain.Problem;
 import com.mumomu.exquizme.production.domain.Problemset;
 import com.mumomu.exquizme.production.service.ProblemService;
@@ -19,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -40,7 +42,14 @@ public class RoomService {
 
     @Transactional
     public Participant joinParticipant(ParticipantCreateForm participateForm, String roomPin, String sessionId) throws IllegalAccessException {
-        Room targetRoom = findRoomByPin(roomPin);
+        Optional<Room> optRoom = roomRepository.findRoomByPin(roomPin);
+
+        if (optRoom.isEmpty())
+            throw new InvalidRoomAccessException("존재하지 않는 방입니다. Pin : " + roomPin);
+        if(optRoom.get().getCurrentState() == RoomState.FINISH)
+            throw new InvalidRoomAccessException("종료된 방입니다. Pin : " + roomPin);
+
+        Room targetRoom = optRoom.get();
         checkRoomState(targetRoom);
 
         Participant participant =
@@ -54,25 +63,30 @@ public class RoomService {
         participant.setImageNumber(participateForm.getImageNumber());
         participant.setColorNumber(participateForm.getColorNumber());
 
-        Optional<Participant> findParticipant = participantRepository.findBySessionId(participant.getSessionId());
+        Optional<Participant> findOptParticipant = participantRepository.findBySessionIdAndRoomPin(participant.getSessionId(), roomPin);
 
-        // TODO 닉네임 구분하여 입장하도록 설정
-        if (findParticipant.isEmpty()) {
-            for (Participant p : targetRoom.getParticipants()) {
+        for (Participant p : targetRoom.getParticipants()) {
+            if (!p.getSessionId().equals(participant.getSessionId())) {
                 if (p.getNickname().equals(participateForm.getNickname()))
                     throw new RoomNotReachableException("이미 존재하는 닉네임입니다. 재설정 해주세요.");
                 else if (p.getName().equals(participateForm.getName()))
                     throw new RoomNotReachableException("이미 존재하는 이름입니다. 재설정 해주세요.");
             }
+        }
+
+        // TODO 닉네임 구분하여 입장하도록 설정
+        if (findOptParticipant.isEmpty() || !findOptParticipant.get().getRoom().getPin().equals(roomPin)) {
             participantRepository.save(participant);
             addParticipant(participant.getRoom(), participant);
         } else {
-            if (participant.getSessionId().equals(sessionId)) {
-                participant.setName(participateForm.getName());
-                participant.setNickname(participateForm.getNickname());
-                return participant;
-            }
+            Participant targetParticipant = findOptParticipant.get();
+            targetParticipant.setName(participateForm.getName());
+            targetParticipant.setNickname(participateForm.getNickname());
+            targetParticipant.setImageNumber(participateForm.getImageNumber());
+            targetParticipant.setColorNumber(participateForm.getColorNumber());
         }
+
+        participantRepository.flush();
 
         return participant;
     }
@@ -80,12 +94,12 @@ public class RoomService {
     @Transactional
     public Room newRoom(Long problemsetId, int maxParticipantCount) {
         Problemset roomProblemset = problemService.getProblemsetById(problemsetId);
-        return newRoomLogic(roomProblemset, maxParticipantCount);
+        return newRoomLogic(roomProblemset, maxParticipantCount, "임시 방 생성");
     }
 
     @Transactional
-    public Room newRoom(Problemset roomProblemset, int maxParticipantCount) {
-        return newRoomLogic(roomProblemset, maxParticipantCount);
+    public Room newRoom(Problemset roomProblemset, RoomCreateForm roomCreateForm) {
+        return newRoomLogic(roomProblemset, roomCreateForm.getMaxParticipantCount(), roomCreateForm.getRoomName());
     }
 
     private String getRandomPin() {
@@ -97,7 +111,7 @@ public class RoomService {
 
     @Transactional(readOnly = true)
     public Participant findParticipantBySessionId(String sessionId, String roomPin) throws SessionNotExistException {
-        Optional<Participant> optParticipant = participantRepository.findBySessionId(sessionId);
+        Optional<Participant> optParticipant = participantRepository.findBySessionIdAndRoomPin(sessionId, roomPin);
 
         if (optParticipant.isEmpty())
             throw new SessionNotExistException("기존 입장 정보가 존재하지 않습니다.");
@@ -127,8 +141,10 @@ public class RoomService {
     public Room findRoomByPin(String roomPin) {
         Optional<Room> optRoom = roomRepository.findRoomByPin(roomPin);
 
-        if (optRoom.isEmpty() || optRoom.get().getCurrentState() == RoomState.FINISH)
-            throw new InvalidRoomAccessException("존재하지 않는 방입니다.");
+        if (optRoom.isEmpty())
+            throw new InvalidRoomAccessException("존재하지 않는 방입니다. Pin : " + roomPin);
+        if(optRoom.get().getCurrentState() == RoomState.FINISH)
+            throw new InvalidRoomAccessException("종료된 방입니다. Pin : " + roomPin);
 
         return optRoom.get();
     }
@@ -138,7 +154,9 @@ public class RoomService {
         Optional<Room> optRoom = roomRepository.findRoomByPin(roomPin);
 
         if (optRoom.isEmpty())
-            throw new InvalidRoomAccessException("존재하지 않는 방입니다.");
+            throw new InvalidRoomAccessException("존재하지 않는 방입니다. Pin : " + roomPin);
+        if(optRoom.get().getCurrentState() == RoomState.FINISH)
+            throw new InvalidRoomAccessException("종료된 방입니다. Pin : " + roomPin);
 
         Room targetRoom = optRoom.get();
 
@@ -147,45 +165,47 @@ public class RoomService {
         targetRoom.setCurrentState(RoomState.FINISH);
 
         // 방이 닫힐 시 사용자 정보 DB에서 제거
-        targetRoom.getParticipants().forEach(p -> {
-            participantRepository.delete(p);
-        });
+        participantRepository.deleteAll(targetRoom.getParticipants());
 
         return targetRoom;
     }
 
     @Transactional(readOnly = true)
     public List<Participant> findParticipantsByRoomPin(String roomPin) {
-        Optional<Room> targetOptRoom = roomRepository.findRoomByPin(roomPin);
+        Optional<Room> optRoom = roomRepository.findRoomByPin(roomPin);
 
-        if(targetOptRoom.isEmpty())
-            throw new InvalidRoomAccessException("존재하지 않는 방입니다.");
+        if (optRoom.isEmpty())
+            throw new InvalidRoomAccessException("존재하지 않는 방입니다. Pin : " + roomPin);
+        if(optRoom.get().getCurrentState() == RoomState.FINISH)
+            throw new InvalidRoomAccessException("종료된 방입니다. Pin : " + roomPin);
 
-        return targetOptRoom.get().getParticipants();
+        return optRoom.get().getParticipants();
     }
 
     @Transactional(readOnly = true)
     public List<ParticipantDto> findParticipantDtosByRoomPin(String roomPin) {
-        Optional<Room> targetOptRoom = roomRepository.findRoomByPin(roomPin);
+        Optional<Room> optRoom = roomRepository.findRoomByPin(roomPin);
 
-        if(targetOptRoom.isEmpty())
-            throw new InvalidRoomAccessException("존재하지 않는 방입니다.");
+        if (optRoom.isEmpty())
+            throw new InvalidRoomAccessException("존재하지 않는 방입니다. Pin : " + roomPin);
+        if(optRoom.get().getCurrentState() == RoomState.FINISH)
+            throw new InvalidRoomAccessException("종료된 방입니다. Pin : " + roomPin);
 
-        return targetOptRoom.get().getParticipants().stream().map(ParticipantDto::new).collect(Collectors.toList());
+        return optRoom.get().getParticipants().stream().map(ParticipantDto::new).collect(Collectors.toList());
     }
 
     @Transactional
-    public void deleteParticipantUserDataBySessionId(String sessionId){
-        Optional<Participant> targetParticipant = participantRepository.findBySessionId(sessionId);
-
-        if(targetParticipant.isEmpty())
-            throw new InvalidParticipantAccessException("존재하지 않는 참여자입니다.");
-
-        // 이건 굳이 데이터 남길 필요 없을듯..?
-        participantRepository.delete(targetParticipant.get());
+    public void deleteParticipantUserDataBySessionId(String sessionId) {
+//        Optional<Participant> targetParticipant = participantRepository.findBySessionIdAndRoomPin(sessionId, roomPin);
+//
+//        if (targetParticipant.isEmpty())
+//            throw new InvalidParticipantAccessException("존재하지 않는 참여자입니다.");
+//
+//        // 이건 굳이 데이터 남길 필요 없을듯..?
+//        participantRepository.delete(targetParticipant.get());
     }
 
-    private Room newRoomLogic(Problemset roomProblemset, int maxParticipantCount) {
+    private Room newRoomLogic(Problemset roomProblemset, int maxParticipantCount, String roomName) {
         String randomPin;
         Optional<Room> targetRoom;
         int retryCount = 10; // 최대 try 횟수, 무한 루프 방지
@@ -201,10 +221,13 @@ public class RoomService {
             throw new CreateRandomPinFailureException("다시 시도 해주세요.");
         }
 
-        Room room = Room.ByBasicBuilder().pin(randomPin).problemset(roomProblemset).maxParticipantCount(maxParticipantCount).build();
+        Room room = Room.ByBasicBuilder().pin(randomPin).problemset(roomProblemset).maxParticipantCount(maxParticipantCount).roomName(roomName).build();
         log.info("random Pin is {}", randomPin);
 
-        return roomRepository.save(room);
+        Room savedRoom = roomRepository.save(room);
+        roomRepository.flush();
+
+        return savedRoom;
     }
 
     @Transactional(readOnly = true)
@@ -222,8 +245,10 @@ public class RoomService {
     }
 
     @Transactional
-    public void addParticipant(Room room, Participant participant){
-        room.getParticipants().add(participant);
-    }
+    public void addParticipant(Room room, Participant participant) {
+        room.addParticipant(participant);
 
+        roomRepository.flush();
+        participantRepository.flush();
+    }
 }

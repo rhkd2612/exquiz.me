@@ -8,6 +8,7 @@ import org.springframework.messaging.simp.broker.BrokerAvailabilityEvent;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.messaging.simp.stomp.StompReactorNettyCodec;
 import org.springframework.messaging.tcp.reactor.ReactorNettyTcpClient;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
@@ -82,6 +83,12 @@ public class StompConfig implements WebSocketMessageBrokerConfigurer {
 
         return socketAddressSupplier;
     }
+
+//    @Scheduled(fixedDelay = 100000000)
+//    private void clearSuccessIndex(){
+//        System.out.println("clear successIdx");
+//        successIndex = -1;
+//    }
 
     private int flipIndex(){
         return 1 - index;

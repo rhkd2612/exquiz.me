@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.Random;
 
 @Entity
 @Table(name = "problem")
@@ -19,7 +20,7 @@ public class Problem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "problemset_id")
     @JsonIgnore
     protected Problemset problemset;
@@ -37,6 +38,10 @@ public class Problem {
     protected Integer score;
     @Setter
     protected String picture;
+
+    @Setter
+    protected String videoUrl;
+
     @Setter
     protected String answer;
 
@@ -54,10 +59,14 @@ public class Problem {
     @Setter
     protected Boolean deleted;
 
+    public void reset(){
+        this.totalTry = 0;
+        this.totalCorrect = 0;
+    }
     public int solve(){
         this.totalTry++;
         this.totalCorrect++;
-        return this.score;
+        return (int)((double)this.score * Math.pow((Math.random() * 0.03) + 0.95f, totalCorrect - 1));
     }
 
     public void wrong(){

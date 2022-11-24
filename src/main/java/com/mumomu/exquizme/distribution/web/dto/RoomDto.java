@@ -28,6 +28,9 @@ public class RoomDto {
     @ApiModelProperty(value="종료일")
     private Date endDate;
 
+    @ApiModelProperty(value="방 이름")
+    private String roomName;
+
     @ApiModelProperty(value="문제셋Dto")
     private ProblemsetDto problemsetDto;
 
@@ -41,6 +44,7 @@ public class RoomDto {
         this.id = room.getId();
         this.pin = room.getPin();
         this.maxParticipantCount = room.getMaxParticipantCount();
+        this.roomName = room.getRoomName();
         this.startDate = room.getStartDate();
         this.endDate = room.getEndDate();
         this.currentState = room.getCurrentState();

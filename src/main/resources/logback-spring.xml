@@ -65,6 +65,7 @@
 
     <springProfile name="prod">
         <root level="info">
+            <appender-ref ref="CONSOLE"/>
             <appender-ref ref="aws_cloud_watch_log_info"/>
             <appender-ref ref="aws_cloud_watch_log_error"/>
         </root>

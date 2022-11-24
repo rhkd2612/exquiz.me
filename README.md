@@ -1,24 +1,121 @@
-# exquiz.me
-실시간 참여형 퀴즈 플랫폼(11월까지 개발 중) 
+# What's <span style="color:white">ex</span><span style="color:orange">quiz</span><span style="color:white">.me</span>?
+## 웹 실시간 참여형 퀴즈 플랫폼
+exquiz.me는 웹에서 진행할 수 있는 퀴즈 출제 및 참여 플랫폼이며, 구글 OAuth2 Login을 통해 퀴즈를 출제할 수 있고, 방을 만들어 참여자들이 참가할 수 있습니다. 참여자는 로그인을 사용하지 않고 참여할 수 있고, 각 퀴즈별로 리더보딩과 해설, 최종 순위를 제공합니다.
 
-[//]: # (## https://www.exquiz.me)
+## Live Demo (프론트엔드 미완성, 22년 11월까지 개발 예정)
+### <a href="https://www.exquiz.me">exquiz.me</a>
 
-[//]: # (&#40;10월 중으로 디자인 외주 반영 예정&#41;)
+### 팀 소개
+| 이름   | 파트           | 주요역할                                                         |
+|---------|--------------|--------------------------------------------------------------|
+| 이상빈 | 팀장, 백엔드      | 퀴즈 참여파트(distribution, 웹소켓), 시큐리티, <br/>CI/CD, AWS 인프라 구축, 프론트엔드 보조 |
+| 김민겸 | 팀원, 백엔드      | 퀴즈 제작파트(production), DB 설계, 리더보딩 시스템                         |
+| 임준현 | 팀원, 프론트엔드    | 프론트엔드 전반                                                     |
+<br>
 
-## project launch
-    nohup java -jar -Dspring.profiles.active=prod {jar-file-name}.jar &
+## Getting Started
+- #### Java 17
+- #### Aws credentials (accessKey & secretKey)
+    - Need Roles:
+        - S3FullAccess
+        - CloudWatchFullAccess
+- #### AmazonMQ - ActiveMQ(also local ActiveMQ is possible, but you must fix StompConfig.java)
+- #### Google Cloud Platform register for Google Oauth2 Login
+- #### set project active profiles "dev"
+- #### create "application-dev-secret.yml"
+  - #### set yml file
+   ```
+  cloud:
+    aws:
+      credentials:
+        access-key: {your aws credential access key}
+        secret-key: {your aws crendential secret key}
+      region:
+        static: ap-northeast-2
+      stack:
+        auto: false
+    s3:
+      bucket: {your own s3 name}
+  spring:
+    activemq:
+      broker-port: 61614
+      broker-url: failover:(ssl://{your-own-activemq-active-server-url}.mq.ap-northeast-2.amazonaws.com:61617,ssl://{your-own-activemq-standby-server-url}.mq.ap-northeast-2.amazonaws.com:61617)
+      user: {your-own-activemq-user}
+      password: {your-own-activemq-passwd}
+      topic:
+        name: room # for test
+      activeMQServerList: {your-own-activemq-active-server-url}.mq.ap-northeast-2.amazonaws.com, {your-own-activemq-standby-server-url}.mq.ap-northeast-2.amazonaws.com
+    datasource:
+      url: {your-own-database-url} # I used H2, MySQL in my project with JPA
+        username: {your-db-username}
+        password: {your-db-passwd}
+        driver-class-name: 
+    jms:
+      pub-sub-domain: true
+        security:
+        oauth2:
+    client:
+      registration:
+        google: # google oauth2 login 
+          auth-url: https://oauth2.googleapis.com
+          login-url: https://accounts.google.com
+          redirect-uri-local: http://localhost:8080/api/google/login/redirect/local
+          redirect-uri-prod: http://localhost:8080/api/google/login/redirect/prod
+          client-id: {your-own-client-id}.apps.googleusercontent.com
+          client-secret: {your-own-client-secret}
+          scope: profile,email
+    # local 환경
+    servlet:
+      multipart:
+        max-file-size: 20MB
+        max-request-size: 20MB
+    jwt:
+      header: Authorization
+    # HS512 알고리즘을 사용할 것이기 때문에 512bit, 즉 64byte 이상의 secret key를 사용해야 한다.
+    secret: {secret-key}
+    token-validity-in-seconds: 86400
+    ```
+  
+- #### launch project
+      $ nohup java -jar -Dspring.profiles.active=dev {jar-file-name}.jar &
+      
+  - <a href="http://localhost:8080">localhost:8080</a>
+  - <a href="http://localhost:8080/swagger-ui/#">localhost:8080/swagger-ui/#</a>
 
 ## Stack
-<img src="https://img.shields.io/badge/java-007396?style=for-the-badge&logo=java&logoColor=white"> <img src="https://img.shields.io/badge/springboot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white">
+- ### Backend 
+<img src="https://img.shields.io/badge/Java-007396?style=for-the-badge&logo=java&logoColor=white"> <img src="https://img.shields.io/badge/springboot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white">
 <img src="https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=Amazon&logoColor=white">
 <img src="https://img.shields.io/badge/MySQL-003545?style=for-the-badge&logo=MySQL&logoColor=white">
+<img src="https://img.shields.io/badge/ActiveMQ-ffc0cb?style=for-the-badge&logoColor=white">
+
+- ### 협업툴
+![Figma](https://img.shields.io/badge/figma-%23F24E1E.svg?style=for-the-badge&logo=figma&logoColor=white)
+<img src="https://img.shields.io/badge/notion-000000?style=for-the-badge&logo=notion&logoColor=white">
 <img src="https://img.shields.io/badge/jira-0052CC?style=for-the-badge&logo=jira&logoColor=white">
 
+
 ## AWS Architecture 
-![img.png](img.png)
+![img.png](images/img.png)
 
 ## CI/CD
     GitAction + AWS CodeDeploy
+- ### .github/workflows/gradle.yml 
+  - set on github repository secret
+      - need keys about CodeDeployFullAccess Role
+      - encode secret file on base 64 and upload
+      ![img_3.png](images/img_3.png)
+- ### script/deploy.sh
+  - change directory name and profiles for launching on aws ec2
+
+## Build error
+  - #### edit configuration
+          VM Options : -Dcom.amazonaws.sdk.disableEc2Metatdata=true
+          Active profiles : dev  
+          Shorten command line : Jar manifest
+  - #### /test/resoucres에도 applcation-dev-secret.yml 추가
+    <br>![img_4.png](images/img_4.png)
+<br>
 
 ## Function
 ### 퀴즈 제작(RESTFUL API)
@@ -38,35 +135,36 @@
       - OX 퀴즈 현재 위치 전송
     - 리더보드
 
-### RESTFUL API 목록
-![img_1.png](img_1.png)
+### ScreenShots
+
+
+### RESTFUL API 목록 
+    localhost:8080/swagger-ui/#
 
 ### STOMP API 목록
-# 웹소켓 컨트롤러 API 명세
-
-- Emit : 클라이언트에서 서버로 보내는 것
-- On : 서버에서 클라이언트로 보내는 것
-
-- host subscribe 주소 : /topic/room/{roomPin}/host
-- participant subscribe 주소 : /topic/room/{roomPin}
-- host publish주소 : /pub/room/{roomPin}/@@
-- participant publish 주소 : /pub/room/{roomPin}/@@
-
-## 방 진행에 이용되는 Websocket API
-
+#### ToWhom
+    - ToAllSubscriber : 모든 구독자에게 보내는 것
+    - ToHostSubscriber : 호스트에게 보내는 것
+    - ToClientSubscriber : 참여자들에게 보내는 것
+#### EndPoint
+    - host subscribe 주소 : /topic/room/{roomPin}/host
+    - participant subscribe 주소 : /topic/room/{roomPin}
+    - host publish주소 : /pub/room/{roomPin}/@@
+    - participant publish 주소 : /pub/room/{roomPin}/@@
+#### APIs
 ```java
-[Emit]
+[ToHostSubscriber]
 Event Name:
-/room/{roomPin}
+        /room/{roomPin}
 
 Path Variable:
-"roomPin" : String // 방 번호
+        "roomPin" : String // 방 번호
 
-Args: 
+Args:
 
 Callback:
 {
-        "flag" : MessageFlag // "PARTICIPANT"
+        "messageType" : MessageType // "PARTICIPANT"
         "fromSession" : String, // 사용자 session id - google login시 발급
         "id" : Long  // 사용자 id 
         "name" : String // 사용자 구분 이름 
@@ -78,23 +176,23 @@ Callback:
 }
 
 Description:
-"기존 세션 정보가 있는지 확인 후 재 입장 혹은 가입씬으로 이동 시키는 API"
-// enter.tsx 입장하기 누르면 이걸 호출
-// if session exists: 로비로 이동
-// if session not exists: 사용자 정보 입력(회원가입 느낌)
+        "기존 세션 정보가 있는지 확인 후 재 입장 혹은 가입씬으로 이동 시키는 API"
+        // enter.tsx 입장하기 누르면 이걸 호출
+        // if session exists: 로비로 이동
+        // if session not exists: 사용자 정보 입력(회원가입 느낌)
 ```
 
 ```java
-[Emit][On]
+[ToHostSubscriber]
 Event Name:
-/room/{roomPin}/signup
+        /room/{roomPin}/signup
 
 Path Variable:
-"roomPin" : String // 방 번호
+        "roomPin" : String // 방 번호
 
-Args: 
+Args:
 {
-        "name" : String 
+        "name" : String
         "nickname" : String
         "imageNumber" : int
         "colorNumber" : int
@@ -102,7 +200,7 @@ Args:
 
 Callback:
 {
-        "flag" : MessageFlag // "PARTICIPANT"
+        "messageType" : MessageType // "PARTICIPANT"
         "fromSession" : String, // 사용자 session id - google login시 발급
         "id" : Long  // 사용자 id 
         "name" : String // 사용자 구분 이름 
@@ -114,25 +212,25 @@ Callback:
 }
 
 Description:
-"방 입장을 위해서 닉네임과 이름을 입력하는 API"
-// 준비 완료 버튼을 누르면 signup이 호출
-// cloudwatch -> log group -> exquiz.me error folder
+        "방 입장을 위해서 닉네임과 이름을 입력하는 API"
+        // 준비 완료 버튼을 누르면 signup이 호출
+        // cloudwatch -> log group -> exquiz.me error folder
 ```
 
 ```java
-[On]
+[ToAllSubscriber]
 Event Name:
-/room/{roomPin}/start
+        /room/{roomPin}/start
 
 Path Variable:
-"roomPin" : String // 방 번호
+        "roomPin" : String // 방 번호
 
-Args: 
+Args:
 
 Callback:
 {
-        "flag" : MessageFlag // "NEWPROBLEM"
-        "fromSession" : String, // 사용자 session id - google login시 발급    
+        "messageType" : MessageType // "NEW_PROBLEM"
+        "fromSession" : String, // 사용자 session id - google login시 발급
         "id" : Long;
         "title" : String;
         "description" : String;
@@ -142,28 +240,35 @@ Callback:
         "picture" : String;
         "answer" : String;
         "idx" : Integer;
+        "problemOptions" : List {
+            "id" : Long;
+            "idx" : Integer;
+            "description" : String;
+            "picture" : String;
+            "pickCount" : Integer;
+        }
 }
 
 Description:
-"방을 시작하고 사용자에게 전파하는 API"
-// 선생님 화면에서 시작하기 버튼 누르면
-// subscriber들인 학생+교사들 화면에 변화가 생김
+        "방을 시작하고 사용자에게 전파하는 API"
+        // 선생님 화면에서 시작하기 버튼 누르면
+        // subscriber들인 학생+교사들 화면에 변화가 생김
 ```
 
 ```java
-[On]
+[ToAllSubscriber]
 Event Name:
-/room/{roomPin}/next
+        /room/{roomPin}/stop
 
 Path Variable:
-"roomPin" : String // 방 번호
+        "roomPin" : String // 방 번호
 
-Args: 
+Args:
 
 Callback:
 {
-        "flag" : MessageFlag // "NEWPROBLEM"
-        "fromSession" : String, // 사용자 session id - google login시 발급  
+        "messageType" : MessageType // "STOP"
+        "fromSession" : String, // 사용자 session id - google login시 발급
         "id" : Long;
         "title" : String;
         "description" : String;
@@ -173,24 +278,80 @@ Callback:
         "picture" : String;
         "answer" : String;
         "idx" : Integer;
+        "problemOptions" : List {
+            "id" : Long;
+            "idx" : Integer;
+            "description" : String;
+            "picture" : String;
+            "pickCount" : Integer;
+        }
+}
+
+# 문제셋에 문제가 없을 시
+{
+        "messageType" : MessageType // "FINISH"
+        "fromSession" : String, // null
 }
 
 Description:
-"방의 다음 문제를 사용자에게 전파하는 API"
-// 교사가 next 누르면 학생/교사 화면 전환
+        "방을 시작하고 사용자에게 전파하는 API"
+        // 선생님 화면에서 시작하기 버튼 누르면
+        // 학생들에게는 화면 변경 신호, 선생님에게는 다음 문제 정보 제공
 ```
 
 ```java
-[Emit][On]
+[ToAllSubscriber]
 Event Name:
-/room/{roomPin}/move
+        /room/{roomPin}/next
 
 Path Variable:
-"roomPin" : String // 방 번호
+        "roomPin" : String // 방 번호
 
-Args: 
+Args:
+
+Callback:
 {
-        "flag" : MessageFlag // 반드시 "ANSWER"
+        "messageType" : MessageType // "NEW_PROBLEM"
+        "fromSession" : String, // 사용자 session id - google login시 발급
+        "id" : Long;
+        "title" : String;
+        "description" : String;
+        "dtype" : String;
+        "timelimit" : Integer;
+        "score" : Integer;
+        "picture" : String;
+        "answer" : String;
+        "idx" : Integer;
+        "problemOptions" : List {
+            "id" : Long;
+            "idx" : Integer;
+            "description" : String;
+            "picture" : String;
+            "pickCount" : Integer;
+        }
+}
+
+# 문제셋에 문제가 없을 시
+{
+        "messageType" : MessageType // "FINISH"
+        "fromSession" : String, // null
+}
+
+Description:
+        "방의 다음 문제를 사용자에게 전파하는 API"
+        // 교사가 next 누르면 학생/교사 화면 전환
+```
+
+```java
+[ToAllSubscriber]
+Event Name:
+        /room/{roomPin}/move
+
+Path Variable:
+        "roomPin" : String // 방 번호
+
+Args:
+{
         "fromSession": String, // 사용자 session id - google login시 발급
         "problemIdx" : int; // 문제 번호
         "x" : int;
@@ -199,7 +360,7 @@ Args:
 
 Callback:
 {
-        "flag" : MessageFlag // 반드시 "ANSWER"
+        "messageType" : MessageType // 반드시 "ANSWER"
         "fromSession" : String, // 사용자 session id - google login시 발급
         "problemIdx" : int; // 문제 번호
         "x" : int;
@@ -207,21 +368,20 @@ Callback:
 }
 
 Description:
-"OX 퀴즈에서 실시간 참여자의 움직임을 보내주는 API"
-// 교사가 next 누르면 학생/교사 화면 전환
+        "OX 퀴즈에서 실시간 참여자의 움직임을 보내주는 API"
+        // 교사가 next 누르면 학생/교사 화면 전환
 ```
 
 ```java
-[Emit]
+[ToHostSubscriber]
 Event Name:
-/room/{roomPin}/submit
+        /room/{roomPin}/submit
 
 Path Variable:
-"roomPin" : String // 방 번호
+        "roomPin" : String // 방 번호
 
-Args: 
+Args:
 {
-        "flag" : MessageFlag // 반드시 "ANSWER"
         "fromSession" : String, // 사용자 session id - google login시 발급
         "problemIdx" : int, // 제출한 문제의 번호
         "answerText" : String // 문제 정답
@@ -229,14 +389,14 @@ Args:
 
 Callback:
 {
-        "flag" : MessageFlag // "ANSWER"
+        "messageType" : MessageType // "ANSWER"
         "fromSession" : String, // 사용자 session id - google login시 발급
         "problemIdx" : int, // 제출한 문제의 번호
         "answerText" : String // 문제 정답
 }
 
 Description:
-"각 방에 대한 문제를 제출할 때 사용자가 사용하는 API"
-// 정답 제출
-// 각 사용자의 정답을 모든 subscriber에게 전달
+        "각 방에 대한 문제를 제출할 때 사용자가 사용하는 API"
+        // 정답 제출
+        // 각 사용자의 정답을 모든 subscriber에게 전달
 ```

@@ -8,6 +8,16 @@ import lombok.NoArgsConstructor;
 public class StompAnswerSubmitForm extends StompMessage{
     private int problemIdx; // 문제 번호
     private String answerText; // 문제 정답
+    private int totalPartList;
+    private int totalSubmitCount;
+
+    public void setTotalPartList(int totalPartList) {
+        this.totalPartList = totalPartList;
+    }
+
+    public void setTotalSubmitCount(int totalSubmitCount) {
+        this.totalSubmitCount = totalSubmitCount;
+    }
 
     public StompAnswerSubmitForm(MessageType flag, String fromSession, int problemIdx, String answerText) {
         super(flag, fromSession);

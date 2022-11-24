@@ -13,6 +13,7 @@ import com.mumomu.exquizme.distribution.web.dto.stomp.StompAnswerSubmitForm;
 import com.mumomu.exquizme.distribution.web.model.AnswerSubmitForm;
 import com.mumomu.exquizme.production.domain.Problem;
 import com.mumomu.exquizme.production.domain.Problemset;
+import com.mumomu.exquizme.production.dto.ProblemOptionDto;
 import com.mumomu.exquizme.production.service.ProblemService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,18 +26,14 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class RoomProgressService {
-    private final RoomRepository roomRepository;
-    private final ParticipantRepository participantRepository;
     private final AnswerRepository answerRepository;
-
-    private final ProblemService problemService;
     private final RoomService roomService;
 
     @Transactional
-    public void updateParticipantInfo(String roomPin, StompAnswerSubmitForm answerSubmitForm) throws IllegalStateException {
+    public StompAnswerSubmitForm updateParticipantInfo(String roomPin, StompAnswerSubmitForm answerSubmitForm) throws IllegalStateException {
         Room targetRoom = roomService.findRoomByPin(roomPin);
         Participant targetParticipant = roomService.findParticipantBySessionId(answerSubmitForm.getFromSession(), roomPin);
-        Problem targetProblem = targetRoom.getProblemset().getProblems().get(answerSubmitForm.getProblemIdx());
+        Problem targetProblem = targetRoom.getProblemset().getProblems().stream().filter(p -> p.getIdx().equals(answerSubmitForm.getProblemIdx())).findFirst().get();
 
         targetParticipant.getAnswers().forEach(a -> {
             if(a.getProblemIdx() == answerSubmitForm.getProblemIdx())
@@ -45,20 +42,46 @@ public class RoomProgressService {
 
         Answer answer = Answer.ByBasicBuilder().participant(targetParticipant).problemIdx(answerSubmitForm.getProblemIdx()).answerText(answerSubmitForm.getAnswerText()).build();
         answerRepository.save(answer);
+        targetParticipant.submitAnswer(answer);
 
-        targetParticipant.getAnswers().add(answer);
+        log.info("사용자 제출 : " + answerSubmitForm.getAnswerText().toUpperCase());
+        log.info("실제 답 : " + targetProblem.getAnswer().toUpperCase());
 
-        int score = 0;
-        if(targetProblem.getAnswer().equals(answerSubmitForm.getAnswerText()))
-            score = targetProblem.solve();
-        else
+        if(targetProblem.getAnswer().equalsIgnoreCase(answerSubmitForm.getAnswerText())){
+            log.info("사용자" + answerSubmitForm.getFromSession() + "정답!");
+            targetParticipant.updateScore(targetProblem.solve());
+        }
+        else{
+            targetParticipant.wrongAnswer();
             targetProblem.wrong();
+        }
+
+        answerSubmitForm.setTotalSubmitCount(targetProblem.getTotalTry());
+        answerSubmitForm.setTotalPartList(targetRoom.getParticipants().size());
+
+        return answerSubmitForm;
     }
 
     @Transactional
     public Problem startRoom(String roomPin) throws InvalidRoomAccessException {
         Room targetRoom = roomService.findRoomByPin(roomPin);
-        return startRoom(targetRoom);
+
+        for (Problem problem : targetRoom.getProblemset().getProblems())
+            problem.reset();
+
+        return getFirstProblem(targetRoom);
+    }
+
+    @Transactional
+    public Problem getCurrentProblemByPin(String roomPin) throws InvalidRoomAccessException, NoMoreProblemException {
+        Room targetRoom = roomService.findRoomByPin(roomPin);
+        List<Problem> problems = targetRoom.getProblemset().getProblems();
+
+        if(targetRoom.getCurrentProblemNum() + 1 >= problems.size())
+            throw new NoMoreProblemException("문제셋에 남은 문제가 없습니다.");
+
+        return problems.stream().filter(
+                p -> p.getIdx().equals(targetRoom.getCurrentProblemNum() + 1)).findFirst().get();
     }
 
     @Transactional
@@ -67,24 +90,32 @@ public class RoomProgressService {
         return nextProblem(targetRoom);
     }
 
-
     @Transactional
-    public Problem startRoom(Room room) throws InvalidRoomAccessException {
+    public Problem getFirstProblem(Room room) throws InvalidRoomAccessException {
         if(room.getCurrentState() != RoomState.READY)
             throw new InvalidRoomAccessException("해당하는 시작 대기 중인 방이 없습니다.");
+
         room.setCurrentState(RoomState.PLAY);
         room.setCurrentProblemNum(0);
-        return room.getProblemset().getProblems().get(room.getCurrentProblemNum());
+
+        Problem problem = room.getProblemset().getProblems().stream().filter(
+                p -> p.getIdx().equals(room.getCurrentProblemNum())).findFirst().get();
+
+        return problem;
     }
 
     @Transactional
     public Problem nextProblem(Room room) throws NoMoreProblemException {
         List<Problem> problems = room.getProblemset().getProblems();
 
-        if(room.getCurrentProblemNum() + 1 >= problems.size())
+        if(room.getCurrentProblemNum() + 1 >= problems.size()){
+            roomService.closeRoomByPin(room.getPin());
             throw new NoMoreProblemException("문제셋에 남은 문제가 없습니다.");
+        }
 
         room.setCurrentProblemNum(room.getCurrentProblemNum() + 1);
-        return problems.get(room.getCurrentProblemNum());
+
+        return problems.stream().filter(
+                p -> p.getIdx().equals(room.getCurrentProblemNum())).findFirst().get();
     }
 }

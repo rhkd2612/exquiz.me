@@ -10,6 +10,7 @@ import com.mumomu.exquizme.common.util.ConfigUtils;
 import com.mumomu.exquizme.common.util.SecurityUtil;
 import com.mumomu.exquizme.production.domain.Host;
 import com.mumomu.exquizme.production.repository.HostRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Slf4j
 public class OAuth2AccountService {
     private final OAuth2AccountRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -74,11 +76,17 @@ public class OAuth2AccountService {
                     .activated(true)
                     .build();
 
+            // 임시 어드민 권한 부여
+            if(googleLoginDto.getEmail().equals("rhkd2612@gmail.com") ||
+                    googleLoginDto.getEmail().equals("wnsgus821@gmail.com"))
+                oAuth2Account.setRole(Role.ADMIN);
+
             // Host 생성
             Host host = Host.builder().oAuth2Account(oAuth2Account).name(oAuth2Account.getUsername()).build();
             hostRepository.save(host);
 
             oAuth2Account.setHost(host);
+            log.info("new host id = " + oAuth2Account.getHost().getId());
             userRepository.save(oAuth2Account);
         }
 
