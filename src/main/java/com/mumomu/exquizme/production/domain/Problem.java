@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.Random;
 
 @Entity
 @Table(name = "problem")
@@ -65,7 +66,7 @@ public class Problem {
     public int solve(){
         this.totalTry++;
         this.totalCorrect++;
-        return (int)((double)this.score * Math.pow(0.95f, totalCorrect - 1));
+        return (int)((double)this.score * Math.pow((Math.random() * 0.03) + 0.95f, totalCorrect - 1));
     }
 
     public void wrong(){
