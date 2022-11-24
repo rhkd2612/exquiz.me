@@ -103,8 +103,8 @@ public class RoomStompController {
         try {
             Problem problem = roomProgressService.getCurrentProblemByPin(roomPin);
             List<ProblemOptionDto> problemOptions = problemService.getProblemOptionById(problem.getId());
-            messageToClientSubscriber(roomPin, new StompStopMessage(MessageType.STOP));
-            messageToHostSubscriber(roomPin, new StompNewProblemForm(MessageType.STOP, null, problem, problemOptions));
+            //messageToClientSubscriber(roomPin, new StompStopMessage(MessageType.STOP));
+            messageToAllSubscriber(roomPin, new StompNewProblemForm(MessageType.STOP, null, problem, problemOptions));
         } catch(NoMoreProblemException e){
             log.info(e.getMessage());
             messageToAllSubscriber(roomPin, new StompStopMessage(MessageType.FINISH));

@@ -256,7 +256,7 @@ Description:
 ```
 
 ```java
-[ToClientSubscriber]/[ToHostSubscriber] -> Callback이 다르다
+[ToAllSubscriber]
 Event Name:
         /room/{roomPin}/stop
 
@@ -266,13 +266,6 @@ Path Variable:
 Args:
 
 Callback:
-# Client
-{
-        "messageType" : MessageType // "STOP"
-        "fromSession" : String, // null
-}
-
-# Host
 {
         "messageType" : MessageType // "STOP"
         "fromSession" : String, // 사용자 session id - google login시 발급
