@@ -63,7 +63,7 @@ public class RoomService {
         participant.setImageNumber(participateForm.getImageNumber());
         participant.setColorNumber(participateForm.getColorNumber());
 
-        Optional<Participant> findOptParticipant = participantRepository.findBySessionId(participant.getSessionId());
+        Optional<Participant> findOptParticipant = participantRepository.findBySessionIdAAndRoomPin(participant.getSessionId(), roomPin);
 
         for (Participant p : targetRoom.getParticipants()) {
             if (!p.getSessionId().equals(participant.getSessionId())) {
@@ -111,7 +111,7 @@ public class RoomService {
 
     @Transactional(readOnly = true)
     public Participant findParticipantBySessionId(String sessionId, String roomPin) throws SessionNotExistException {
-        Optional<Participant> optParticipant = participantRepository.findBySessionId(sessionId);
+        Optional<Participant> optParticipant = participantRepository.findBySessionIdAAndRoomPin(sessionId, roomPin);
 
         if (optParticipant.isEmpty())
             throw new SessionNotExistException("기존 입장 정보가 존재하지 않습니다.");
@@ -196,13 +196,13 @@ public class RoomService {
 
     @Transactional
     public void deleteParticipantUserDataBySessionId(String sessionId) {
-        Optional<Participant> targetParticipant = participantRepository.findBySessionId(sessionId);
-
-        if (targetParticipant.isEmpty())
-            throw new InvalidParticipantAccessException("존재하지 않는 참여자입니다.");
-
-        // 이건 굳이 데이터 남길 필요 없을듯..?
-        participantRepository.delete(targetParticipant.get());
+//        Optional<Participant> targetParticipant = participantRepository.findBySessionIdAAndRoomPin(sessionId, roomPin);
+//
+//        if (targetParticipant.isEmpty())
+//            throw new InvalidParticipantAccessException("존재하지 않는 참여자입니다.");
+//
+//        // 이건 굳이 데이터 남길 필요 없을듯..?
+//        participantRepository.delete(targetParticipant.get());
     }
 
     private Room newRoomLogic(Problemset roomProblemset, int maxParticipantCount, String roomName) {
