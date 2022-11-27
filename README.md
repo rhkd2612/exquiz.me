@@ -13,8 +13,13 @@ exquiz.me는 웹에서 진행할 수 있는 퀴즈 출제 및 참여 플랫폼�
 | 임준현 | 팀원, 프론트엔드    | 프론트엔드 전반                                                     |
 <br>
 
-## 개발 계획
-![img_5.png](img_5.png)
+### 멘토 소개
+| 파트        | 주요역할                                                  |
+|-----------|-------------------------------------------------------|
+| 인프라 멘토    | A사 Principal Solutions Architect, 전 MS 소프트웨어연구소 책임연구원 |
+| 프론트엔드 멘토   | (주) 시더 CTO                                            |
+| 백엔드 멘토    | (주) 휴먼스케이프 CIC Chief Technology Officer, Rarenote     |
+<br>
 
 ## Getting Started
 - #### Java 17
