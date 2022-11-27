@@ -2,7 +2,7 @@
 ## 웹 실시간 참여형 퀴즈 플랫폼
 exquiz.me는 웹에서 진행할 수 있는 퀴즈 출제 및 참여 플랫폼이며, 구글 OAuth2 Login을 통해 퀴즈를 출제할 수 있고, 방을 만들어 참여자들이 참가할 수 있습니다. 참여자는 로그인을 사용하지 않고 참여할 수 있고, 각 퀴즈별로 리더보딩과 해설, 최종 순위를 제공합니다.
 
-## Live Demo (프론트엔드 미완성, 22년 11월까지 개발 예정)
+## Live Demo
 ### <a href="https://www.exquiz.me">exquiz.me</a>
 
 ### 팀 소개
@@ -12,6 +12,9 @@ exquiz.me는 웹에서 진행할 수 있는 퀴즈 출제 및 참여 플랫폼�
 | 김민겸 | 팀원, 백엔드      | 퀴즈 제작파트(production), DB 설계, 리더보딩 시스템                         |
 | 임준현 | 팀원, 프론트엔드    | 프론트엔드 전반                                                     |
 <br>
+
+## 개발 계획
+![img_5.png](img_5.png)
 
 ## Getting Started
 - #### Java 17
@@ -82,21 +85,29 @@ exquiz.me는 웹에서 진행할 수 있는 퀴즈 출제 및 참여 플랫폼�
   - <a href="http://localhost:8080">localhost:8080</a>
   - <a href="http://localhost:8080/swagger-ui/#">localhost:8080/swagger-ui/#</a>
 
-## Stack
-- ### Backend 
-<img src="https://img.shields.io/badge/Java-007396?style=for-the-badge&logo=java&logoColor=white"> <img src="https://img.shields.io/badge/springboot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white">
-<img src="https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=Amazon&logoColor=white">
-<img src="https://img.shields.io/badge/MySQL-003545?style=for-the-badge&logo=MySQL&logoColor=white">
-<img src="https://img.shields.io/badge/ActiveMQ-ffc0cb?style=for-the-badge&logoColor=white">
+## Tech Stack
+![img_4.png](img_4.png)
 
-- ### 협업툴
-![Figma](https://img.shields.io/badge/figma-%23F24E1E.svg?style=for-the-badge&logo=figma&logoColor=white)
-<img src="https://img.shields.io/badge/notion-000000?style=for-the-badge&logo=notion&logoColor=white">
-<img src="https://img.shields.io/badge/jira-0052CC?style=for-the-badge&logo=jira&logoColor=white">
+[//]: # (<img src="https://img.shields.io/badge/Java-007396?style=for-the-badge&logo=java&logoColor=white"> <img src="https://img.shields.io/badge/springboot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white">)
+
+[//]: # (<img src="https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=Amazon&logoColor=white">)
+
+[//]: # (<img src="https://img.shields.io/badge/MySQL-003545?style=for-the-badge&logo=MySQL&logoColor=white">)
+
+[//]: # (<img src="https://img.shields.io/badge/ActiveMQ-ffc0cb?style=for-the-badge&logoColor=white">)
+
+[//]: # ()
+[//]: # (- ### 협업툴)
+
+[//]: # (![Figma]&#40;https://img.shields.io/badge/figma-%23F24E1E.svg?style=for-the-badge&logo=figma&logoColor=white&#41;)
+
+[//]: # (<img src="https://img.shields.io/badge/notion-000000?style=for-the-badge&logo=notion&logoColor=white">)
+
+[//]: # (<img src="https://img.shields.io/badge/jira-0052CC?style=for-the-badge&logo=jira&logoColor=white">)
 
 
 ## AWS Architecture 
-![img.png](images/img.png)
+![img_3.png](img_3.png)
 
 ## CI/CD
     GitAction + AWS CodeDeploy
@@ -135,8 +146,13 @@ exquiz.me는 웹에서 진행할 수 있는 퀴즈 출제 및 참여 플랫폼�
       - OX 퀴즈 현재 위치 전송
     - 리더보드
 
-### ScreenShots
-
+## ScreenShots
+![img_7.png](img_7.png)
+![img_8.png](img_8.png)
+![img_6.png](img_6.png)
+![img_10.png](img_10.png)
+![img_9.png](img_9.png)
+![img.png](img.png)
 
 ### RESTFUL API 목록 
     localhost:8080/swagger-ui/#
